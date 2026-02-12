@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>IT Dashboard · Attendance</title>
+
+<!-- Font Awesome 6 (free) for icons & brand -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+  /* ---------- GLOBAL & VARIABLES ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+    min-height: 100vh;
+    padding: clamp(1rem, 5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* ---------- DECORATIVE RADIAL CIRCLES (fixed) ---------- */
+  .bg-circle-1, .bg-circle-2 {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-circle-1 {
+    top: 2%;
+    left: 2%;
+    width: clamp(200px, 30vw, 280px);
+    height: clamp(200px, 30vw, 280px);
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 75%);
+  }
+  .bg-circle-2 {
+    bottom: 5%;
+    right: 2%;
+    width: clamp(240px, 35vw, 340px);
+    height: clamp(240px, 35vw, 340px);
+    background: radial-gradient(circle, rgba(0,180,210,0.07) 0%, transparent 80%);
+  }
+
+  /* ---------- MAIN CONTAINER (above circles) ---------- */
+  .dashboard-container {
+    max-width: 1400px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    animation: fadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ---------- GLASS CARD (reusable) ---------- */
+  .glass-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-radius: clamp(24px, 5vw, 32px);
+    box-shadow: 0 20px 35px -10px rgba(0,20,40,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset, 0 20px 35px -10px rgba(0,20,40,0.15);
+    padding: clamp(1.2rem, 4vw, 2rem);
+    transition: box-shadow 0.25s ease, background 0.25s;
+    margin-bottom: 1.8rem;
+  }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 24px 42px -12px rgba(0,60,120,0.2), 0 0 0 1px rgba(255,255,255,0.7) inset;
+  }
+
+  /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
+  body, input, select, button, td, th, li, .badge, .info-note, #todayDate, h2 {
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    font-weight: 600;
+    color: #0b2b4e;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-weight: 600;
+    color: #1e4c6b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-icon {
+    font-size: clamp(1.4rem, 4vw, 1.6rem);
+    color: #0a66c2;
+    background: rgba(10,102,194,0.08);
+    padding: 0.6rem;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- HEADER CARD (brand + role) ---------- */
+  .header-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand i {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    color: #0a66c2;
+    filter: drop-shadow(0 4px 6px rgba(0,102,204,0.2));
+  }
+  .brand-text {
+    background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    letter-spacing: -0.01em;
+  }
+  .role-badge {
+    background: rgba(10,102,194,0.15);
+    border-radius: 40px;
+    color: #0a4e7a;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ---------- FORM INPUTS WITH ICONS ---------- */
+  .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .input-icon-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b8ca3;
+    font-size: 1rem;
+    z-index: 2;
+  }
+  .input-icon-wrapper input,
+  .input-icon-wrapper select,
+  .input-icon-wrapper textarea {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid rgba(200,215,225,0.7);
+    border-radius: 20px;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    outline: none;
+    color: #1e2f3e;
+    appearance: none;
+  }
+  .input-icon-wrapper textarea {
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .input-icon-wrapper select {
+    background: rgba(255,255,255,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b8ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+    padding-right: 2.5rem;
+  }
+  .input-icon-wrapper input:focus,
+  .input-icon-wrapper select:focus,
+  .input-icon-wrapper textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+  }
+
+  /* ---------- BUTTON VARIANTS ---------- */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+  }
+  button i {
+    font-size: 0.95rem;
+  }
+  .btn-primary {
+    background: #0a66c2;
+    color: white;
+    box-shadow: 0 8px 16px -6px rgba(10,102,194,0.25);
+  }
+  .btn-primary:hover {
+    background: #004a8f;
+    scale: 1.02;
+    border-color: rgba(255,255,255,0.5);
+  }
+  .btn-success {
+    background: #10b981;
+    color: white;
+  }
+  .btn-success:hover {
+    background: #059669;
+    scale: 1.02;
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #dc2626;
+    scale: 1.02;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid #0a66c2;
+    color: #0a66c2;
+  }
+  .btn-outline:hover {
+    background: #0a66c2;
+    color: white;
+    scale: 1.02;
+  }
+  .btn-small {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+  @media (max-width: 768px) {
+    button { width: 100%; justify-content: center; }
+  }
+
+  /* ---------- GRID & FLEX ---------- */
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 1.2rem;
+    align-items: end;
+  }
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+  }
+
+  /* ---------- TABLE STYLES ---------- */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px rgba(10,102,194,0.1);
+  }
+  th {
+    background: #0a66c2;
+    color: white;
+    padding: 0.9rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+  }
+  th:first-child { border-radius: 16px 0 0 0; }
+  th:last-child { border-radius: 0 16px 0 0; }
+  td {
+    padding: 0.8rem 0.3rem;
+    border-bottom: 1px solid rgba(10,102,194,0.1);
+    background: transparent;
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:hover {
+    background: rgba(10,102,194,0.02);
+  }
+  tfoot tr {
+    background: #0a66c2;
+    color: white;
+    font-weight: 700;
+  }
+  tfoot td, tfoot th {
+    border-top: 2px solid rgba(255,255,255,0.3);
+    background: #0a66c2;
+    color: white;
+  }
+  tfoot td {
+    background: #0a66c2;
+    color: white;
+  }
+
+  /* ---------- INPUT STYLES INSIDE TABLE ---------- */
+  td input {
+    width: 50px;
+    padding: 0.4rem;
+    border-radius: 16px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.9);
+    text-align: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  td input:focus {
+    border-color: #0a66c2;
+    box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
+    outline: none;
+  }
+  td:not(:first-child) {
+    font-weight: 500;
+  }
+
+  /* ---------- BADGES & INFO ---------- */
+  .badge {
+    background: rgba(10,102,194,0.1);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: #0a4e7a;
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .info-note {
+    background: rgba(10,102,194,0.04);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(10,102,194,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #2c5a73;
+    margin: 1.2rem 0;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b8ca3;
+    background: rgba(255,255,255,0.5);
+    border-radius: 24px;
+    font-style: italic;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeSlide {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  #logoutBtn i { transition: transform 0.2s; }
+  #logoutBtn:hover i { transform: translateX(3px); }
+
+  /* ---------- CUSTOM DATE DISPLAY ---------- */
+  #todayDate {
+    font-weight: 600;
+    color: #1e4c6b;
+    background: rgba(255,255,255,0.4);
+    padding: 0.3rem 1.2rem;
+    border-radius: 40px;
+    display: inline-block;
+    backdrop-filter: blur(4px);
+  }
+
+  hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid rgba(10,102,194,0.2);
+  }
+
+  /* ---------- QUESTION TEXTAREAS ---------- */
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+  }
+  textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+    outline: none;
+  }
+
+  /* ---------- SECTION SPACING ---------- */
+  .section {
+    margin-top: 2rem;
+  }
+</style>
+</head>
+
+<body>
+<!-- Decorative background circles -->
+<div class="bg-circle-1"></div>
+<div class="bg-circle-2"></div>
+
+<div class="dashboard-container">
+  <!-- HEADER CARD (brand + role) -->
+  <div class="glass-card header-card">
+    <div class="brand">
+      <i class="fas fa-chart-pie"></i>
+      <span class="brand-text">IT Dashboard</span>
+    </div>
+    <div class="role-badge">
+      <i class="fas fa-user-shield"></i> IT Admin
+      <span class="badge" style="margin-left: 0.5rem;">Firebase</span>
+    </div>
+  </div>
+
+  <!-- DATE HEADER -->
+  <h2 style="display: flex; align-items: center; gap: 1rem;">
+    <i class="fas fa-calendar-alt" style="color: #0a66c2;"></i> 
+    Attendance - <span id="todayDate"></span>
+  </h2>
+
+  <!-- ================= ATTENDANCE TABLE ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-chalkboard-teacher"></i></span> Daily Attendance (Prep 1 - Class 7)</h3>
+    
+    <div class="table-responsive">
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Reg B</th><th>Reg G</th><th>Reg T</th>
+            <th>Pre B</th><th>Pre G</th><th>Pre T</th>
+            <th>Abs B</th><th>Abs G</th><th>Abs T</th>
+            <th>Perm</th>
+            <th>Sick</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>GRAND TOTAL</td>
+            <td id="gRegB">0</td>
+            <td id="gRegG">0</td>
+            <td id="gRegT">0</td>
+            <td id="gPreB">0</td>
+            <td id="gPreG">0</td>
+            <td id="gPreT">0</td>
+            <td id="gAbsB">0</td>
+            <td id="gAbsG">0</td>
+            <td id="gAbsT">0</td>
+            <td id="gPerm">0</td>
+            <td id="gSick">0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn-success" onclick="saveAttendance()">
+        <i class="fas fa-save"></i> Save Attendance
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= TOD & HT QUESTIONS ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-clipboard-list"></i></span> Daily Questions</h3>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+        <i class="fas fa-user-tie" style="color: #0a66c2;"></i>
+        <span style="font-weight: 600; color: #1e4c6b;">TOD Questions</span>
+      </div>
+      <textarea id="todQ" rows="3" placeholder="Enter TOD questions for today..."></textarea>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+        <i class="fas fa-user-shield" style="color: #0a66c2;"></i>
+        <span style="font-weight: 600; color: #1e4c6b;">HT / SHC Questions</span>
+      </div>
+      <textarea id="htQ" rows="3" placeholder="Enter HT questions for today..."></textarea>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end;">
+      <button class="btn-primary" onclick="saveQuestions()">
+        <i class="fas fa-save"></i> Save Questions
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= USER MANAGEMENT ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-user-plus"></i></span> Create User</h3>
+    
+    <div class="grid-auto">
+      <div class="input-icon-wrapper">
+        <i class="fas fa-user"></i>
+        <input type="text" id="newName" placeholder="Full Name">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="newEmail" placeholder="Email">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="newPass" placeholder="Password">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-briefcase"></i>
+        <select id="newRole">
+          <option value="TOD">TOD</option>
+          <option value="HT">HT</option>
+          <option value="SHC">SHC</option>
+          <option value="IT">IT</option>
+        </select>
+      </div>
+    </div>
+    
+    <button class="btn-success" onclick="createUser()" style="margin-top: 1.2rem;">
+      <i class="fas fa-check-circle"></i> Create User
+    </button>
+
+    <h3 style="margin-top: 2rem;"><span class="section-icon"><i class="fas fa-users"></i></span> All Users</h3>
+    
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== LOGOUT BUTTON ========== -->
+  <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+    <button id="logoutBtn" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, getDoc, getDocs,
+  collection, deleteDoc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signOut, signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// ========== FIREBASE CONFIG ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
+  authDomain: "teacher-on-duty-system.firebaseapp.com",
+  projectId: "teacher-on-duty-system",
+  storageBucket: "teacher-on-duty-system.firebasestorage.app",
+  messagingSenderId: "723640168531",
+  appId: "1:723640168531:web:a52f5dac1f5502460016a6"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ========== DATE ==========
+document.getElementById("todayDate").innerText = 
+  new Date().toLocaleDateString("en-US", { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+/* ---------- ROLE PROTECTION (IT only) ---------- */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { 
+    window.location = "index.html"; 
+    return;
+  }
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists() || snap.data().role !== "IT") {
+    alert("Access Denied: IT admin only");
+    window.location = "index.html";
+  }
+  loadUsers();
+});
+
+/* ---------- ATTENDANCE TABLE INIT - COMPLETE CLASS LIST (Prep 1 to Class 7) ---------- */
+const classes = [
+  "Prep 1", "Prep 2",
+  "Class 1", "Class 2", "Class 3",
+  "Class 4", "Class 5", "Class 6", "Class 7"
+];
+const tbody = document.getElementById("attendanceBody");
+
+classes.forEach(c => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><strong>${c}</strong></td>
+    <td><input type="number" class="regB" value="0" min="0"></td>
+    <td><input type="number" class="regG" value="0" min="0"></td>
+    <td class="regT">0</td>
+    <td><input type="number" class="preB" value="0" min="0"></td>
+    <td><input type="number" class="preG" value="0" min="0"></td>
+    <td class="preT">0</td>
+    <td><input type="number" class="absB" value="0" min="0"></td>
+    <td><input type="number" class="absG" value="0" min="0"></td>
+    <td class="absT">0</td>
+    <td><input type="number" class="perm" value="0" min="0"></td>
+    <td><input type="number" class="sick" value="0" min="0"></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+tbody.addEventListener("input", calculateTotals);
+
+/* ---------- CALCULATE TOTALS ---------- */
+function calculateTotals() {
+  let gRegB = 0, gRegG = 0, gPreB = 0, gPreG = 0, gAbsB = 0, gAbsG = 0, gPerm = 0, gSick = 0;
+
+  [...tbody.rows].forEach(r => {
+    let regB = +r.querySelector(".regB").value || 0;
+    let regG = +r.querySelector(".regG").value || 0;
+    let preB = +r.querySelector(".preB").value || 0;
+    let preG = +r.querySelector(".preG").value || 0;
+    let absB = +r.querySelector(".absB").value || 0;
+    let absG = +r.querySelector(".absG").value || 0;
+    let perm = +r.querySelector(".perm").value || 0;
+    let sick = +r.querySelector(".sick").value || 0;
+
+    r.querySelector(".regT").innerText = regB + regG;
+    r.querySelector(".preT").innerText = preB + preG;
+    r.querySelector(".absT").innerText = absB + absG;
+
+    gRegB += regB; gRegG += regG;
+    gPreB += preB; gPreG += preG;
+    gAbsB += absB; gAbsG += absG;
+    gPerm += perm; gSick += sick;
+  });
+
+  document.getElementById("gRegB").innerText = gRegB;
+  document.getElementById("gRegG").innerText = gRegG;
+  document.getElementById("gRegT").innerText = gRegB + gRegG;
+  document.getElementById("gPreB").innerText = gPreB;
+  document.getElementById("gPreG").innerText = gPreG;
+  document.getElementById("gPreT").innerText = gPreB + gPreG;
+  document.getElementById("gAbsB").innerText = gAbsB;
+  document.getElementById("gAbsG").innerText = gAbsG;
+  document.getElementById("gAbsT").innerText = gAbsB + gAbsG;
+  document.getElementById("gPerm").innerText = gPerm;
+  document.getElementById("gSick").innerText = gSick;
+}
+
+calculateTotals();
+
+/* ---------- SAVE ATTENDANCE ---------- */
+window.saveAttendance = async () => {
+  let data = [];
+  [...tbody.rows].forEach(r => {
+    data.push({
+      class: r.cells[0].innerText,
+      regB: r.querySelector(".regB").value || 0,
+      regG: r.querySelector(".regG").value || 0,
+      preB: r.querySelector(".preB").value || 0,
+      preG: r.querySelector(".preG").value || 0,
+      absB: r.querySelector(".absB").value || 0,
+      absG: r.querySelector(".absG").value || 0,
+      perm: r.querySelector(".perm").value || 0,
+      sick: r.querySelector(".sick").value || 0
+    });
+  });
+  
+  const today = new Date().toISOString().split('T')[0];
+  await setDoc(doc(db, "attendance", today), { 
+    data, 
+    updatedAt: new Date(),
+    submittedBy: auth.currentUser?.email || 'IT Admin'
+  });
+  alert("✅ Attendance Saved to Firebase");
+};
+
+/* ---------- SAVE QUESTIONS ---------- */
+window.saveQuestions = async () => {
+  await setDoc(doc(db, "questions", "today"), {
+    tod: document.getElementById("todQ").value,
+    ht: document.getElementById("htQ").value,
+    updatedAt: new Date(),
+    updatedBy: auth.currentUser?.email || 'IT Admin'
+  });
+  alert("✅ Questions Saved");
+};
+
+/* ---------- LOAD USERS ---------- */
+async function loadUsers() {
+  const snap = await getDocs(collection(db, "users"));
+  const body = document.getElementById("usersBody");
+  body.innerHTML = "";
+  
+  snap.forEach(docu => {
+    const u = docu.data();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${u.name || ''}</strong></td>
+      <td>${u.email || ''}</td>
+      <td>${u.role || ''}</td>
+      <td>
+        <button class="btn-small btn-primary" style="margin: 0 2px;" onclick="editUser('${docu.id}', '${u.name || ''}', '${u.role || ''}')">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn-small btn-danger" style="margin: 0 2px;" onclick="deleteUser('${docu.id}')">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+/* ---------- CREATE USER ---------- */
+window.createUser = async () => {
+  const name = document.getElementById("newName").value.trim();
+  const email = document.getElementById("newEmail").value.trim();
+  const pass = document.getElementById("newPass").value;
+  const role = document.getElementById("newRole").value;
+
+  if (!name || !email || !pass) return alert("Fill all fields");
+
+  const admin = auth.currentUser;
+  const adminEmail = admin.email;
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db, "users", cred.user.uid), {
+      name, email, role, createdAt: new Date()
+    });
+
+    await signOut(auth);
+    const adminPass = prompt("Re-enter IT admin password");
+    await signInWithEmailAndPassword(auth, adminEmail, adminPass);
+
+    alert("✅ User Created");
+    document.getElementById("newName").value = "";
+    document.getElementById("newEmail").value = "";
+    document.getElementById("newPass").value = "";
+    document.getElementById("newRole").value = "TOD";
+    
+    loadUsers();
+  } catch (e) {
+    alert("Error: " + e.message);
+  }
+};
+
+/* ---------- DELETE USER ---------- */
+window.deleteUser = async (id) => {
+  if (confirm("Delete this user?")) {
+    await deleteDoc(doc(db, "users", id));
+    alert("✅ Deleted");
+    loadUsers();
+  }
+};
+
+/* ---------- EDIT USER ---------- */
+window.editUser = async (id, name, role) => {
+  const newName = prompt("Edit Name", name);
+  if (newName === null) return;
+  const newRole = prompt("Edit Role", role);
+  if (newRole === null) return;
+  
+  await updateDoc(doc(db, "users", id), {
+    name: newName,
+    role: newRole
+  });
+  alert("✅ Updated");
+  loadUsers();
+};
+
+/* ---------- LOGOUT ---------- */
+document.getElementById("logoutBtn").onclick = async () => {
+  await signOut(auth);
+  window.location = "index.html";
+};
+
+/* ---------- LOAD SAVED DATA ---------- */
+async function loadSavedAttendance() {
+  const today = new Date().toISOString().split('T')[0];
+  const snap = await getDoc(doc(db, "attendance", today));
+  if (snap.exists()) {
+    const data = snap.data().data;
+    if (data && data.length) {
+      [...tbody.rows].forEach((r, index) => {
+        if (data[index]) {
+          r.querySelector(".regB").value = data[index].regB || 0;
+          r.querySelector(".regG").value = data[index].regG || 0;
+          r.querySelector(".preB").value = data[index].preB || 0;
+          r.querySelector(".preG").value = data[index].preG || 0;
+          r.querySelector(".absB").value = data[index].absB || 0;
+          r.querySelector(".absG").value = data[index].absG || 0;
+          r.querySelector(".perm").value = data[index].perm || 0;
+          r.querySelector(".sick").value = data[index].sick || 0;
+        }
+      });
+      calculateTotals();
+    }
+  }
+  
+  const qSnap = await getDoc(doc(db, "questions", "today"));
+  if (qSnap.exists()) {
+    document.getElementById("todQ").value = qSnap.data().tod || "";
+    document.getElementById("htQ").value = qSnap.data().ht || "";
+  }
+}
+
+// Load saved data on page load
+loadSavedAttendance();
+
+// Make functions globally available
+window.calculateTotals = calculateTotals;
+window.saveAttendance = saveAttendance;
+window.saveQuestions = saveQuestions;
+window.createUser = createUser;
+window.editUser = editUser;
+window.deleteUser = deleteUser;
+</script>
+
+</body>
+</html>

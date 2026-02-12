@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>TOD Dashboard · BGT Attendance</title>
+
+<!-- Font Awesome 6 (free) for icons & brand -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- jsPDF for PDF downloads -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  /* ---------- GLOBAL & VARIABLES ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+    min-height: 100vh;
+    padding: clamp(1rem, 5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* ---------- DECORATIVE RADIAL CIRCLES (fixed) ---------- */
+  .bg-circle-1, .bg-circle-2 {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-circle-1 {
+    top: 2%;
+    left: 2%;
+    width: clamp(200px, 30vw, 280px);
+    height: clamp(200px, 30vw, 280px);
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 75%);
+  }
+  .bg-circle-2 {
+    bottom: 5%;
+    right: 2%;
+    width: clamp(240px, 35vw, 340px);
+    height: clamp(240px, 35vw, 340px);
+    background: radial-gradient(circle, rgba(0,180,210,0.07) 0%, transparent 80%);
+  }
+
+  /* ---------- MAIN CONTAINER (above circles) ---------- */
+  .dashboard-container {
+    max-width: 1400px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    animation: fadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ---------- GLASS CARD (reusable) ---------- */
+  .glass-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-radius: clamp(24px, 5vw, 32px);
+    box-shadow: 0 20px 35px -10px rgba(0,20,40,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset, 0 20px 35px -10px rgba(0,20,40,0.15);
+    padding: clamp(1.2rem, 4vw, 2rem);
+    transition: box-shadow 0.25s ease, background 0.25s;
+    margin-bottom: 1.8rem;
+  }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 24px 42px -12px rgba(0,60,120,0.2), 0 0 0 1px rgba(255,255,255,0.7) inset;
+  }
+
+  /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
+  body, input, select, button, td, th, li, .badge, .info-note, h2, h3, h4, textarea {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    font-weight: 600;
+    color: #0b2b4e;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-weight: 600;
+    color: #1e4c6b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h4 {
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    font-weight: 600;
+    color: #065f46;
+    margin: 1rem 0 0.5rem 0;
+  }
+  .section-icon {
+    font-size: clamp(1.4rem, 4vw, 1.6rem);
+    color: #10b981;
+    background: rgba(16,185,129,0.08);
+    padding: 0.6rem;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- HEADER CARD ---------- */
+  .header-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand i {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    color: #10b981;
+    filter: drop-shadow(0 4px 6px rgba(16,185,129,0.2));
+  }
+  .brand-text {
+    background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    letter-spacing: -0.01em;
+  }
+  .role-badge {
+    background: rgba(16,185,129,0.15);
+    border-radius: 40px;
+    color: #065f46;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ---------- FORM INPUTS WITH ICONS ---------- */
+  .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .input-icon-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b8ca3;
+    font-size: 1rem;
+    z-index: 2;
+  }
+  .input-icon-wrapper input,
+  .input-icon-wrapper textarea {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid rgba(200,215,225,0.7);
+    border-radius: 20px;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    outline: none;
+    color: #1e2f3e;
+  }
+  .input-icon-wrapper textarea {
+    padding: 1rem 1rem 1rem 2.8rem;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+  .input-icon-wrapper input:focus,
+  .input-icon-wrapper textarea:focus {
+    border-color: #10b981;
+    background: white;
+    box-shadow: 0 6px 14px rgba(16,185,129,0.08);
+  }
+  input[readonly] {
+    background: rgba(200,215,225,0.2);
+    cursor: not-allowed;
+  }
+
+  /* ---------- BUTTON VARIANTS ---------- */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    cursor: pointer;
+    margin: 0.3rem;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+  }
+  button i {
+    font-size: 0.95rem;
+  }
+  .btn-success { background: #10b981; color: white; }
+  .btn-success:hover { background: #059669; scale: 1.02; }
+  .btn-primary { background: #0a66c2; color: white; }
+  .btn-primary:hover { background: #004a8f; scale: 1.02; }
+  .btn-info { background: #2563eb; color: white; }
+  .btn-info:hover { background: #1e4c8f; scale: 1.02; }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid #10b981;
+    color: #10b981;
+  }
+  .btn-outline:hover { background: #10b981; color: white; scale: 1.02; }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-danger:hover { background: #dc2626; scale: 1.02; }
+  
+  @media (max-width: 768px) {
+    button { width: 100%; justify-content: center; }
+  }
+
+  /* ---------- GRID & FLEX ---------- */
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 1rem;
+    align-items: end;
+  }
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* ---------- TABLE STYLES ---------- */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px rgba(16,185,129,0.15);
+  }
+  th {
+    background: #10b981;
+    color: white;
+    padding: 0.7rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  td {
+    padding: 0.5rem 0.3rem;
+    border-bottom: 1px solid rgba(16,185,129,0.1);
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:hover {
+    background: rgba(16,185,129,0.04);
+  }
+  td input {
+    width: 55px;
+    padding: 0.4rem;
+    border-radius: 12px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: white;
+    text-align: center;
+  }
+  td input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    outline: none;
+  }
+  td input[readonly] {
+    background: rgba(200,215,225,0.2);
+    color: #065f46;
+    font-weight: 600;
+  }
+  .totalRow {
+    background: rgba(16,185,129,0.15);
+    font-weight: 700;
+  }
+  .grandTotal {
+    font-weight: 700;
+    color: #065f46;
+  }
+  
+  /* ---------- PERCENTAGE BADGE ---------- */
+  .percentage-badge {
+    background: rgba(16,185,129,0.2);
+    border-radius: 40px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #065f46;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(16,185,129,0.3);
+    backdrop-filter: blur(4px);
+  }
+  .percentage-value {
+    background: white;
+    padding: 0.2rem 0.8rem;
+    border-radius: 30px;
+    color: #10b981;
+    font-weight: 800;
+  }
+
+  /* ---------- ACTIVITY SECTION ---------- */
+  #activitySection {
+    display: none;
+    margin-top: 2rem;
+    border-top: 2px dashed rgba(16,185,129,0.3);
+    padding-top: 1.5rem;
+  }
+
+  /* ---------- SUMMARY CARD ---------- */
+  .summary-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+    border: 1px solid rgba(16,185,129,0.3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .summary-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .summary-label {
+    font-size: 0.75rem;
+    color: #6b8ca3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .summary-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #065f46;
+  }
+  .summary-value small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #6b8ca3;
+  }
+
+  .badge {
+    background: rgba(16,185,129,0.1);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: #065f46;
+    display: inline-block;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b8ca3;
+    background: rgba(255,255,255,0.5);
+    border-radius: 24px;
+    font-style: italic;
+  }
+
+  @keyframes fadeSlide {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  #todayHeader {
+    font-weight: 600;
+    color: #1e4c6b;
+    background: rgba(255,255,255,0.4);
+    padding: 0.5rem 1.5rem;
+    border-radius: 40px;
+    display: inline-block;
+    backdrop-filter: blur(4px);
+    margin-bottom: 1.5rem;
+  }
+
+  .day-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+  
+  /* ---------- LOGOUT BUTTON CONTAINER ---------- */
+  .logout-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+
+<body>
+<div class="bg-circle-1"></div>
+<div class="bg-circle-2"></div>
+
+<div class="dashboard-container">
+  <!-- HEADER CARD -->
+  <div class="glass-card header-card">
+    <div class="brand">
+      <i class="fas fa-clipboard-check"></i>
+      <span class="brand-text">TOD Dashboard</span>
+    </div>
+    <div class="role-badge">
+      <i class="fas fa-user-tie"></i> Teacher On Duty
+      <span class="badge" style="margin-left: 0.5rem;">BGT</span>
+    </div>
+  </div>
+
+  <!-- LOGOUT BUTTON - TOP RIGHT -->
+  <div class="logout-container">
+    <button id="logoutBtn" class="btn-danger" style="border-width: 1.5px; padding: 0.7rem 2.2rem;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+
+  <!-- MAIN DASHBOARD CARD -->
+  <div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 0.5rem;">
+      <h2>
+        <i class="fas fa-calendar-alt" style="color: #10b981;"></i>
+        <span id="todayHeader"></span>
+      </h2>
+      
+      <!-- PRESENT PERCENTAGE DISPLAY -->
+      <div id="presentPercentageDisplay" class="percentage-badge">
+        <i class="fas fa-chart-pie"></i> Present Rate: 
+        <span id="presentPercentageValue" class="percentage-value">0%</span>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE TABLE -->
+    <div id="attendanceTable"></div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="flex-wrap" style="justify-content: space-between; margin-top: 1.5rem;">
+      <button class="btn-success" onclick="saveAttendance()">
+        <i class="fas fa-save"></i> Save Attendance
+      </button>
+      <button class="btn-info" onclick="showActivity()">
+        <i class="fas fa-history"></i> My Activity
+      </button>
+    </div>
+  </div>
+
+  <!-- IT DAILY QUESTION SECTION -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-question-circle"></i></span> IT Daily Question</h3>
+    <div id="questionBox" class="questionBox" style="background: rgba(224,242,254,0.7); backdrop-filter: blur(8px); border-radius: 24px; padding: 1.5rem; border-left: 6px solid #10b981; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 500; color: #065f46;">
+      <i class="fas fa-spinner fa-spin"></i> Loading question...
+    </div>
+    <div class="input-icon-wrapper" style="margin-bottom: 1rem;">
+      <i class="fas fa-pen-to-square"></i>
+      <textarea id="todAnswer" placeholder="Write your answer here..."></textarea>
+    </div>
+    <div style="display: flex; justify-content: flex-end;">
+      <button class="btn-success" onclick="saveAnswer()">
+        <i class="fas fa-paper-plane"></i> Submit Answer
+      </button>
+    </div>
+  </div>
+
+  <!-- ACTIVITY SECTION -->
+  <div id="activitySection" class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-clock-rotate-left"></i></span> My Activity History</h3>
+    
+    <h4>Select Day</h4>
+    <div class="day-buttons">
+      <button class="btn-outline" onclick="loadDay('Monday')">Monday</button>
+      <button class="btn-outline" onclick="loadDay('Tuesday')">Tuesday</button>
+      <button class="btn-outline" onclick="loadDay('Wednesday')">Wednesday</button>
+      <button class="btn-outline" onclick="loadDay('Thursday')">Thursday</button>
+      <button class="btn-outline" onclick="loadDay('Friday')">Friday</button>
+    </div>
+
+    <div class="flex-wrap" style="margin-top: 1rem;">
+      <button class="btn-primary" onclick="downloadPDF()">
+        <i class="fas fa-file-pdf"></i> Download Selected Day PDF
+      </button>
+      <button class="btn-primary" onclick="downloadWeekPDF()">
+        <i class="fas fa-file-pdf"></i> Download Full Week PDF
+      </button>
+    </div>
+
+    <div id="activityTable" style="margin-top: 1.5rem;"></div>
+  </div>
+  
+  <!-- LOGOUT BUTTON - BOTTOM (SECONDARY) -->
+  <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+    <button id="logoutBtnBottom" class="btn-outline btn-danger" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
+  authDomain: "teacher-on-duty-system.firebaseapp.com",
+  projectId: "teacher-on-duty-system",
+  storageBucket: "teacher-on-duty-system.firebasestorage.app",
+  messagingSenderId: "723640168531",
+  appId: "1:723640168531:web:a52f5dac1f5502460016a6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ---------- DATE SETUP ----------
+let today = new Date();
+let todayISO = today.toISOString().split("T")[0];
+let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
+
+document.getElementById("todayHeader").innerHTML = `
+  <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+  ${dayName} - ${todayISO}
+`;
+
+// ---------- CLASS LIST ----------
+let classes = [
+  "Prep 1", "Prep 2",
+  "Class 1", "Class 2", "Class 3",
+  "Class 4", "Class 5", "Class 6", "Class 7"
+];
+
+let selectedDayData = null;
+
+// ---------- CREATE TABLE ----------
+function createTable() {
+  let html = `<div class="table-responsive"><table>
+    <thead>
+      <tr>
+        <th rowspan="2">Class</th>
+        <th colspan="3">Registered</th>
+        <th colspan="3">Present</th>
+        <th colspan="3">Absent</th>
+        <th colspan="3">Sick</th>
+        <th colspan="3">Permission</th>
+      </tr>
+      <tr>
+        ${["B","G","T","B","G","T","B","G","T","B","G","T","B","G","T"]
+          .map(h => `<th>${h}</th>`).join("")}
+      </tr>
+    </thead>
+    <tbody>`;
+  
+  classes.forEach(c => {
+    html += `
+      <tr>
+        <td><strong>${c}</strong></td>
+        <td><input id="regB_${c}" readonly></td>
+        <td><input id="regG_${c}" readonly></td>
+        <td><input id="regT_${c}" readonly></td>
+        <td><input id="preB_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="preG_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="preT_${c}" readonly></td>
+        <td><input id="absB_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="absG_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="absT_${c}" readonly></td>
+        <td><input id="sickB_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="sickG_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="sickT_${c}" readonly></td>
+        <td><input id="perB_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="perG_${c}" oninput="calcRow('${c}')" min="0"></td>
+        <td><input id="perT_${c}" readonly></td>
+      </tr>
+    `;
+  });
+
+  html += `
+    <tr class="totalRow">
+      <td><strong>Total</strong></td>
+      ${Array(15).fill('<td class="grandTotal">0</td>').join("")}
+    </tr>
+    </tbody></table></div>`;
+
+  document.getElementById("attendanceTable").innerHTML = html;
+}
+
+// ---------- CALCULATE ROW TOTALS ----------
+window.calcRow = function(c) {
+  function sum(bId, gId, tId) {
+    let b = Number(document.getElementById(bId)?.value) || 0;
+    let g = Number(document.getElementById(gId)?.value) || 0;
+    let tEl = document.getElementById(tId);
+    if (tEl) tEl.value = b + g;
+  }
+  sum(`preB_${c}`, `preG_${c}`, `preT_${c}`);
+  sum(`absB_${c}`, `absG_${c}`, `absT_${c}`);
+  sum(`sickB_${c}`, `sickG_${c}`, `sickT_${c}`);
+  sum(`perB_${c}`, `perG_${c}`, `perT_${c}`);
+  calculateGrandTotals();
+};
+
+// ---------- CALCULATE GRAND TOTALS & PERCENTAGE ----------
+window.calculateGrandTotals = function() {
+  const totals = Array(15).fill(0);
+  classes.forEach(c => {
+    [
+      `regB_${c}`, `regG_${c}`, `regT_${c}`,
+      `preB_${c}`, `preG_${c}`, `preT_${c}`,
+      `absB_${c}`, `absG_${c}`, `absT_${c}`,
+      `sickB_${c}`, `sickG_${c}`, `sickT_${c}`,
+      `perB_${c}`, `perG_${c}`, `perT_${c}`
+    ].forEach((id, i) => {
+      let el = document.getElementById(id);
+      if (el) totals[i] += Number(el.value) || 0;
+    });
+  });
+  document.querySelectorAll(".grandTotal").forEach((cell, i) => {
+    cell.innerText = totals[i];
+  });
+  
+  // Calculate and display present percentage
+  const totalRegistered = totals[2];
+  const totalPresent = totals[5];
+  let percentage = 0;
+  if (totalRegistered > 0) {
+    percentage = Math.round((totalPresent / totalRegistered) * 100);
+  }
+  const percentageElement = document.getElementById("presentPercentageValue");
+  if (percentageElement) {
+    percentageElement.innerText = `${percentage}%`;
+    if (percentage >= 90) percentageElement.style.color = "#10b981";
+    else if (percentage >= 75) percentageElement.style.color = "#f59e0b";
+    else percentageElement.style.color = "#ef4444";
+  }
+};
+
+// ---------- LOAD REGISTERED VALUES ----------
+async function loadRegisteredValues() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceSnap = await getDoc(doc(db, "attendance", today));
+    if (attendanceSnap.exists()) {
+      const data = attendanceSnap.data().data;
+      data.forEach(item => {
+        const regB = document.getElementById(`regB_${item.class}`);
+        const regG = document.getElementById(`regG_${item.class}`);
+        const regT = document.getElementById(`regT_${item.class}`);
+        if (regB && regG && regT) {
+          regB.value = parseInt(item.regB) || 0;
+          regG.value = parseInt(item.regG) || 0;
+          regT.value = (parseInt(item.regB) || 0) + (parseInt(item.regG) || 0);
+        }
+      });
+      calculateGrandTotals();
+    }
+  } catch (e) {
+    console.error("Error loading registered values:", e);
+  }
+}
+
+// ---------- INITIALIZE TABLE ----------
+createTable();
+
+// ---------- SAVE ATTENDANCE ----------
+window.saveAttendance = async () => {
+  const user = auth.currentUser;
+  if (!user) { alert("Login required"); return; }
+  let data = [];
+  classes.forEach(c => {
+    data.push({
+      class: c,
+      regB: document.getElementById(`regB_${c}`)?.value || 0,
+      regG: document.getElementById(`regG_${c}`)?.value || 0,
+      preB: document.getElementById(`preB_${c}`)?.value || 0,
+      preG: document.getElementById(`preG_${c}`)?.value || 0,
+      absB: document.getElementById(`absB_${c}`)?.value || 0,
+      absG: document.getElementById(`absG_${c}`)?.value || 0,
+      sickB: document.getElementById(`sickB_${c}`)?.value || 0,
+      sickG: document.getElementById(`sickG_${c}`)?.value || 0,
+      perB: document.getElementById(`perB_${c}`)?.value || 0,
+      perG: document.getElementById(`perG_${c}`)?.value || 0
+    });
+  });
+  
+  // Get existing document to preserve todAnswer if it exists
+  const existingSnap = await getDoc(doc(db, "attendance", todayISO));
+  const existingData = existingSnap.exists() ? existingSnap.data() : {};
+  
+  await setDoc(doc(db, "attendance", todayISO), {
+    date: todayISO, 
+    day: dayName, 
+    todName: user.email,
+    todDisplayName: user.displayName || user.email, 
+    data: data, 
+    todAnswer: existingData.todAnswer || "", // Preserve existing answer
+    htAnswer: existingData.htAnswer || "", // Preserve HT response
+    savedAt: new Date()
+  });
+  alert("✅ Attendance Saved");
+};
+
+// ---------- LOAD SAVED ATTENDANCE ----------
+async function loadSavedAttendance() {
+  const snap = await getDoc(doc(db, "attendance", todayISO));
+  if (snap.exists()) {
+    const data = snap.data().data;
+    const todAnswer = snap.data().todAnswer || "";
+    
+    // Load the TOD answer into the textarea
+    const answerTextarea = document.getElementById("todAnswer");
+    if (answerTextarea && todAnswer) {
+      answerTextarea.value = todAnswer;
+    }
+    
+    data.forEach(item => {
+      const preB = document.getElementById(`preB_${item.class}`);
+      const preG = document.getElementById(`preG_${item.class}`);
+      const absB = document.getElementById(`absB_${item.class}`);
+      const absG = document.getElementById(`absG_${item.class}`);
+      const sickB = document.getElementById(`sickB_${item.class}`);
+      const sickG = document.getElementById(`sickG_${item.class}`);
+      const perB = document.getElementById(`perB_${item.class}`);
+      const perG = document.getElementById(`perG_${item.class}`);
+      if (preB) preB.value = item.preB || item.present || 0;
+      if (preG) preG.value = item.preG || 0;
+      if (absB) absB.value = item.absB || item.absent || 0;
+      if (absG) absG.value = item.absG || 0;
+      if (sickB) sickB.value = item.sickB || item.sick || 0;
+      if (sickG) sickG.value = item.sickG || 0;
+      if (perB) perB.value = item.perB || item.permission || 0;
+      if (perG) perG.value = item.perG || 0;
+      window.calcRow(item.class);
+    });
+    calculateGrandTotals();
+  }
+  await loadRegisteredValues();
+}
+
+// ---------- SHOW ACTIVITY ----------
+window.showActivity = function() {
+  document.getElementById("activitySection").style.display = "block";
+  document.getElementById("activitySection").scrollIntoView({ behavior: 'smooth' });
+};
+
+// ---------- LOAD DAY FOR ACTIVITY ----------
+window.loadDay = async function(day) {
+  const user = auth.currentUser;
+  const q = query(
+    collection(db, "attendance"),
+    where("todName", "==", user.email),
+    where("day", "==", day)
+  );
+  const snap = await getDocs(q);
+  let html = "";
+  selectedDayData = null;
+
+  if (snap.empty) {
+    html = `<div class="empty-state"><i class="fas fa-info-circle"></i> No records found for ${day}</div>`;
+  } else {
+    snap.forEach(d => {
+      let data = d.data();
+      selectedDayData = data;
+      
+      // Calculate totals for the summary
+      let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+      let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+      let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+      let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+      let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+      
+      data.data.forEach(r => {
+        totalRegB += parseInt(r.regB) || 0;
+        totalRegG += parseInt(r.regG) || 0;
+        totalPreB += parseInt(r.preB) || 0;
+        totalPreG += parseInt(r.preG) || 0;
+        totalAbsB += parseInt(r.absB) || 0;
+        totalAbsG += parseInt(r.absG) || 0;
+        totalSickB += parseInt(r.sickB) || 0;
+        totalSickG += parseInt(r.sickG) || 0;
+        totalPerB += parseInt(r.perB) || 0;
+        totalPerG += parseInt(r.perG) || 0;
+      });
+      
+      totalRegT = totalRegB + totalRegG;
+      totalPreT = totalPreB + totalPreG;
+      totalAbsT = totalAbsB + totalAbsG;
+      totalSickT = totalSickB + totalSickG;
+      totalPerT = totalPerB + totalPerG;
+      
+      // Calculate present percentage
+      let presentPercentage = 0;
+      if (totalRegT > 0) {
+        presentPercentage = Math.round((totalPreT / totalRegT) * 100);
+      }
+      
+      // Header with date and TOD name
+      html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4><i class="fas fa-calendar-day"></i> ${data.day} - ${data.date}</h4>
+        <span class="percentage-badge" style="background: rgba(16,185,129,0.15);">
+          <i class="fas fa-chart-line"></i> Present Rate: 
+          <span style="background: white; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 800; color: ${presentPercentage >= 90 ? '#10b981' : presentPercentage >= 75 ? '#f59e0b' : '#ef4444'};">
+            ${presentPercentage}%
+          </span>
+        </span>
+      </div>`;
+      
+      // TOD Answer display
+      html += `<div style="margin-bottom: 1.5rem;">
+        <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #065f46; margin-bottom: 0.5rem;">
+          <i class="fas fa-comment-dots" style="color: #10b981;"></i> Your Answer:
+        </h5>
+        <div style="background: rgba(16,185,129,0.05); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #10b981;">
+          <i class="fas fa-quote-left" style="color: #10b981; opacity: 0.5; margin-right: 0.5rem;"></i>
+          ${data.todAnswer || data.answer || "No answer provided"}
+        </div>
+      </div>`;
+      
+      // HT Response display
+      if (data.htAnswer) {
+        html += `<div style="margin-bottom: 1.5rem;">
+          <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #0a4e7a; margin-bottom: 0.5rem;">
+            <i class="fas fa-reply" style="color: #0a66c2;"></i> HT Response:
+          </h5>
+          <div style="background: rgba(224,242,254,0.7); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #0a66c2;">
+            <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
+            ${data.htAnswer}
+          </div>
+        </div>`;
+      }
+      
+      // Detailed table with B/G/T columns
+      html += `<div class="table-responsive"><table>
+        <thead>
+          <tr>
+            <th rowspan="2">Class</th>
+            <th colspan="2">Registered</th>
+            <th colspan="2">Present</th>
+            <th colspan="2">Absent</th>
+            <th colspan="2">Sick</th>
+            <th colspan="2">Permission</th>
+            <th rowspan="2">Total Present</th>
+          </tr>
+          <tr>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      
+      data.data.forEach(r => {
+        let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+        html += `
+          <tr>
+            <td><strong>${r.class}</strong></td>
+            <td>${r.regB || 0}</td>
+            <td>${r.regG || 0}</td>
+            <td>${r.preB || 0}</td>
+            <td>${r.preG || 0}</td>
+            <td>${r.absB || 0}</td>
+            <td>${r.absG || 0}</td>
+            <td>${r.sickB || 0}</td>
+            <td>${r.sickG || 0}</td>
+            <td>${r.perB || 0}</td>
+            <td>${r.perG || 0}</td>
+            <td><strong>${preTotal}</strong></td>
+          </tr>
+        `;
+      });
+      
+      // Grand Total Row
+      html += `
+        <tr class="totalRow">
+          <td><strong>GRAND TOTAL</strong></td>
+          <td><strong>${totalRegB}</strong></td>
+          <td><strong>${totalRegG}</strong></td>
+          <td><strong>${totalPreB}</strong></td>
+          <td><strong>${totalPreG}</strong></td>
+          <td><strong>${totalAbsB}</strong></td>
+          <td><strong>${totalAbsG}</strong></td>
+          <td><strong>${totalSickB}</strong></td>
+          <td><strong>${totalSickG}</strong></td>
+          <td><strong>${totalPerB}</strong></td>
+          <td><strong>${totalPerG}</strong></td>
+          <td><strong>${totalPreT}</strong></td>
+        </tr>
+      </tbody></table></div>`;
+      
+      // Summary Statistics Card
+      html += `<div class="summary-card">
+        <div class="summary-stat">
+          <span class="summary-label">Total Students</span>
+          <span class="summary-value">${totalRegT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Present</span>
+          <span class="summary-value">${totalPreT} <small>(${presentPercentage}%)</small></span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Absent</span>
+          <span class="summary-value">${totalAbsT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Sick</span>
+          <span class="summary-value">${totalSickT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Permission</span>
+          <span class="summary-value">${totalPerT}</span>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById("activityTable").innerHTML = html;
+};
+
+// ---------- DOWNLOAD SELECTED DAY PDF ----------
+window.downloadPDF = function() {
+  if (!selectedDayData) { alert("Select a day first"); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  // Calculate totals
+  let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+  let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+  let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+  let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+  let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+  
+  selectedDayData.data.forEach(r => {
+    totalRegB += parseInt(r.regB) || 0;
+    totalRegG += parseInt(r.regG) || 0;
+    totalPreB += parseInt(r.preB) || 0;
+    totalPreG += parseInt(r.preG) || 0;
+    totalAbsB += parseInt(r.absB) || 0;
+    totalAbsG += parseInt(r.absG) || 0;
+    totalSickB += parseInt(r.sickB) || 0;
+    totalSickG += parseInt(r.sickG) || 0;
+    totalPerB += parseInt(r.perB) || 0;
+    totalPerG += parseInt(r.perG) || 0;
+  });
+  
+  totalRegT = totalRegB + totalRegG;
+  totalPreT = totalPreB + totalPreG;
+  totalAbsT = totalAbsB + totalAbsG;
+  totalSickT = totalSickB + totalSickG;
+  totalPerT = totalPerB + totalPerG;
+  
+  let presentPercentage = 0;
+  if (totalRegT > 0) {
+    presentPercentage = Math.round((totalPreT / totalRegT) * 100);
+  }
+  
+  // Header
+  pdf.setFontSize(18);
+  pdf.text("TOD Attendance Report", 10, 10);
+  pdf.setFontSize(14);
+  pdf.text(`${selectedDayData.day} - ${selectedDayData.date}`, 10, 20);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${selectedDayData.todName || 'N/A'}`, 10, 30);
+  pdf.setFontSize(14);
+  pdf.text(`Present Rate: ${presentPercentage}%`, 10, 40);
+  
+  // TOD Answer
+  pdf.setFontSize(12);
+  pdf.text("TOD Answer:", 10, 55);
+  pdf.setFontSize(10);
+  const todAnswer = selectedDayData.todAnswer || selectedDayData.answer || "No answer provided";
+  const splitAnswer = pdf.splitTextToSize(todAnswer, 180);
+  pdf.text(splitAnswer, 15, 65);
+  
+  // HT Response
+  let y = 65 + (splitAnswer.length * 5);
+  if (selectedDayData.htAnswer) {
+    pdf.setFontSize(12);
+    pdf.text("HT Response:", 10, y);
+    pdf.setFontSize(10);
+    const htResponse = selectedDayData.htAnswer;
+    const splitResponse = pdf.splitTextToSize(htResponse, 180);
+    pdf.text(splitResponse, 15, y + 10);
+    y += 10 + (splitResponse.length * 5) + 10;
+  } else {
+    y += 15;
+  }
+  
+  // Class data
+  pdf.setFontSize(9);
+  pdf.text("Class", 10, y);
+  pdf.text("Reg B", 35, y);
+  pdf.text("Reg G", 50, y);
+  pdf.text("Pre B", 70, y);
+  pdf.text("Pre G", 85, y);
+  pdf.text("Abs B", 105, y);
+  pdf.text("Abs G", 120, y);
+  pdf.text("Sick B", 140, y);
+  pdf.text("Sick G", 155, y);
+  pdf.text("Perm B", 175, y);
+  pdf.text("Perm G", 190, y);
+  pdf.text("Total", 210, y);
+  
+  y += 7;
+  
+  selectedDayData.data.forEach(r => {
+    let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    pdf.text(r.class, 10, y);
+    pdf.text(String(r.regB || 0), 35, y);
+    pdf.text(String(r.regG || 0), 50, y);
+    pdf.text(String(r.preB || 0), 70, y);
+    pdf.text(String(r.preG || 0), 85, y);
+    pdf.text(String(r.absB || 0), 105, y);
+    pdf.text(String(r.absG || 0), 120, y);
+    pdf.text(String(r.sickB || 0), 140, y);
+    pdf.text(String(r.sickG || 0), 155, y);
+    pdf.text(String(r.perB || 0), 175, y);
+    pdf.text(String(r.perG || 0), 190, y);
+    pdf.text(String(preTotal), 210, y);
+    y += 7;
+  });
+  
+  // Grand Total
+  pdf.setFontSize(10);
+  pdf.text("GRAND TOTAL", 10, y);
+  pdf.text(String(totalRegB), 35, y);
+  pdf.text(String(totalRegG), 50, y);
+  pdf.text(String(totalPreB), 70, y);
+  pdf.text(String(totalPreG), 85, y);
+  pdf.text(String(totalAbsB), 105, y);
+  pdf.text(String(totalAbsG), 120, y);
+  pdf.text(String(totalSickB), 140, y);
+  pdf.text(String(totalSickG), 155, y);
+  pdf.text(String(totalPerB), 175, y);
+  pdf.text(String(totalPerG), 190, y);
+  pdf.text(String(totalPreT), 210, y);
+  
+  // Summary
+  y += 15;
+  pdf.setFontSize(12);
+  pdf.text(`SUMMARY:`, 10, y);
+  y += 8;
+  pdf.setFontSize(10);
+  pdf.text(`Total Students: ${totalRegT}`, 15, y);
+  y += 6;
+  pdf.text(`Present: ${totalPreT} (${presentPercentage}%)`, 15, y);
+  y += 6;
+  pdf.text(`Absent: ${totalAbsT}`, 15, y);
+  y += 6;
+  pdf.text(`Sick: ${totalSickT}`, 15, y);
+  y += 6;
+  pdf.text(`Permission: ${totalPerT}`, 15, y);
+  
+  pdf.save(`TOD_Report_${selectedDayData.day}.pdf`);
+};
+
+// ---------- DOWNLOAD FULL WEEK PDF ----------
+window.downloadWeekPDF = async function() {
+  const user = auth.currentUser;
+  const q = query(collection(db, "attendance"), where("todName", "==", user.email));
+  const snap = await getDocs(q);
+  if (snap.empty) { alert("No attendance records found"); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  pdf.setFontSize(18);
+  pdf.text("Weekly Attendance Report", 10, 10);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${user.email}`, 10, 20);
+  
+  let y = 35;
+  
+  snap.forEach((d) => {
+    let data = d.data();
+    
+    if (y > 250) {
+      pdf.addPage();
+      y = 20;
+    }
+    
+    // Calculate totals for the day
+    let totalRegT = 0, totalPreT = 0;
+    data.data.forEach(r => {
+      totalRegT += (parseInt(r.regB) || 0) + (parseInt(r.regG) || 0);
+      totalPreT += (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    });
+    let percentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
+    
+    pdf.setFontSize(11);
+    pdf.text(`${data.day} - ${data.date}`, 10, y);
+    pdf.text(`Present: ${totalPreT}/${totalRegT} (${percentage}%)`, 100, y);
+    y += 6;
+    
+    pdf.setFontSize(9);
+    data.data.forEach(r => {
+      let pre = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+      let abs = (parseInt(r.absB) || 0) + (parseInt(r.absG) || 0);
+      pdf.text(`${r.class}: P:${pre} A:${abs}`, 15, y);
+      y += 5;
+    });
+    y += 5;
+  });
+  
+  pdf.save("TOD_Weekly_Report.pdf");
+};
+
+// ---------- LOAD QUESTION ----------
+async function loadQuestion() {
+  const snap = await getDoc(doc(db, "questions", "today"));
+  if (!snap.exists() || !snap.data().tod) {
+    document.getElementById("questionBox").innerHTML = `<i class="fas fa-info-circle"></i> No question posted for today`;
+    return;
+  }
+  document.getElementById("questionBox").innerHTML = snap.data().tod;
+}
+
+// ---------- SAVE ANSWER - FIXED: Saves directly to attendance document ----------
+window.saveAnswer = async () => {
+  const user = auth.currentUser;
+  let answer = document.getElementById("todAnswer").value.trim();
+  if (!answer) { alert("Please write an answer"); return; }
+  
+  // Save answer DIRECTLY to the attendance document for today
+  // This makes it visible to HT page immediately
+  await setDoc(doc(db, "attendance", todayISO), {
+    todAnswer: answer,
+    answer: answer, // Keep both fields for compatibility
+    submittedAt: new Date()
+  }, { merge: true });
+  
+  alert("✅ Answer Submitted - Visible to Head Teacher");
+};
+
+// ---------- LOGOUT FUNCTION ----------
+async function logout() {
+  try {
+    await signOut(auth);
+    alert("✅ Logged out successfully");
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
+  }
+}
+
+// ---------- AUTH STATE ----------
+onAuthStateChanged(auth, user => {
+  if (user) {
+    loadQuestion();
+    loadSavedAttendance();
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
+// ---------- MAKE FUNCTIONS GLOBAL ----------
+window.saveAttendance = saveAttendance;
+window.showActivity = showActivity;
+window.loadDay = loadDay;
+window.downloadPDF = downloadPDF;
+window.downloadWeekPDF = downloadWeekPDF;
+window.saveAnswer = saveAnswer;
+window.calcRow = calcRow;
+window.calculateGrandTotals = calculateGrandTotals;
+window.logout = logout;
+
+// ---------- ATTACH LOGOUT BUTTONS ----------
+document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("logoutBtnBottom").addEventListener("click", logout);
+</script>
+
+</body>
+</html>
