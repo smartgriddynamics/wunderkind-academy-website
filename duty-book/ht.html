@@ -737,9 +737,6 @@ function getWeekDates(weekNum, year) {
   const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
   
   // Calculate Monday of target week
-  // Week 1 = Jan 5
-  // Week 2 = Jan 12
-  // Week 8 = Feb 16 ✓
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
@@ -772,7 +769,6 @@ function getWeekNumber(date) {
   // If date is before first Monday, it's week 1
   if (diffDays < 0) return 1;
   
-  // FIX: Add 1 to correct the offset
   return Math.floor(diffDays / 7) + 1;
 }
 
@@ -1355,14 +1351,11 @@ window.showPlanDuty = async function(){
   const currentWeek = getCurrentWeekNumber();
   const currentYear = 2026;
   
-  
- // Show ONLY 4 weeks: current + next 3
-for (let i = 0; i < 4; i++) {
-  const weekNum = currentWeek + i + 1; // FIXED: Added +1
-  const weekDates = getWeekDates(weekNum, currentYear);
-  const isCurrentWeek = (i === 0);
-  
-  // ... rest of the code stays the same
+  // Show ONLY 4 weeks: current + next 3
+  for (let i = 0; i < 4; i++) {
+    const weekNum = currentWeek + i; // REMOVED the +1 - it was double-counting
+    const weekDates = getWeekDates(weekNum, currentYear);
+    const isCurrentWeek = (i === 0);
     
     // Get assigned TOD for this week
     let assignedTodId = "";
@@ -1501,4 +1494,3 @@ window.addEventListener('load', function() {
 
 </body>
 </html>
-
