@@ -763,6 +763,7 @@ function getWeekNumber(date) {
   // If date is before first Monday, it's week 1
   if (diffDays < 0) return 1;
   
+  // FIX: Add 1 to correct the offset
   return Math.floor(diffDays / 7) + 1;
 }
 
@@ -1661,3 +1662,4 @@ document.getElementById("logoutBtnBottom").addEventListener("click", logout);
 
 </body>
 </html>
+
