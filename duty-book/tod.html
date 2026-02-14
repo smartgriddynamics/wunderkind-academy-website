@@ -326,63 +326,125 @@
     color: #065f46;
   }
   
-  /* ---------- WEEK INFO BANNER (SAME DESIGN AS HT) ---------- */
-  .week-info-banner {
-    background: rgba(16,185,129,0.1);
-    border-radius: 40px;
-    padding: 1rem 1.5rem;
+  /* ---------- BEAUTIFUL CALENDAR CARD (SAME AS HT) ---------- */
+  .calendar-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
+    border: 1px solid rgba(16,185,129,0.2);
+  }
+  
+  .calendar-header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    flex-wrap: wrap;
-    border-left: 6px solid #10b981;
-  }
-  .week-info-banner i {
-    color: #10b981;
-    font-size: 1.5rem;
-  }
-  .week-info-text {
-    font-weight: 600;
-    color: #065f46;
-  }
-  .week-status {
-    background: white;
-    padding: 0.3rem 1.2rem;
-    border-radius: 30px;
-    font-weight: 700;
-    color: #10b981;
-  }
-  .not-active-warning {
-    background: rgba(239,68,68,0.1);
-    border-left: 6px solid #ef4444;
-  }
-  .not-active-warning i {
-    color: #ef4444;
-  }
-  .not-active-warning .week-status {
-    background: #ef4444;
-    color: white;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed rgba(16,185,129,0.2);
   }
   
-  /* Date display same as HT */
-  .date-row {
+  .calendar-header i {
+    font-size: 2rem;
+    color: #10b981;
+  }
+  
+  .calendar-header h3 {
+    color: #0b2b4e;
+    margin-bottom: 0;
+  }
+  
+  .week-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border-left: 6px solid #10b981;
+    transition: all 0.2s;
+  }
+  
+  .week-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16,185,129,0.1);
+  }
+  
+  .week-number {
+    font-weight: 700;
+    color: #10b981;
+    min-width: 90px;
+    font-size: 1.2rem;
+    background: rgba(16,185,129,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 40px;
+    text-align: center;
+  }
+  
+  .week-dates {
+    flex: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .date-chip {
+    background: rgba(16,185,129,0.05);
+    border-radius: 40px;
+    padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    margin: 0.3rem 0;
+    border: 1px solid rgba(16,185,129,0.1);
   }
-  .date-label {
+  
+  .date-chip .day {
     font-weight: 600;
     color: #065f46;
-    width: 70px;
+    min-width: 60px;
   }
-  .date-value {
-    font-family: 'Courier New', monospace;
-    background: rgba(255,255,255,0.5);
-    padding: 0.2rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+  
+  .date-chip .date {
+    background: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-weight: 600;
+    color: #10b981;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  
+  .current-week .date-chip .date {
+    background: #10b981;
+    color: white;
+  }
+  
+  .current-week {
+    background: rgba(16,185,129,0.05);
+    border-left: 6px solid #10b981;
+  }
+  
+  .assigned-badge {
+    background: #10b981;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  
+  .not-assigned-badge {
+    background: #ef4444;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   /* ---------- PERCENTAGE BADGE ---------- */
@@ -543,17 +605,14 @@
       </div>
     </div>
 
-    <!-- WEEK INFO BANNER (SAME DESIGN AS HT) -->
-    <div id="weekInfoBanner" class="week-info-banner">
-      <i class="fas fa-calendar-week"></i>
-      <div class="week-info-text">
-        <span id="weekNumberDisplay">Loading week information...</span>
+    <!-- BEAUTIFUL CALENDAR CARD (SAME AS HT) -->
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <i class="fas fa-calendar-alt"></i>
+        <h3>Your Duty Schedule</h3>
       </div>
-      <div id="weekStatusBadge" class="week-status">Checking...</div>
+      <div id="assignedWeekCalendar"></div>
     </div>
-
-    <!-- ASSIGNED WEEK DATES (SAME DESIGN AS HT) -->
-    <div id="assignedWeekDates" style="margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.5); border-radius: 20px;"></div>
 
     <!-- ATTENDANCE TABLE -->
     <div id="attendanceTable"></div>
@@ -658,19 +717,24 @@ function getCurrentWeekNumber() {
 }
 
 function getMondayDate(weekNum, year) {
+  // Find the first Monday of the year
   const firstDay = new Date(year, 0, 1);
-  const dayOfWeek = firstDay.getDay();
+  const dayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
   
-  let daysToAdd;
+  // Days to add to reach first Monday
+  let daysToFirstMonday;
   if (dayOfWeek === 0) { // Sunday
-    daysToAdd = 1;
+    daysToFirstMonday = 1; // First Monday is Jan 2
   } else if (dayOfWeek === 1) { // Monday
-    daysToAdd = 0;
+    daysToFirstMonday = 0; // First Monday is Jan 1
   } else { // Tuesday to Saturday
-    daysToAdd = 8 - dayOfWeek;
+    daysToFirstMonday = 8 - dayOfWeek; // Days until next Monday
   }
   
-  const firstMonday = new Date(year, 0, 1 + daysToAdd);
+  // First Monday of the year
+  const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
+  
+  // Calculate target Monday
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
@@ -680,13 +744,19 @@ function getMondayDate(weekNum, year) {
 function getWeekDates(weekNum, year) {
   const monday = getMondayDate(weekNum, year);
   const days = [];
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   
   for (let i = 0; i < 5; i++) {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
     days.push({
-      name: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][i],
-      date: date
+      name: dayNames[i],
+      date: date,
+      formatted: date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
     });
   }
   
@@ -698,13 +768,14 @@ function formatDate(date) {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
-  }).replace(/\//g, '/');
+  });
 }
 
 // ---------- GLOBAL VARIABLES ----------
 let isActiveWeek = false;
 let currentUserTodId = null;
-let assignedWeek = null;
+let assignedWeekNumber = null;
+let assignedWeekData = null;
 let currentWeek = getCurrentWeekNumber();
 let currentYear = new Date().getFullYear();
 
@@ -747,7 +818,6 @@ function createTable(isEditable = false) {
     <tbody>`;
   
   classes.forEach(c => {
-    // Determine if inputs should be readonly
     const preReadonly = isEditable ? '' : 'readonly';
     const absReadonly = isEditable ? '' : 'readonly';
     const sickReadonly = isEditable ? '' : 'readonly';
@@ -788,7 +858,6 @@ function createTable(isEditable = false) {
 
   document.getElementById("attendanceTable").innerHTML = html;
   
-  // Add event listeners only if editable
   if (isEditable) {
     document.querySelectorAll('.preB, .preG, .absB, .absG, .sickB, .sickG, .perB, .perG').forEach(input => {
       input.addEventListener('input', function() {
@@ -796,6 +865,32 @@ function createTable(isEditable = false) {
         calcRow(classId);
       });
     });
+  }
+}
+
+// ---------- FIND WHICH WEEK THE TOD IS ASSIGNED TO ----------
+async function findAssignedWeek() {
+  try {
+    const user = auth.currentUser;
+    if (!user) return null;
+    
+    currentUserTodId = user.uid;
+    
+    // Get all duty plans
+    const dutyPlansSnap = await getDocs(collection(db, "dutyPlan"));
+    let assignedWeek = null;
+    
+    dutyPlansSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.todId === currentUserTodId) {
+        assignedWeek = data.weekNumber;
+      }
+    });
+    
+    return assignedWeek;
+  } catch (error) {
+    console.error("Error finding assigned week:", error);
+    return null;
   }
 }
 
@@ -811,19 +906,18 @@ async function checkActiveWeek() {
     
     currentUserTodId = user.uid;
     
-    // Check duty plan for current week
-    const weekDoc = await getDoc(doc(db, "dutyPlan", `week_${currentWeek}`));
+    // Find which week this TOD is assigned to
+    assignedWeekNumber = await findAssignedWeek();
     
-    if (weekDoc.exists()) {
-      const assignedTodId = weekDoc.data().todId;
-      isActiveWeek = (assignedTodId === currentUserTodId);
-      assignedWeek = currentWeek;
-    } else {
-      isActiveWeek = false;
-      assignedWeek = null;
+    // Check if they're assigned to current week
+    isActiveWeek = (assignedWeekNumber === currentWeek);
+    
+    // Get the week data for display
+    if (assignedWeekNumber) {
+      assignedWeekData = getWeekDates(assignedWeekNumber, currentYear);
     }
     
-    // Update UI based on active week
+    // Update UI
     updateWeekUI();
     
     return isActiveWeek;
@@ -833,39 +927,78 @@ async function checkActiveWeek() {
   }
 }
 
-// ---------- UPDATE UI BASED ON ACTIVE WEEK ----------
+// ---------- UPDATE UI WITH BEAUTIFUL CALENDAR ----------
 function updateWeekUI() {
-  const weekBanner = document.getElementById('weekInfoBanner');
-  const weekStatusBadge = document.getElementById('weekStatusBadge');
-  const weekNumberDisplay = document.getElementById('weekNumberDisplay');
-  const assignedDatesDiv = document.getElementById('assignedWeekDates');
+  const calendarDiv = document.getElementById('assignedWeekCalendar');
   const saveBtn = document.getElementById('saveAttendanceBtn');
   const submitAnswerBtn = document.getElementById('submitAnswerBtn');
   
-  const weekRange = getWeekDates(currentWeek, currentYear);
-  const startStr = weekRange[0].date.toLocaleDateString('en-GB');
-  const endStr = weekRange[4].date.toLocaleDateString('en-GB');
+  let calendarHtml = '';
   
-  weekNumberDisplay.innerHTML = `Week ${currentWeek} (${startStr} - ${endStr})`;
-  
-  // Show assigned week dates
-  let datesHtml = '<div style="display: flex; flex-direction: column; gap: 0.3rem;">';
-  weekRange.forEach(day => {
-    datesHtml += `
-      <div class="date-row">
-        <span class="date-label">${day.name}:</span>
-        <span class="date-value">${formatDate(day.date)}</span>
+  if (assignedWeekNumber) {
+    // Show the week they're assigned to
+    const weekDates = getWeekDates(assignedWeekNumber, currentYear);
+    const isCurrent = (assignedWeekNumber === currentWeek);
+    
+    let datesHtml = '';
+    weekDates.forEach(day => {
+      datesHtml += `
+        <div class="date-chip">
+          <span class="day">${day.name}:</span>
+          <span class="date">${day.formatted}</span>
+        </div>
+      `;
+    });
+    
+    calendarHtml = `
+      <div class="week-row ${isCurrent ? 'current-week' : ''}">
+        <div class="week-number">
+          <i class="fas fa-calendar-week"></i> Week ${assignedWeekNumber}
+          ${isCurrent ? '<span class="assigned-badge" style="margin-left: 0.5rem;">Current</span>' : ''}
+        </div>
+        <div class="week-dates">
+          ${datesHtml}
+        </div>
+        <div>
+          ${isCurrent ? 
+            '<span class="assigned-badge">✓ Your Active Week</span>' : 
+            `<span class="not-assigned-badge">✗ Assigned to Week ${assignedWeekNumber}</span>`
+          }
+        </div>
       </div>
     `;
-  });
-  datesHtml += '</div>';
-  assignedDatesDiv.innerHTML = datesHtml;
+  } else {
+    // No assignment found
+    const weekDates = getWeekDates(currentWeek, currentYear);
+    let datesHtml = '';
+    weekDates.forEach(day => {
+      datesHtml += `
+        <div class="date-chip">
+          <span class="day">${day.name}:</span>
+          <span class="date">${day.formatted}</span>
+        </div>
+      `;
+    });
+    
+    calendarHtml = `
+      <div class="week-row">
+        <div class="week-number">
+          <i class="fas fa-calendar-week"></i> Current Week ${currentWeek}
+        </div>
+        <div class="week-dates">
+          ${datesHtml}
+        </div>
+        <div>
+          <span class="not-assigned-badge">✗ Not Assigned Yet</span>
+        </div>
+      </div>
+    `;
+  }
   
+  calendarDiv.innerHTML = calendarHtml;
+  
+  // Enable/disable buttons based on active week
   if (isActiveWeek) {
-    weekBanner.classList.remove('not-active-warning');
-    weekStatusBadge.innerHTML = '✓ Your Active Week';
-    weekStatusBadge.style.background = '#10b981';
-    weekStatusBadge.style.color = 'white';
     if (saveBtn) {
       saveBtn.disabled = false;
       saveBtn.style.opacity = '1';
@@ -877,16 +1010,6 @@ function updateWeekUI() {
       submitAnswerBtn.style.cursor = 'pointer';
     }
   } else {
-    weekBanner.classList.add('not-active-warning');
-    
-    // Check if they're assigned to any week
-    if (assignedWeek) {
-      const assignedRange = getWeekDates(assignedWeek, currentYear);
-      weekStatusBadge.innerHTML = `✗ Assigned to Week ${assignedWeek}`;
-    } else {
-      weekStatusBadge.innerHTML = '✗ Not Assigned Yet';
-    }
-    
     if (saveBtn) {
       saveBtn.disabled = true;
       saveBtn.style.opacity = '0.5';
@@ -958,7 +1081,6 @@ window.calculateGrandTotals = function() {
     cell.innerText = totals[i];
   });
   
-  // Calculate and display present percentage
   const totalRegistered = totals[2];
   const totalPresent = totals[5];
   let percentage = 0;
@@ -975,7 +1097,7 @@ window.calculateGrandTotals = function() {
 };
 
 // ---------- INITIALIZE TABLE ----------
-createTable(false); // Start with readonly until we check active week
+createTable(false);
 
 // ---------- SAVE ATTENDANCE ----------
 window.saveAttendance = async () => {
@@ -1004,7 +1126,6 @@ window.saveAttendance = async () => {
     });
   });
   
-  // Get existing document to preserve todAnswer if it exists
   const existingSnap = await getDoc(doc(db, "attendance", todayISO));
   const existingData = existingSnap.exists() ? existingSnap.data() : {};
   
@@ -1030,7 +1151,6 @@ async function loadSavedAttendance() {
     const data = snap.data().data;
     const todAnswer = snap.data().todAnswer || "";
     
-    // Load the TOD answer into the textarea
     const answerTextarea = document.getElementById("todAnswer");
     if (answerTextarea && todAnswer) {
       answerTextarea.value = todAnswer;
@@ -1058,7 +1178,6 @@ async function loadSavedAttendance() {
     calculateGrandTotals();
   }
   
-  // Load registration data (from IT)
   await loadRegistrationData();
 }
 
@@ -1117,7 +1236,6 @@ window.loadDay = async function(day) {
       let data = d.data();
       selectedDayData = data;
       
-      // Calculate totals for the summary
       let totalRegB = 0, totalRegG = 0, totalRegT = 0;
       let totalPreB = 0, totalPreG = 0, totalPreT = 0;
       let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
@@ -1143,13 +1261,11 @@ window.loadDay = async function(day) {
       totalSickT = totalSickB + totalSickG;
       totalPerT = totalPerB + totalPerG;
       
-      // Calculate present percentage
       let presentPercentage = 0;
       if (totalRegT > 0) {
         presentPercentage = Math.round((totalPreT / totalRegT) * 100);
       }
       
-      // Header with date and TOD name
       html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h4><i class="fas fa-calendar-day"></i> ${data.day} - ${data.date} (Week ${data.weekNumber || '?'})</h4>
         <span class="percentage-badge" style="background: rgba(16,185,129,0.15);">
@@ -1160,7 +1276,6 @@ window.loadDay = async function(day) {
         </span>
       </div>`;
       
-      // TOD Answer display
       html += `<div style="margin-bottom: 1.5rem;">
         <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #065f46; margin-bottom: 0.5rem;">
           <i class="fas fa-comment-dots" style="color: #10b981;"></i> Your Answer:
@@ -1171,7 +1286,6 @@ window.loadDay = async function(day) {
         </div>
       </div>`;
       
-      // HT Response display
       if (data.htAnswer) {
         html += `<div style="margin-bottom: 1.5rem;">
           <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #0a4e7a; margin-bottom: 0.5rem;">
@@ -1184,7 +1298,6 @@ window.loadDay = async function(day) {
         </div>`;
       }
       
-      // Detailed table with B/G/T columns
       html += `<div class="table-responsive"><table>
         <thead>
           <tr>
@@ -1226,7 +1339,6 @@ window.loadDay = async function(day) {
         `;
       });
       
-      // Grand Total Row
       html += `
         <tr class="totalRow">
           <td><strong>GRAND TOTAL</strong></td>
@@ -1244,7 +1356,6 @@ window.loadDay = async function(day) {
         </tr>
       </tbody></table></div>`;
       
-      // Summary Statistics Card
       html += `<div class="summary-card">
         <div class="summary-stat">
           <span class="summary-label">Total Students</span>
@@ -1279,7 +1390,6 @@ window.downloadPDF = function() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
   
-  // Calculate totals
   let totalRegB = 0, totalRegG = 0, totalRegT = 0;
   let totalPreB = 0, totalPreG = 0, totalPreT = 0;
   let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
@@ -1310,7 +1420,6 @@ window.downloadPDF = function() {
     presentPercentage = Math.round((totalPreT / totalRegT) * 100);
   }
   
-  // Header
   pdf.setFontSize(18);
   pdf.text("TOD Attendance Report", 10, 10);
   pdf.setFontSize(14);
@@ -1320,7 +1429,6 @@ window.downloadPDF = function() {
   pdf.setFontSize(14);
   pdf.text(`Present Rate: ${presentPercentage}%`, 10, 40);
   
-  // TOD Answer
   pdf.setFontSize(12);
   pdf.text("TOD Answer:", 10, 55);
   pdf.setFontSize(10);
@@ -1328,7 +1436,6 @@ window.downloadPDF = function() {
   const splitAnswer = pdf.splitTextToSize(todAnswer, 180);
   pdf.text(splitAnswer, 15, 65);
   
-  // HT Response
   let y = 65 + (splitAnswer.length * 5);
   if (selectedDayData.htAnswer) {
     pdf.setFontSize(12);
@@ -1342,7 +1449,6 @@ window.downloadPDF = function() {
     y += 15;
   }
   
-  // Class data
   pdf.setFontSize(9);
   pdf.text("Class", 10, y);
   pdf.text("Reg B", 35, y);
@@ -1376,7 +1482,6 @@ window.downloadPDF = function() {
     y += 7;
   });
   
-  // Grand Total
   pdf.setFontSize(10);
   pdf.text("GRAND TOTAL", 10, y);
   pdf.text(String(totalRegB), 35, y);
@@ -1391,7 +1496,6 @@ window.downloadPDF = function() {
   pdf.text(String(totalPerG), 190, y);
   pdf.text(String(totalPreT), 210, y);
   
-  // Summary
   y += 15;
   pdf.setFontSize(12);
   pdf.text(`SUMMARY:`, 10, y);
@@ -1435,7 +1539,6 @@ window.downloadWeekPDF = async function() {
       y = 20;
     }
     
-    // Calculate totals for the day
     let totalRegT = 0, totalPreT = 0;
     data.data.forEach(r => {
       totalRegT += (parseInt(r.regB) || 0) + (parseInt(r.regG) || 0);
@@ -1475,7 +1578,6 @@ async function logout() {
 // ---------- AUTH STATE ----------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    // Check if user has TOD role
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists() || userDoc.data().role !== "TOD") {
       alert("Access Denied: Teacher On Duty only");
@@ -1483,13 +1585,8 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
     
-    // Check if this is their active week
     await checkActiveWeek();
-    
-    // Recreate table with correct edit permissions
     createTable(isActiveWeek);
-    
-    // Load data
     loadQuestion();
     await loadSavedAttendance();
     await loadRegistrationData();
