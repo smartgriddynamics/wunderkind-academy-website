@@ -705,50 +705,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------- HELPER FUNCTIONS ----------
-function getWeekNumber(date) {
-  const firstDay = new Date(date.getFullYear(), 0, 1);
-  const pastDays = (date - firstDay) / 86400000;
-  return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
-}
+/* ================= CORRECTED DATE FUNCTIONS FOR 2026 ================= */
 
-function getCurrentWeekNumber() {
-  return getWeekNumber(new Date());
-}
-
-function getMondayDate(weekNum, year) {
-  // Find the first Monday of the year
-  const firstDay = new Date(year, 0, 1);
-  const dayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+function getWeekDates(weekNum, year) {
+  // First Monday of 2026 is January 5
+  const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
   
-  // Days to add to reach first Monday
-  let daysToFirstMonday;
-  if (dayOfWeek === 0) { // Sunday
-    daysToFirstMonday = 1; // First Monday is Jan 2
-  } else if (dayOfWeek === 1) { // Monday
-    daysToFirstMonday = 0; // First Monday is Jan 1
-  } else { // Tuesday to Saturday
-    daysToFirstMonday = 8 - dayOfWeek; // Days until next Monday
-  }
-  
-  // First Monday of the year
-  const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
-  
-  // Calculate target Monday
+  // Calculate Monday of target week
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
-  return targetMonday;
-}
-
-function getWeekDates(weekNum, year) {
-  const monday = getMondayDate(weekNum, year);
   const days = [];
   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   
   for (let i = 0; i < 5; i++) {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
+    const date = new Date(targetMonday);
+    date.setDate(targetMonday.getDate() + i);
     days.push({
       name: dayNames[i],
       date: date,
@@ -763,6 +735,22 @@ function getWeekDates(weekNum, year) {
   return days;
 }
 
+function getWeekNumber(date) {
+  // For 2026, Week 1 starts Jan 5
+  const firstMonday = new Date(2026, 0, 5);
+  const diffTime = date - firstMonday;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 1; // Before first Monday
+  
+  return Math.floor(diffDays / 7) + 1;
+}
+
+function getCurrentWeekNumber() {
+  const today = new Date();
+  return getWeekNumber(today);
+}
+
 function formatDate(date) {
   return date.toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -771,13 +759,18 @@ function formatDate(date) {
   });
 }
 
+// Test the dates
+console.log("Week 8:", getWeekDates(8, 2026).map(d => d.formatted));
+console.log("Week 9:", getWeekDates(9, 2026).map(d => d.formatted));
+console.log("Week 10:", getWeekDates(10, 2026).map(d => d.formatted));
+
 // ---------- GLOBAL VARIABLES ----------
 let isActiveWeek = false;
 let currentUserTodId = null;
 let assignedWeekNumber = null;
 let assignedWeekData = null;
 let currentWeek = getCurrentWeekNumber();
-let currentYear = new Date().getFullYear();
+let currentYear = 2026; // Fixed to 2026
 
 // ---------- DATE SETUP ----------
 let today = new Date();
@@ -900,7 +893,6 @@ async function checkActiveWeek() {
     const user = auth.currentUser;
     if (!user) return false;
     
-    // Get user's todId from users collection
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists()) return false;
     
@@ -911,11 +903,6 @@ async function checkActiveWeek() {
     
     // Check if they're assigned to current week
     isActiveWeek = (assignedWeekNumber === currentWeek);
-    
-    // Get the week data for display
-    if (assignedWeekNumber) {
-      assignedWeekData = getWeekDates(assignedWeekNumber, currentYear);
-    }
     
     // Update UI
     updateWeekUI();
@@ -968,7 +955,7 @@ function updateWeekUI() {
       </div>
     `;
   } else {
-    // No assignment found
+    // No assignment found - show current week
     const weekDates = getWeekDates(currentWeek, currentYear);
     let datesHtml = '';
     weekDates.forEach(day => {
