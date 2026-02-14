@@ -326,7 +326,7 @@
     color: #065f46;
   }
   
-  /* ---------- BEAUTIFUL CALENDAR CARD (SAME AS HT) ---------- */
+  /* ---------- BEAUTIFUL CALENDAR CARD ---------- */
   .calendar-card {
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
@@ -445,6 +445,17 @@
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
+  }
+  
+  .sunday-message {
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 1rem;
   }
 
   /* ---------- PERCENTAGE BADGE ---------- */
@@ -605,7 +616,12 @@
       </div>
     </div>
 
-    <!-- BEAUTIFUL CALENDAR CARD (SAME AS HT) -->
+    <!-- SUNDAY MESSAGE (if today is Sunday) -->
+    <div id="sundayMessage" class="sunday-message" style="display: none;">
+      <i class="fas fa-sun"></i> Today is Sunday. Your week starts tomorrow (Monday). No editing until Monday.
+    </div>
+
+    <!-- BEAUTIFUL CALENDAR CARD -->
     <div class="calendar-card">
       <div class="calendar-header">
         <i class="fas fa-calendar-alt"></i>
@@ -705,7 +721,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* ================= CORRECTED DATE FUNCTIONS FOR 2026 ================= */
+/* ================= CORRECTED DATE FUNCTIONS ================= */
 
 function getWeekDates(weekNum, year) {
   // First Monday of 2026 is January 5
@@ -766,6 +782,7 @@ console.log("Week 10:", getWeekDates(10, 2026).map(d => d.formatted));
 
 // ---------- GLOBAL VARIABLES ----------
 let isActiveWeek = false;
+let canEditToday = false;
 let currentUserTodId = null;
 let assignedWeekNumber = null;
 let assignedWeekData = null;
@@ -776,11 +793,17 @@ let currentYear = 2026; // Fixed to 2026
 let today = new Date();
 let todayISO = today.toISOString().split("T")[0];
 let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
+let dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
 document.getElementById("todayHeader").innerHTML = `
   <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
   ${dayName} - ${todayISO} (Week ${currentWeek})
 `;
+
+// Show Sunday message if today is Sunday
+if (dayOfWeek === 0) {
+  document.getElementById('sundayMessage').style.display = 'block';
+}
 
 // ---------- CLASS LIST ----------
 let classes = [
@@ -887,6 +910,21 @@ async function findAssignedWeek() {
   }
 }
 
+// ---------- CHECK IF USER CAN EDIT TODAY ----------
+function canEditTodayCheck(assignedWeek) {
+  // If not assigned to any week
+  if (!assignedWeek) return false;
+  
+  // If not assigned to current week
+  if (assignedWeek !== currentWeek) return false;
+  
+  // If today is Sunday, cannot edit (week starts Monday)
+  if (dayOfWeek === 0) return false;
+  
+  // All checks passed - can edit
+  return true;
+}
+
 // ---------- CHECK IF CURRENT WEEK IS USER'S ACTIVE WEEK ----------
 async function checkActiveWeek() {
   try {
@@ -904,10 +942,13 @@ async function checkActiveWeek() {
     // Check if they're assigned to current week
     isActiveWeek = (assignedWeekNumber === currentWeek);
     
+    // Check if they can edit TODAY specifically
+    canEditToday = canEditTodayCheck(assignedWeekNumber);
+    
     // Update UI
     updateWeekUI();
     
-    return isActiveWeek;
+    return canEditToday;
   } catch (error) {
     console.error("Error checking active week:", error);
     return false;
@@ -937,6 +978,19 @@ function updateWeekUI() {
       `;
     });
     
+    let statusMessage = '';
+    if (isCurrent && dayOfWeek === 0) {
+      statusMessage = '<span class="not-assigned-badge" style="background: #f59e0b;">⏳ Starts Tomorrow</span>';
+    } else if (isCurrent && canEditToday) {
+      statusMessage = '<span class="assigned-badge">✓ Your Active Week</span>';
+    } else if (isCurrent && !canEditToday) {
+      statusMessage = '<span class="not-assigned-badge">✗ Cannot Edit Today</span>';
+    } else if (assignedWeekNumber > currentWeek) {
+      statusMessage = `<span class="not-assigned-badge">✗ Your Week ${assignedWeekNumber} (Future)</span>`;
+    } else if (assignedWeekNumber < currentWeek) {
+      statusMessage = `<span class="not-assigned-badge">✗ Your Week ${assignedWeekNumber} (Past)</span>`;
+    }
+    
     calendarHtml = `
       <div class="week-row ${isCurrent ? 'current-week' : ''}">
         <div class="week-number">
@@ -947,10 +1001,7 @@ function updateWeekUI() {
           ${datesHtml}
         </div>
         <div>
-          ${isCurrent ? 
-            '<span class="assigned-badge">✓ Your Active Week</span>' : 
-            `<span class="not-assigned-badge">✗ Assigned to Week ${assignedWeekNumber}</span>`
-          }
+          ${statusMessage}
         </div>
       </div>
     `;
@@ -984,8 +1035,8 @@ function updateWeekUI() {
   
   calendarDiv.innerHTML = calendarHtml;
   
-  // Enable/disable buttons based on active week
-  if (isActiveWeek) {
+  // Enable/disable buttons based on canEditToday
+  if (canEditToday) {
     if (saveBtn) {
       saveBtn.disabled = false;
       saveBtn.style.opacity = '1';
@@ -1088,8 +1139,8 @@ createTable(false);
 
 // ---------- SAVE ATTENDANCE ----------
 window.saveAttendance = async () => {
-  if (!isActiveWeek) {
-    alert("You can only save attendance during your assigned week!");
+  if (!canEditToday) {
+    alert("You can only save attendance during your assigned week (Monday-Friday)!");
     return;
   }
   
@@ -1180,8 +1231,8 @@ async function loadQuestion() {
 
 // ---------- SAVE ANSWER ----------
 window.saveAnswer = async () => {
-  if (!isActiveWeek) {
-    alert("You can only submit answers during your assigned week!");
+  if (!canEditToday) {
+    alert("You can only submit answers during your assigned week (Monday-Friday)!");
     return;
   }
   
@@ -1573,7 +1624,7 @@ onAuthStateChanged(auth, async (user) => {
     }
     
     await checkActiveWeek();
-    createTable(isActiveWeek);
+    createTable(canEditToday);
     loadQuestion();
     await loadSavedAttendance();
     await loadRegistrationData();
