@@ -774,7 +774,14 @@ function getWeekNumber(date) {
 
 function getCurrentWeekNumber() {
   const today = new Date();
-  return getWeekNumber(today);
+  const weekNum = getWeekNumber(today);
+  
+  // If today is Sunday, show next week (for planning view)
+  if (today.getDay() === 0) { // 0 = Sunday
+    return weekNum + 1;
+  }
+  
+  return weekNum;
 }
 
 function formatDate(date) {
@@ -797,6 +804,8 @@ function formatDateLong(dateString) {
 
 // Test the dates
 console.log("✅ HT PAGE CORRECT DATES:");
+console.log("Today is Sunday Feb 15, 2026");
+console.log("Current Week (for planning):", getCurrentWeekNumber()); // Should be 8
 console.log("Week 8:", getWeekDates(8, 2026).map(d => d.formatted).join(' | '));
 console.log("Week 9:", getWeekDates(9, 2026).map(d => d.formatted).join(' | '));
 console.log("Week 10:", getWeekDates(10, 2026).map(d => d.formatted).join(' | '));
@@ -1347,13 +1356,13 @@ window.showPlanDuty = async function(){
     }
   });
 
-  // Get current week
+  // Get current week (with Sunday fix)
   const currentWeek = getCurrentWeekNumber();
   const currentYear = 2026;
   
   // Show ONLY 4 weeks: current + next 3
   for (let i = 0; i < 4; i++) {
-    const weekNum = currentWeek + i; // REMOVED the +1 - it was double-counting
+    const weekNum = currentWeek + i;
     const weekDates = getWeekDates(weekNum, currentYear);
     const isCurrentWeek = (i === 0);
     
