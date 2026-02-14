@@ -326,11 +326,11 @@
     color: #065f46;
   }
   
-  /* ---------- WEEK INFO BANNER ---------- */
+  /* ---------- WEEK INFO BANNER (SAME DESIGN AS HT) ---------- */
   .week-info-banner {
     background: rgba(16,185,129,0.1);
     border-radius: 40px;
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 1.5rem;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -359,6 +359,30 @@
   }
   .not-active-warning i {
     color: #ef4444;
+  }
+  .not-active-warning .week-status {
+    background: #ef4444;
+    color: white;
+  }
+  
+  /* Date display same as HT */
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0.3rem 0;
+  }
+  .date-label {
+    font-weight: 600;
+    color: #065f46;
+    width: 70px;
+  }
+  .date-value {
+    font-family: 'Courier New', monospace;
+    background: rgba(255,255,255,0.5);
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
   }
 
   /* ---------- PERCENTAGE BADGE ---------- */
@@ -519,7 +543,7 @@
       </div>
     </div>
 
-    <!-- WEEK INFO BANNER -->
+    <!-- WEEK INFO BANNER (SAME DESIGN AS HT) -->
     <div id="weekInfoBanner" class="week-info-banner">
       <i class="fas fa-calendar-week"></i>
       <div class="week-info-text">
@@ -527,6 +551,9 @@
       </div>
       <div id="weekStatusBadge" class="week-status">Checking...</div>
     </div>
+
+    <!-- ASSIGNED WEEK DATES (SAME DESIGN AS HT) -->
+    <div id="assignedWeekDates" style="margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.5); border-radius: 20px;"></div>
 
     <!-- ATTENDANCE TABLE -->
     <div id="attendanceTable"></div>
@@ -619,10 +646,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------- GLOBAL VARIABLES ----------
-let isActiveWeek = false;
-let currentUserTodId = null;
-
 // ---------- HELPER FUNCTIONS ----------
 function getWeekNumber(date) {
   const firstDay = new Date(date.getFullYear(), 0, 1);
@@ -634,25 +657,61 @@ function getCurrentWeekNumber() {
   return getWeekNumber(new Date());
 }
 
-function getWeekStartEnd(weekNum, year) {
-  const firstDayOfYear = new Date(year, 0, 1);
-  const days = (weekNum - 1) * 7;
-  const startDate = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() + days));
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 6);
+function getMondayDate(weekNum, year) {
+  const firstDay = new Date(year, 0, 1);
+  const dayOfWeek = firstDay.getDay();
   
-  return {
-    start: startDate,
-    end: endDate
-  };
+  let daysToAdd;
+  if (dayOfWeek === 0) { // Sunday
+    daysToAdd = 1;
+  } else if (dayOfWeek === 1) { // Monday
+    daysToAdd = 0;
+  } else { // Tuesday to Saturday
+    daysToAdd = 8 - dayOfWeek;
+  }
+  
+  const firstMonday = new Date(year, 0, 1 + daysToAdd);
+  const targetMonday = new Date(firstMonday);
+  targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
+  
+  return targetMonday;
 }
+
+function getWeekDates(weekNum, year) {
+  const monday = getMondayDate(weekNum, year);
+  const days = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    days.push({
+      name: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][i],
+      date: date
+    });
+  }
+  
+  return days;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).replace(/\//g, '/');
+}
+
+// ---------- GLOBAL VARIABLES ----------
+let isActiveWeek = false;
+let currentUserTodId = null;
+let assignedWeek = null;
+let currentWeek = getCurrentWeekNumber();
+let currentYear = new Date().getFullYear();
 
 // ---------- DATE SETUP ----------
 let today = new Date();
 let todayISO = today.toISOString().split("T")[0];
 let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
-const currentWeek = getCurrentWeekNumber();
-const currentYear = today.getFullYear();
 
 document.getElementById("todayHeader").innerHTML = `
   <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
@@ -750,7 +809,6 @@ async function checkActiveWeek() {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists()) return false;
     
-    const userData = userDoc.data();
     currentUserTodId = user.uid;
     
     // Check duty plan for current week
@@ -759,8 +817,10 @@ async function checkActiveWeek() {
     if (weekDoc.exists()) {
       const assignedTodId = weekDoc.data().todId;
       isActiveWeek = (assignedTodId === currentUserTodId);
+      assignedWeek = currentWeek;
     } else {
       isActiveWeek = false;
+      assignedWeek = null;
     }
     
     // Update UI based on active week
@@ -778,27 +838,55 @@ function updateWeekUI() {
   const weekBanner = document.getElementById('weekInfoBanner');
   const weekStatusBadge = document.getElementById('weekStatusBadge');
   const weekNumberDisplay = document.getElementById('weekNumberDisplay');
+  const assignedDatesDiv = document.getElementById('assignedWeekDates');
   const saveBtn = document.getElementById('saveAttendanceBtn');
   const submitAnswerBtn = document.getElementById('submitAnswerBtn');
   
-  const weekRange = getWeekStartEnd(currentWeek, currentYear);
-  const startStr = weekRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endStr = weekRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const weekRange = getWeekDates(currentWeek, currentYear);
+  const startStr = weekRange[0].date.toLocaleDateString('en-GB');
+  const endStr = weekRange[4].date.toLocaleDateString('en-GB');
   
   weekNumberDisplay.innerHTML = `Week ${currentWeek} (${startStr} - ${endStr})`;
+  
+  // Show assigned week dates
+  let datesHtml = '<div style="display: flex; flex-direction: column; gap: 0.3rem;">';
+  weekRange.forEach(day => {
+    datesHtml += `
+      <div class="date-row">
+        <span class="date-label">${day.name}:</span>
+        <span class="date-value">${formatDate(day.date)}</span>
+      </div>
+    `;
+  });
+  datesHtml += '</div>';
+  assignedDatesDiv.innerHTML = datesHtml;
   
   if (isActiveWeek) {
     weekBanner.classList.remove('not-active-warning');
     weekStatusBadge.innerHTML = '✓ Your Active Week';
     weekStatusBadge.style.background = '#10b981';
     weekStatusBadge.style.color = 'white';
-    if (saveBtn) saveBtn.disabled = false;
-    if (submitAnswerBtn) submitAnswerBtn.disabled = false;
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '1';
+      saveBtn.style.cursor = 'pointer';
+    }
+    if (submitAnswerBtn) {
+      submitAnswerBtn.disabled = false;
+      submitAnswerBtn.style.opacity = '1';
+      submitAnswerBtn.style.cursor = 'pointer';
+    }
   } else {
     weekBanner.classList.add('not-active-warning');
-    weekStatusBadge.innerHTML = '✗ Not Your Week (View Only)';
-    weekStatusBadge.style.background = '#ef4444';
-    weekStatusBadge.style.color = 'white';
+    
+    // Check if they're assigned to any week
+    if (assignedWeek) {
+      const assignedRange = getWeekDates(assignedWeek, currentYear);
+      weekStatusBadge.innerHTML = `✗ Assigned to Week ${assignedWeek}`;
+    } else {
+      weekStatusBadge.innerHTML = '✗ Not Assigned Yet';
+    }
+    
     if (saveBtn) {
       saveBtn.disabled = true;
       saveBtn.style.opacity = '0.5';
@@ -973,6 +1061,36 @@ async function loadSavedAttendance() {
   // Load registration data (from IT)
   await loadRegistrationData();
 }
+
+// ---------- LOAD QUESTION ----------
+async function loadQuestion() {
+  const snap = await getDoc(doc(db, "questions", "daily"));
+  if (!snap.exists() || !snap.data().tod) {
+    document.getElementById("questionBox").innerHTML = `<i class="fas fa-info-circle"></i> No question posted by IT`;
+    return;
+  }
+  document.getElementById("questionBox").innerHTML = snap.data().tod;
+}
+
+// ---------- SAVE ANSWER ----------
+window.saveAnswer = async () => {
+  if (!isActiveWeek) {
+    alert("You can only submit answers during your assigned week!");
+    return;
+  }
+  
+  const user = auth.currentUser;
+  let answer = document.getElementById("todAnswer").value.trim();
+  if (!answer) { alert("Please write an answer"); return; }
+  
+  await setDoc(doc(db, "attendance", todayISO), {
+    todAnswer: answer,
+    answer: answer,
+    submittedAt: new Date()
+  }, { merge: true });
+  
+  alert("✅ Answer Submitted - Visible to Head Teacher");
+};
 
 // ---------- SHOW ACTIVITY ----------
 window.showActivity = function() {
@@ -1341,36 +1459,6 @@ window.downloadWeekPDF = async function() {
   });
   
   pdf.save("TOD_Weekly_Report.pdf");
-};
-
-// ---------- LOAD QUESTION ----------
-async function loadQuestion() {
-  const snap = await getDoc(doc(db, "questions", "daily"));
-  if (!snap.exists() || !snap.data().tod) {
-    document.getElementById("questionBox").innerHTML = `<i class="fas fa-info-circle"></i> No question posted by IT`;
-    return;
-  }
-  document.getElementById("questionBox").innerHTML = snap.data().tod;
-}
-
-// ---------- SAVE ANSWER ----------
-window.saveAnswer = async () => {
-  if (!isActiveWeek) {
-    alert("You can only submit answers during your assigned week!");
-    return;
-  }
-  
-  const user = auth.currentUser;
-  let answer = document.getElementById("todAnswer").value.trim();
-  if (!answer) { alert("Please write an answer"); return; }
-  
-  await setDoc(doc(db, "attendance", todayISO), {
-    todAnswer: answer,
-    answer: answer,
-    submittedAt: new Date()
-  }, { merge: true });
-  
-  alert("✅ Answer Submitted - Visible to Head Teacher");
 };
 
 // ---------- LOGOUT FUNCTION ----------
