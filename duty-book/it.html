@@ -423,12 +423,53 @@
     border-top: 1px solid rgba(10,102,194,0.2);
   }
 
+  /* ---------- QUESTION TEXTAREAS (ORIGINAL STYLE) ---------- */
+  .question-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .question-header i {
+    color: #0a66c2;
+    font-size: 1.2rem;
+  }
+  
+  .question-header span {
+    font-weight: 600;
+    color: #1e4c6b;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+  }
+  textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+    outline: none;
+  }
+
   /* ---------- INFO MESSAGE ---------- */
   .info-message {
     background: rgba(10,102,194,0.05);
     border-radius: 16px;
     padding: 0.8rem 1.2rem;
     margin-top: 1rem;
+    margin-bottom: 1rem;
     font-size: 0.9rem;
     color: #0a4e7a;
     display: flex;
@@ -514,22 +555,22 @@
     </div>
   </div>
 
-  <!-- ================= TOD & HT QUESTIONS ================= -->
+  <!-- ================= DAILY QUESTIONS (ORIGINAL STYLE) ================= -->
   <div class="glass-card">
     <h3><span class="section-icon"><i class="fas fa-clipboard-list"></i></span> Daily Questions</h3>
     
-    <div style="margin-bottom: 1.5rem;">
-      <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
-        <i class="fas fa-user-tie" style="color: #0a66c2;"></i>
-        <span style="font-weight: 600; color: #1e4c6b;">TOD Questions</span>
+    <div class="question-section">
+      <div class="question-header">
+        <i class="fas fa-user-tie"></i>
+        <span>TOD Questions</span>
       </div>
       <textarea id="todQ" rows="3" placeholder="Enter TOD questions for today..."></textarea>
     </div>
     
-    <div style="margin-bottom: 1rem;">
-      <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
-        <i class="fas fa-user-shield" style="color: #0a66c2;"></i>
-        <span style="font-weight: 600; color: #1e4c6b;">HT / SHC Questions</span>
+    <div class="question-section">
+      <div class="question-header">
+        <i class="fas fa-user-shield"></i>
+        <span>HT / SHC Questions</span>
       </div>
       <textarea id="htQ" rows="3" placeholder="Enter HT questions for today..."></textarea>
     </div>
@@ -647,6 +688,7 @@ onAuthStateChanged(auth, async (user) => {
   }
   loadUsers();
   loadRegistration();
+  loadQuestions(); // Load questions on page load
 });
 
 /* ---------- CLASS LIST ---------- */
@@ -820,7 +862,6 @@ window.loadRegistration = async () => {
       calculateTotals();
     }
   } else {
-    // If no registration data exists, keep zeros (or you could load sample data)
     console.log("No registration data found. Starting fresh.");
   }
   
@@ -850,16 +891,30 @@ window.saveAttendance = async () => {
   alert("IT Admin does not need to save attendance. Use 'Save Registration Numbers' instead.");
 };
 
-/* ---------- SAVE QUESTIONS ---------- */
+/* ---------- SAVE QUESTIONS (FIXED: saves to questions collection, NOT date-specific) ---------- */
 window.saveQuestions = async () => {
-  await setDoc(doc(db, "questions", "today"), {
-    tod: document.getElementById("todQ").value,
-    ht: document.getElementById("htQ").value,
+  const todQuestion = document.getElementById("todQ").value;
+  const htQuestion = document.getElementById("htQ").value;
+  
+  // Save to a SINGLE document that persists across days
+  await setDoc(doc(db, "questions", "daily"), {
+    tod: todQuestion,
+    ht: htQuestion,
     updatedAt: new Date(),
     updatedBy: auth.currentUser?.email || 'IT Admin'
   });
-  alert("✅ Questions Saved");
+  
+  alert("✅ Questions saved! These will appear for TODs every day.");
 };
+
+/* ---------- LOAD QUESTIONS (loads the persistent questions) ---------- */
+async function loadQuestions() {
+  const qSnap = await getDoc(doc(db, "questions", "daily"));
+  if (qSnap.exists()) {
+    document.getElementById("todQ").value = qSnap.data().tod || "";
+    document.getElementById("htQ").value = qSnap.data().ht || "";
+  }
+}
 
 /* ---------- LOAD USERS ---------- */
 async function loadUsers() {
@@ -951,23 +1006,12 @@ document.getElementById("logoutBtn").onclick = async () => {
   window.location = "index.html";
 };
 
-/* ---------- LOAD QUESTIONS ---------- */
-async function loadQuestions() {
-  const qSnap = await getDoc(doc(db, "questions", "today"));
-  if (qSnap.exists()) {
-    document.getElementById("todQ").value = qSnap.data().tod || "";
-    document.getElementById("htQ").value = qSnap.data().ht || "";
-  }
-}
-
-// Load questions on page load
-loadQuestions();
-
 // Make functions globally available
 window.calculateTotals = calculateTotals;
 window.saveRegistration = saveRegistration;
 window.loadRegistration = loadRegistration;
 window.saveQuestions = saveQuestions;
+window.loadQuestions = loadQuestions;
 window.createUser = createUser;
 window.editUser = editUser;
 window.deleteUser = deleteUser;
