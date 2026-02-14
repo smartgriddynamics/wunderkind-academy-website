@@ -378,7 +378,7 @@
     box-shadow: 0 8px 20px -8px rgba(0,0,0,0.1);
   }
 
-  /* ---------- DUTY PLAN SECTION ---------- */
+  /* ---------- DUTY PLAN SECTION (WEEK-BASED) ---------- */
   .duty-card {
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
@@ -387,7 +387,7 @@
     margin-bottom: 1.5rem;
     border: 1px solid rgba(10,102,194,0.2);
   }
-  .duty-row {
+  .week-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -396,11 +396,26 @@
     padding-bottom: 1.2rem;
     border-bottom: 1px solid rgba(10,102,194,0.1);
   }
-  .duty-day {
+  .week-number {
     font-weight: 700;
     color: #0a66c2;
     min-width: 100px;
     font-size: 1.1rem;
+    background: rgba(10,102,194,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    text-align: center;
+  }
+  .week-dates {
+    font-size: 0.9rem;
+    color: #2c5a73;
+    min-width: 200px;
+  }
+  
+  /* Active week indicator */
+  .current-week {
+    background: rgba(16,185,129,0.1);
+    border: 2px solid #10b981;
   }
 
   /* ---------- RECORD LIST ---------- */
@@ -661,7 +676,7 @@
         <i class="fas fa-history"></i> Duty History
       </button>
       <button id="navPlanDuty" class="nav-btn" onclick="showPlanDuty()">
-        <i class="fas fa-calendar-plus"></i> Plan Duty
+        <i class="fas fa-calendar-plus"></i> Plan Duty (Weeks)
       </button>
     </div>
 
@@ -716,6 +731,23 @@ function getWeekNumber(date) {
   const firstDay = new Date(date.getFullYear(), 0, 1);
   const pastDays = (date - firstDay) / 86400000;
   return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+}
+
+function getCurrentWeekNumber() {
+  return getWeekNumber(new Date());
+}
+
+function getWeekStartEnd(weekNum, year) {
+  const firstDayOfYear = new Date(year, 0, 1);
+  const days = (weekNum - 1) * 7;
+  const startDate = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() + days));
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  
+  return {
+    start: startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    end: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  };
 }
 
 function getYear(date) {
@@ -1268,7 +1300,7 @@ window.openRecord = async function(id) {
   `;
 };
 
-/* ================= PLAN DUTY ================= */
+/* ================= PLAN DUTY - 4 WEEKS ROTATION ================= */
 
 window.showPlanDuty = async function(){
   // Set active nav button
@@ -1276,7 +1308,7 @@ window.showPlanDuty = async function(){
   document.getElementById('navPlanDuty').classList.add('active');
 
   let html = `
-    <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> Plan Duty</h3>
+    <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> 4-Week Duty Rotation</h3>
     <div class="duty-card">
   `;
 
@@ -1291,38 +1323,52 @@ window.showPlanDuty = async function(){
     }
   });
 
-  // Get existing duty plans
-  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  // Get current week number
+  const currentWeek = getCurrentWeekNumber();
+  const currentYear = new Date().getFullYear();
   
-  for (const day of days) {
+  // Get next 4 weeks for planning
+  const weeks = [1, 2, 3, 4];
+  
+  for (let i = 0; i < weeks.length; i++) {
+    const weekNum = currentWeek + i;
+    const weekDisplay = `Week ${weekNum}`;
+    const dateRange = getWeekStartEnd(weekNum, currentYear);
+    const isCurrentWeek = (i === 0);
+    
+    // Get assigned TOD for this week
     let assignedTod = "";
     try {
-      const planSnap = await getDoc(doc(db, "dutyPlan", day));
+      const planSnap = await getDoc(doc(db, "dutyPlan", `week_${weekNum}`));
       if (planSnap.exists()) {
         const todId = planSnap.data().todId;
         const assigned = todList.find(t => t.id === todId);
         assignedTod = assigned ? assigned.id : "";
       }
     } catch (e) {
-      console.log("No plan for " + day);
+      console.log("No plan for week " + weekNum);
     }
 
     html += `
-    <div class="duty-row">
-      <div class="duty-day">
-        <i class="fas fa-calendar-day" style="margin-right: 0.5rem;"></i>${day}
+    <div class="week-row ${isCurrentWeek ? 'current-week' : ''}">
+      <div class="week-number">
+        <i class="fas fa-calendar-week"></i> ${weekDisplay}
+      </div>
+      <div class="week-dates">
+        ${dateRange.start} - ${dateRange.end}
+        ${isCurrentWeek ? '<span class="badge" style="background: #10b981; color: white; margin-left: 0.5rem;">Current</span>' : ''}
       </div>
       <div style="flex: 1;">
         <div class="input-icon-wrapper">
           <i class="fas fa-user-tie"></i>
-          <select id="select_${day}">
-            <option value="">-- Select TOD --</option>
+          <select id="select_week_${weekNum}">
+            <option value="">-- Select TOD for this week --</option>
             ${todList.map(t => `<option value="${t.id}" ${t.id === assignedTod ? 'selected' : ''}>${t.name} (${t.email})</option>`).join("")}
           </select>
         </div>
       </div>
-      <button class="btn-success" onclick="savePlan('${day}')">
-        <i class="fas fa-save"></i> Save
+      <button class="btn-success" onclick="savePlan('${weekNum}')">
+        <i class="fas fa-save"></i> Assign
       </button>
     </div>
     `;
@@ -1330,7 +1376,7 @@ window.showPlanDuty = async function(){
 
   html += `
     <div class="info-note" style="margin-top: 1rem;">
-      <i class="fas fa-info-circle"></i> Assign Teacher On Duty for each day of the week.
+      <i class="fas fa-info-circle"></i> Assign TODs for each week. Only the assigned TOD can edit attendance during their week.
     </div>
   </div>
   `;
@@ -1338,21 +1384,23 @@ window.showPlanDuty = async function(){
   document.getElementById("content").innerHTML = html;
 }
 
-window.savePlan = async function(day){
-  let todId = document.getElementById("select_" + day).value;
+window.savePlan = async function(weekNum){
+  const selectId = `select_week_${weekNum}`;
+  const todId = document.getElementById(selectId).value;
   
   if (!todId) {
     alert("Please select a TOD");
     return;
   }
 
-  await setDoc(doc(db, "dutyPlan", day), {
+  await setDoc(doc(db, "dutyPlan", `week_${weekNum}`), {
+    weekNumber: parseInt(weekNum),
     todId: todId,
-    updatedAt: new Date(),
-    updatedBy: auth.currentUser?.email || 'HT'
+    assignedAt: new Date(),
+    assignedBy: auth.currentUser?.email || 'HT'
   });
 
-  alert(`✅ ${day} duty assigned successfully`);
+  alert(`✅ Week ${weekNum} assigned successfully`);
 }
 
 /* ================= LOGOUT BUTTONS ================= */
@@ -1372,6 +1420,7 @@ window.savePlan = savePlan;
 window.saveHT = saveHT;
 window.downloadPDFFromElement = downloadPDFFromElement;
 window.logout = logout;
+window.getCurrentWeekNumber = getCurrentWeekNumber;
 
 // Set initial active state
 window.addEventListener('load', function() {
