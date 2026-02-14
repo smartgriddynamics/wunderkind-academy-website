@@ -392,14 +392,16 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 1.5rem;
-    margin-bottom: 1.2rem;
-    padding-bottom: 1.2rem;
-    border-bottom: 1px solid rgba(10,102,194,0.1);
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.5);
+    border-radius: 16px;
+    border: 1px solid rgba(10,102,194,0.1);
   }
   .week-number {
     font-weight: 700;
     color: #0a66c2;
-    min-width: 100px;
+    min-width: 80px;
     font-size: 1.1rem;
     background: rgba(10,102,194,0.1);
     padding: 0.5rem 1rem;
@@ -407,9 +409,28 @@
     text-align: center;
   }
   .week-dates {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: #2c5a73;
-    min-width: 200px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .date-label {
+    font-weight: 600;
+    color: #0a4e7a;
+    width: 50px;
+  }
+  .date-value {
+    font-family: monospace;
+    background: white;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
   }
   
   /* Active week indicator */
@@ -676,7 +697,7 @@
         <i class="fas fa-history"></i> Duty History
       </button>
       <button id="navPlanDuty" class="nav-btn" onclick="showPlanDuty()">
-        <i class="fas fa-calendar-plus"></i> Plan Duty (Weeks)
+        <i class="fas fa-calendar-plus"></i> Plan Duty
       </button>
     </div>
 
@@ -737,24 +758,62 @@ function getCurrentWeekNumber() {
   return getWeekNumber(new Date());
 }
 
-function getWeekStartEnd(weekNum, year) {
-  const firstDayOfYear = new Date(year, 0, 1);
-  const days = (weekNum - 1) * 7;
-  const startDate = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() + days));
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 6);
+function getMondayDate(weekNum, year) {
+  // Get first day of year
+  const firstDay = new Date(year, 0, 1);
+  // Get day of week (0 = Sunday, 1 = Monday, etc.)
+  const dayOfWeek = firstDay.getDay();
   
-  return {
-    start: startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    end: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  };
+  // Calculate days to add to get to the Monday of the target week
+  // Week 1 starts on the first Monday of the year
+  let daysToAdd;
+  if (dayOfWeek === 0) { // Sunday
+    daysToAdd = 1; // First Monday is Jan 2
+  } else if (dayOfWeek === 1) { // Monday
+    daysToAdd = 0; // First Monday is Jan 1
+  } else { // Tuesday to Saturday
+    daysToAdd = 8 - dayOfWeek; // Days until next Monday
+  }
+  
+  // Calculate Monday of week 1
+  const firstMonday = new Date(year, 0, 1 + daysToAdd);
+  
+  // Calculate Monday of target week
+  const targetMonday = new Date(firstMonday);
+  targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
+  
+  return targetMonday;
+}
+
+function getWeekDates(weekNum, year) {
+  const monday = getMondayDate(weekNum, year);
+  const days = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    days.push({
+      name: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][i],
+      date: date
+    });
+  }
+  
+  return days;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).replace(/\//g, '/');
 }
 
 function getYear(date) {
   return date.getFullYear();
 }
 
-function formatDate(dateString) {
+function formatDateLong(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { 
     weekday: 'short', 
@@ -933,7 +992,7 @@ window.showToday = async function() {
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h3>
         <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-        ${data.day || 'Today'} - ${formatDate(todayISO)}
+        ${data.day || 'Today'} - ${formatDateLong(todayISO)}
       </h3>
       <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
         <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
@@ -1207,7 +1266,7 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
               <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem;">
                 <span class="record-date">
                   <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-                  ${dayName} - ${formatDate(day.date)}
+                  ${dayName} - ${formatDateLong(day.date)}
                 </span>
                 <span class="record-badge">
                   <i class="fas fa-user-graduate"></i> Present: ${day.present}/${day.total} (${percentage}%)
@@ -1258,7 +1317,7 @@ window.openRecord = async function(id) {
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h3>
         <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-        ${data.day} - ${formatDate(id)}
+        ${data.day} - ${formatDateLong(id)}
       </h3>
       <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
         <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
@@ -1300,7 +1359,7 @@ window.openRecord = async function(id) {
   `;
 };
 
-/* ================= PLAN DUTY - 4 WEEKS ROTATION ================= */
+/* ================= PLAN DUTY - SHOWS REAL MONDAY-FRIDAY DATES ================= */
 
 window.showPlanDuty = async function(){
   // Set active nav button
@@ -1308,7 +1367,7 @@ window.showPlanDuty = async function(){
   document.getElementById('navPlanDuty').classList.add('active');
 
   let html = `
-    <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> 4-Week Duty Rotation</h3>
+    <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> Plan Duty - Weekly Schedule</h3>
     <div class="duty-card">
   `;
 
@@ -1327,13 +1386,10 @@ window.showPlanDuty = async function(){
   const currentWeek = getCurrentWeekNumber();
   const currentYear = new Date().getFullYear();
   
-  // Get next 4 weeks for planning
-  const weeks = [1, 2, 3, 4];
-  
-  for (let i = 0; i < weeks.length; i++) {
+  // Show next 4 weeks for planning
+  for (let i = 0; i < 4; i++) {
     const weekNum = currentWeek + i;
-    const weekDisplay = `Week ${weekNum}`;
-    const dateRange = getWeekStartEnd(weekNum, currentYear);
+    const weekDates = getWeekDates(weekNum, currentYear);
     const isCurrentWeek = (i === 0);
     
     // Get assigned TOD for this week
@@ -1349,14 +1405,25 @@ window.showPlanDuty = async function(){
       console.log("No plan for week " + weekNum);
     }
 
+    // Create dates display
+    let datesHtml = '';
+    weekDates.forEach(day => {
+      datesHtml += `
+        <div class="date-row">
+          <span class="date-label">${day.name}:</span>
+          <span class="date-value">${formatDate(day.date)}</span>
+        </div>
+      `;
+    });
+
     html += `
     <div class="week-row ${isCurrentWeek ? 'current-week' : ''}">
       <div class="week-number">
-        <i class="fas fa-calendar-week"></i> ${weekDisplay}
+        <i class="fas fa-calendar-week"></i> Week ${weekNum}
       </div>
       <div class="week-dates">
-        ${dateRange.start} - ${dateRange.end}
-        ${isCurrentWeek ? '<span class="badge" style="background: #10b981; color: white; margin-left: 0.5rem;">Current</span>' : ''}
+        ${datesHtml}
+        ${isCurrentWeek ? '<span class="badge" style="background: #10b981; color: white; margin-top: 0.5rem;">Current Week</span>' : ''}
       </div>
       <div style="flex: 1;">
         <div class="input-icon-wrapper">
