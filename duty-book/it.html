@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<title>IT Dashboard · Attendance</title>
+<title>IT Dashboard · Student Registration</title>
 
 <!-- Font Awesome 6 (free) for icons & brand -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -336,20 +336,32 @@
 
   /* ---------- INPUT STYLES INSIDE TABLE ---------- */
   td input {
-    width: 50px;
-    padding: 0.4rem;
+    width: 60px;
+    padding: 0.5rem;
     border-radius: 16px;
     border: 1.5px solid rgba(200,215,225,0.7);
     background: rgba(255,255,255,0.9);
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     transition: all 0.2s;
+    font-weight: 500;
   }
   td input:focus {
     border-color: #0a66c2;
     box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
     outline: none;
+    background: white;
   }
+  
+  /* Style for readonly inputs (attendance fields) */
+  td input[readonly] {
+    background: rgba(230, 240, 250, 0.5);
+    color: #2c5a73;
+    font-weight: 600;
+    border-color: rgba(10,102,194,0.2);
+    cursor: not-allowed;
+  }
+  
   td:not(:first-child) {
     font-weight: 500;
   }
@@ -411,27 +423,18 @@
     border-top: 1px solid rgba(10,102,194,0.2);
   }
 
-  /* ---------- QUESTION TEXTAREAS ---------- */
-  textarea {
-    width: 100%;
-    padding: 1rem;
-    border-radius: 20px;
-    border: 1.5px solid rgba(200,215,225,0.7);
-    background: rgba(255,255,255,0.8);
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    margin-bottom: 1rem;
-  }
-  textarea:focus {
-    border-color: #0a66c2;
-    background: white;
-    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
-    outline: none;
-  }
-
-  /* ---------- SECTION SPACING ---------- */
-  .section {
-    margin-top: 2rem;
+  /* ---------- INFO MESSAGE ---------- */
+  .info-message {
+    background: rgba(10,102,194,0.05);
+    border-radius: 16px;
+    padding: 0.8rem 1.2rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #0a4e7a;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-left: 4px solid #0a66c2;
   }
 </style>
 </head>
@@ -450,19 +453,24 @@
     </div>
     <div class="role-badge">
       <i class="fas fa-user-shield"></i> IT Admin
-      <span class="badge" style="margin-left: 0.5rem;">Firebase</span>
+      <span class="badge" style="margin-left: 0.5rem;">Registration</span>
     </div>
   </div>
 
   <!-- DATE HEADER -->
   <h2 style="display: flex; align-items: center; gap: 1rem;">
     <i class="fas fa-calendar-alt" style="color: #0a66c2;"></i> 
-    Attendance - <span id="todayDate"></span>
+    Student Registration - <span id="todayDate"></span>
   </h2>
 
   <!-- ================= ATTENDANCE TABLE ================= -->
   <div class="glass-card">
-    <h3><span class="section-icon"><i class="fas fa-chalkboard-teacher"></i></span> Daily Attendance (Prep 1 - Class 7)</h3>
+    <h3><span class="section-icon"><i class="fas fa-chalkboard-teacher"></i></span> Class Registration (Prep 1 - Class 7)</h3>
+    
+    <div class="info-message">
+      <i class="fas fa-info-circle"></i>
+      <span><strong>Only Reg B and Reg G are editable.</strong> Changes here update the registered student counts for ALL days across the system. Attendance fields (Pre, Abs, Perm, Sick) are managed by TODs and locked for IT.</span>
+    </div>
     
     <div class="table-responsive">
       <table id="attendanceTable">
@@ -496,9 +504,12 @@
       </table>
     </div>
     
-    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
-      <button class="btn-success" onclick="saveAttendance()">
-        <i class="fas fa-save"></i> Save Attendance
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn-success" onclick="saveRegistration()">
+        <i class="fas fa-save"></i> Save Registration Numbers
+      </button>
+      <button class="btn-primary" onclick="loadRegistration()">
+        <i class="fas fa-sync-alt"></i> Refresh
       </button>
     </div>
   </div>
@@ -610,7 +621,6 @@ const firebaseConfig = {
   appId: "1:723640168531:web:a52f5dac1f5502460016a6"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -636,9 +646,10 @@ onAuthStateChanged(auth, async (user) => {
     window.location = "index.html";
   }
   loadUsers();
+  loadRegistration();
 });
 
-/* ---------- ATTENDANCE TABLE INIT - COMPLETE CLASS LIST (Prep 1 to Class 7) ---------- */
+/* ---------- CLASS LIST ---------- */
 const classes = [
   "Prep 1", "Prep 2",
   "Class 1", "Class 2", "Class 3",
@@ -646,44 +657,109 @@ const classes = [
 ];
 const tbody = document.getElementById("attendanceBody");
 
-classes.forEach(c => {
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><strong>${c}</strong></td>
-    <td><input type="number" class="regB" value="0" min="0"></td>
-    <td><input type="number" class="regG" value="0" min="0"></td>
-    <td class="regT">0</td>
-    <td><input type="number" class="preB" value="0" min="0"></td>
-    <td><input type="number" class="preG" value="0" min="0"></td>
-    <td class="preT">0</td>
-    <td><input type="number" class="absB" value="0" min="0"></td>
-    <td><input type="number" class="absG" value="0" min="0"></td>
-    <td class="absT">0</td>
-    <td><input type="number" class="perm" value="0" min="0"></td>
-    <td><input type="number" class="sick" value="0" min="0"></td>
-  `;
-  tbody.appendChild(tr);
-});
+/* ---------- CREATE TABLE WITH ONLY Reg B & Reg G EDITABLE ---------- */
+function createTable() {
+  tbody.innerHTML = "";
+  
+  classes.forEach(c => {
+    const tr = document.createElement("tr");
+    
+    // Class name cell
+    const tdClass = document.createElement("td");
+    tdClass.innerHTML = `<strong>${c}</strong>`;
+    tr.appendChild(tdClass);
+    
+    // Reg B (EDITABLE)
+    const tdRegB = document.createElement("td");
+    tdRegB.innerHTML = `<input type="number" class="regB" value="0" min="0">`;
+    tr.appendChild(tdRegB);
+    
+    // Reg G (EDITABLE)
+    const tdRegG = document.createElement("td");
+    tdRegG.innerHTML = `<input type="number" class="regG" value="0" min="0">`;
+    tr.appendChild(tdRegG);
+    
+    // Reg T (READONLY - calculated)
+    const tdRegT = document.createElement("td");
+    tdRegT.innerHTML = `<input type="number" class="regT" value="0" readonly>`;
+    tr.appendChild(tdRegT);
+    
+    // Pre B (READONLY - for display only)
+    const tdPreB = document.createElement("td");
+    tdPreB.innerHTML = `<input type="number" class="preB" value="0" readonly>`;
+    tr.appendChild(tdPreB);
+    
+    // Pre G (READONLY)
+    const tdPreG = document.createElement("td");
+    tdPreG.innerHTML = `<input type="number" class="preG" value="0" readonly>`;
+    tr.appendChild(tdPreG);
+    
+    // Pre T (READONLY)
+    const tdPreT = document.createElement("td");
+    tdPreT.innerHTML = `<input type="number" class="preT" value="0" readonly>`;
+    tr.appendChild(tdPreT);
+    
+    // Abs B (READONLY)
+    const tdAbsB = document.createElement("td");
+    tdAbsB.innerHTML = `<input type="number" class="absB" value="0" readonly>`;
+    tr.appendChild(tdAbsB);
+    
+    // Abs G (READONLY)
+    const tdAbsG = document.createElement("td");
+    tdAbsG.innerHTML = `<input type="number" class="absG" value="0" readonly>`;
+    tr.appendChild(tdAbsG);
+    
+    // Abs T (READONLY)
+    const tdAbsT = document.createElement("td");
+    tdAbsT.innerHTML = `<input type="number" class="absT" value="0" readonly>`;
+    tr.appendChild(tdAbsT);
+    
+    // Perm (READONLY)
+    const tdPerm = document.createElement("td");
+    tdPerm.innerHTML = `<input type="number" class="perm" value="0" readonly>`;
+    tr.appendChild(tdPerm);
+    
+    // Sick (READONLY)
+    const tdSick = document.createElement("td");
+    tdSick.innerHTML = `<input type="number" class="sick" value="0" readonly>`;
+    tr.appendChild(tdSick);
+    
+    tbody.appendChild(tr);
+  });
+  
+  // Add event listeners to Reg B and Reg G to update Reg T
+  document.querySelectorAll('.regB, .regG').forEach(input => {
+    input.addEventListener('input', function() {
+      const row = this.closest('tr');
+      const regB = +row.querySelector('.regB').value || 0;
+      const regG = +row.querySelector('.regG').value || 0;
+      row.querySelector('.regT').value = regB + regG;
+      calculateTotals();
+    });
+  });
+}
 
-tbody.addEventListener("input", calculateTotals);
+createTable();
 
-/* ---------- CALCULATE TOTALS ---------- */
+/* ---------- CALCULATE TOTALS (only for registered) ---------- */
 function calculateTotals() {
-  let gRegB = 0, gRegG = 0, gPreB = 0, gPreG = 0, gAbsB = 0, gAbsG = 0, gPerm = 0, gSick = 0;
+  let gRegB = 0, gRegG = 0, gRegT = 0;
+  let gPreB = 0, gPreG = 0, gPreT = 0;
+  let gAbsB = 0, gAbsG = 0, gAbsT = 0;
+  let gPerm = 0, gSick = 0;
 
   [...tbody.rows].forEach(r => {
-    let regB = +r.querySelector(".regB").value || 0;
-    let regG = +r.querySelector(".regG").value || 0;
-    let preB = +r.querySelector(".preB").value || 0;
-    let preG = +r.querySelector(".preG").value || 0;
-    let absB = +r.querySelector(".absB").value || 0;
-    let absG = +r.querySelector(".absG").value || 0;
-    let perm = +r.querySelector(".perm").value || 0;
-    let sick = +r.querySelector(".sick").value || 0;
+    const regB = +r.querySelector(".regB").value || 0;
+    const regG = +r.querySelector(".regG").value || 0;
+    const preB = +r.querySelector(".preB").value || 0;
+    const preG = +r.querySelector(".preG").value || 0;
+    const absB = +r.querySelector(".absB").value || 0;
+    const absG = +r.querySelector(".absG").value || 0;
+    const perm = +r.querySelector(".perm").value || 0;
+    const sick = +r.querySelector(".sick").value || 0;
 
-    r.querySelector(".regT").innerText = regB + regG;
-    r.querySelector(".preT").innerText = preB + preG;
-    r.querySelector(".absT").innerText = absB + absG;
+    // Update Reg T
+    r.querySelector(".regT").value = regB + regG;
 
     gRegB += regB; gRegG += regG;
     gPreB += preB; gPreG += preG;
@@ -691,45 +767,87 @@ function calculateTotals() {
     gPerm += perm; gSick += sick;
   });
 
+  gRegT = gRegB + gRegG;
+  gPreT = gPreB + gPreG;
+  gAbsT = gAbsB + gAbsG;
+
   document.getElementById("gRegB").innerText = gRegB;
   document.getElementById("gRegG").innerText = gRegG;
-  document.getElementById("gRegT").innerText = gRegB + gRegG;
+  document.getElementById("gRegT").innerText = gRegT;
   document.getElementById("gPreB").innerText = gPreB;
   document.getElementById("gPreG").innerText = gPreG;
-  document.getElementById("gPreT").innerText = gPreB + gPreG;
+  document.getElementById("gPreT").innerText = gPreT;
   document.getElementById("gAbsB").innerText = gAbsB;
   document.getElementById("gAbsG").innerText = gAbsG;
-  document.getElementById("gAbsT").innerText = gAbsB + gAbsG;
+  document.getElementById("gAbsT").innerText = gAbsT;
   document.getElementById("gPerm").innerText = gPerm;
   document.getElementById("gSick").innerText = gSick;
 }
 
-calculateTotals();
-
-/* ---------- SAVE ATTENDANCE ---------- */
-window.saveAttendance = async () => {
-  let data = [];
+/* ---------- SAVE REGISTRATION (global, not date-specific) ---------- */
+window.saveRegistration = async () => {
+  const registrationData = [];
   [...tbody.rows].forEach(r => {
-    data.push({
+    registrationData.push({
       class: r.cells[0].innerText,
-      regB: r.querySelector(".regB").value || 0,
-      regG: r.querySelector(".regG").value || 0,
-      preB: r.querySelector(".preB").value || 0,
-      preG: r.querySelector(".preG").value || 0,
-      absB: r.querySelector(".absB").value || 0,
-      absG: r.querySelector(".absG").value || 0,
-      perm: r.querySelector(".perm").value || 0,
-      sick: r.querySelector(".sick").value || 0
+      regB: +r.querySelector(".regB").value || 0,
+      regG: +r.querySelector(".regG").value || 0
     });
   });
   
-  const today = new Date().toISOString().split('T')[0];
-  await setDoc(doc(db, "attendance", today), { 
-    data, 
-    updatedAt: new Date(),
-    submittedBy: auth.currentUser?.email || 'IT Admin'
+  // Save to a global "registration" document (NOT date-specific)
+  await setDoc(doc(db, "system", "classRegistration"), { 
+    classes: registrationData,
+    lastUpdated: new Date(),
+    updatedBy: auth.currentUser?.email || 'IT Admin'
   });
-  alert("✅ Attendance Saved to Firebase");
+  
+  alert("✅ Registration numbers saved! These will now appear for ALL days across TOD and HT dashboards.");
+};
+
+/* ---------- LOAD REGISTRATION (global) ---------- */
+window.loadRegistration = async () => {
+  const snap = await getDoc(doc(db, "system", "classRegistration"));
+  if (snap.exists()) {
+    const data = snap.data().classes;
+    if (data && data.length) {
+      [...tbody.rows].forEach((r, index) => {
+        if (data[index]) {
+          r.querySelector(".regB").value = data[index].regB || 0;
+          r.querySelector(".regG").value = data[index].regG || 0;
+        }
+      });
+      calculateTotals();
+    }
+  } else {
+    // If no registration data exists, keep zeros (or you could load sample data)
+    console.log("No registration data found. Starting fresh.");
+  }
+  
+  // Also load attendance data for today to display other fields (readonly)
+  const today = new Date().toISOString().split('T')[0];
+  const attendanceSnap = await getDoc(doc(db, "attendance", today));
+  if (attendanceSnap.exists()) {
+    const data = attendanceSnap.data().data;
+    if (data && data.length) {
+      [...tbody.rows].forEach((r, index) => {
+        if (data[index]) {
+          r.querySelector(".preB").value = data[index].preB || 0;
+          r.querySelector(".preG").value = data[index].preG || 0;
+          r.querySelector(".absB").value = data[index].absB || 0;
+          r.querySelector(".absG").value = data[index].absG || 0;
+          r.querySelector(".perm").value = data[index].perm || 0;
+          r.querySelector(".sick").value = data[index].sick || 0;
+        }
+      });
+      calculateTotals();
+    }
+  }
+};
+
+/* ---------- SAVE ATTENDANCE (keeping for compatibility, but IT shouldn't need it) ---------- */
+window.saveAttendance = async () => {
+  alert("IT Admin does not need to save attendance. Use 'Save Registration Numbers' instead.");
 };
 
 /* ---------- SAVE QUESTIONS ---------- */
@@ -833,29 +951,8 @@ document.getElementById("logoutBtn").onclick = async () => {
   window.location = "index.html";
 };
 
-/* ---------- LOAD SAVED DATA ---------- */
-async function loadSavedAttendance() {
-  const today = new Date().toISOString().split('T')[0];
-  const snap = await getDoc(doc(db, "attendance", today));
-  if (snap.exists()) {
-    const data = snap.data().data;
-    if (data && data.length) {
-      [...tbody.rows].forEach((r, index) => {
-        if (data[index]) {
-          r.querySelector(".regB").value = data[index].regB || 0;
-          r.querySelector(".regG").value = data[index].regG || 0;
-          r.querySelector(".preB").value = data[index].preB || 0;
-          r.querySelector(".preG").value = data[index].preG || 0;
-          r.querySelector(".absB").value = data[index].absB || 0;
-          r.querySelector(".absG").value = data[index].absG || 0;
-          r.querySelector(".perm").value = data[index].perm || 0;
-          r.querySelector(".sick").value = data[index].sick || 0;
-        }
-      });
-      calculateTotals();
-    }
-  }
-  
+/* ---------- LOAD QUESTIONS ---------- */
+async function loadQuestions() {
   const qSnap = await getDoc(doc(db, "questions", "today"));
   if (qSnap.exists()) {
     document.getElementById("todQ").value = qSnap.data().tod || "";
@@ -863,16 +960,18 @@ async function loadSavedAttendance() {
   }
 }
 
-// Load saved data on page load
-loadSavedAttendance();
+// Load questions on page load
+loadQuestions();
 
 // Make functions globally available
 window.calculateTotals = calculateTotals;
-window.saveAttendance = saveAttendance;
+window.saveRegistration = saveRegistration;
+window.loadRegistration = loadRegistration;
 window.saveQuestions = saveQuestions;
 window.createUser = createUser;
 window.editUser = editUser;
 window.deleteUser = deleteUser;
+window.saveAttendance = saveAttendance;
 </script>
 
 </body>
