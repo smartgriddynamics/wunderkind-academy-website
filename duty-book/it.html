@@ -310,7 +310,7 @@
   th:first-child { border-radius: 16px 0 0 0; }
   th:last-child { border-radius: 0 16px 0 0; }
   td {
-    padding: 0.8rem 0.3rem;
+    padding: 0.8rem 0.5rem;
     border-bottom: 1px solid rgba(10,102,194,0.1);
     background: transparent;
     text-align: center;
@@ -675,12 +675,18 @@ document.getElementById("todayDate").innerText =
     day: 'numeric' 
   });
 
+/* ---------- GLOBAL VARIABLES ---------- */
+let currentUserId = null;
+
 /* ---------- ROLE PROTECTION (IT only) ---------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) { 
     window.location = "index.html"; 
     return;
   }
+  
+  currentUserId = user.uid;
+  
   const snap = await getDoc(doc(db, "users", user.uid));
   if (!snap.exists() || snap.data().role !== "IT") {
     alert("Access Denied: IT admin only");
@@ -688,7 +694,7 @@ onAuthStateChanged(auth, async (user) => {
   }
   loadUsers();
   loadRegistration();
-  loadQuestions(); // Load questions on page load
+  loadQuestions();
 });
 
 /* ---------- CLASS LIST ---------- */
@@ -886,12 +892,7 @@ window.loadRegistration = async () => {
   }
 };
 
-/* ---------- SAVE ATTENDANCE (keeping for compatibility, but IT shouldn't need it) ---------- */
-window.saveAttendance = async () => {
-  alert("IT Admin does not need to save attendance. Use 'Save Registration Numbers' instead.");
-};
-
-/* ---------- SAVE QUESTIONS (FIXED: saves to questions collection, NOT date-specific) ---------- */
+/* ---------- SAVE QUESTIONS ---------- */
 window.saveQuestions = async () => {
   const todQuestion = document.getElementById("todQ").value;
   const htQuestion = document.getElementById("htQ").value;
@@ -907,7 +908,7 @@ window.saveQuestions = async () => {
   alert("✅ Questions saved! These will appear for TODs every day.");
 };
 
-/* ---------- LOAD QUESTIONS (loads the persistent questions) ---------- */
+/* ---------- LOAD QUESTIONS ---------- */
 async function loadQuestions() {
   const qSnap = await getDoc(doc(db, "questions", "daily"));
   if (qSnap.exists()) {
@@ -925,15 +926,19 @@ async function loadUsers() {
   snap.forEach(docu => {
     const u = docu.data();
     const tr = document.createElement("tr");
+    
+    // Check if this user is the current logged-in user
+    const isCurrentUser = (docu.id === currentUserId);
+    
     tr.innerHTML = `
-      <td><strong>${u.name || ''}</strong></td>
+      <td><strong>${u.name || ''}</strong> ${isCurrentUser ? '<span class="badge" style="background: #0a66c2; color: white;">You</span>' : ''}</td>
       <td>${u.email || ''}</td>
       <td>${u.role || ''}</td>
       <td>
         <button class="btn-small btn-primary" style="margin: 0 2px;" onclick="editUser('${docu.id}', '${u.name || ''}', '${u.role || ''}')">
           <i class="fas fa-edit"></i> Edit
         </button>
-        <button class="btn-small btn-danger" style="margin: 0 2px;" onclick="deleteUser('${docu.id}')">
+        <button class="btn-small btn-danger" style="margin: 0 2px;" onclick="deleteUser('${docu.id}', ${isCurrentUser})">
           <i class="fas fa-trash"></i> Delete
         </button>
       </td>
@@ -976,12 +981,22 @@ window.createUser = async () => {
   }
 };
 
-/* ---------- DELETE USER ---------- */
-window.deleteUser = async (id) => {
+/* ---------- DELETE USER (with self-deletion protection) ---------- */
+window.deleteUser = async (id, isCurrentUser) => {
+  // Check if trying to delete themselves
+  if (isCurrentUser) {
+    alert("❌ You cannot delete your own account! This would lock you out permanently.");
+    return;
+  }
+  
   if (confirm("Delete this user?")) {
-    await deleteDoc(doc(db, "users", id));
-    alert("✅ Deleted");
-    loadUsers();
+    try {
+      await deleteDoc(doc(db, "users", id));
+      alert("✅ User deleted successfully");
+      loadUsers();
+    } catch (error) {
+      alert("Error deleting user: " + error.message);
+    }
   }
 };
 
@@ -996,7 +1011,7 @@ window.editUser = async (id, name, role) => {
     name: newName,
     role: newRole
   });
-  alert("✅ Updated");
+  alert("✅ User updated");
   loadUsers();
 };
 
@@ -1006,16 +1021,17 @@ document.getElementById("logoutBtn").onclick = async () => {
   window.location = "index.html";
 };
 
+// Load questions on page load
+loadQuestions();
+
 // Make functions globally available
 window.calculateTotals = calculateTotals;
 window.saveRegistration = saveRegistration;
 window.loadRegistration = loadRegistration;
 window.saveQuestions = saveQuestions;
-window.loadQuestions = loadQuestions;
 window.createUser = createUser;
 window.editUser = editUser;
 window.deleteUser = deleteUser;
-window.saveAttendance = saveAttendance;
 </script>
 
 </body>
