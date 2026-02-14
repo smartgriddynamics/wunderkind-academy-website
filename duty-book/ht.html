@@ -424,19 +424,59 @@
   .date-label {
     font-weight: 600;
     color: #0a4e7a;
-    width: 50px;
+    width: 70px;
   }
   .date-value {
-    font-family: monospace;
+    font-family: 'Courier New', monospace;
     background: white;
     padding: 0.2rem 0.8rem;
     border-radius: 20px;
+    font-size: 0.9rem;
   }
   
   /* Active week indicator */
   .current-week {
     background: rgba(16,185,129,0.1);
     border: 2px solid #10b981;
+  }
+
+  /* Duty Plan History */
+  .history-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(10,102,194,0.2);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .history-week {
+    font-weight: 700;
+    color: #0a66c2;
+    min-width: 80px;
+  }
+  .history-tod {
+    flex: 1;
+    color: #1e4c6b;
+  }
+  .history-dates {
+    color: #2c5a73;
+    font-size: 0.85rem;
+    min-width: 250px;
+  }
+  .history-assigned {
+    color: #6b8ca3;
+    font-size: 0.8rem;
+  }
+  .unassigned-badge {
+    background: rgba(239,68,68,0.1);
+    color: #dc2626;
+    padding: 0.2rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
   }
 
   /* ---------- RECORD LIST ---------- */
@@ -1368,7 +1408,10 @@ window.showPlanDuty = async function(){
 
   let html = `
     <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> Plan Duty - Weekly Schedule</h3>
+    
+    <!-- UPCOMING WEEKS ASSIGNMENT -->
     <div class="duty-card">
+    <h4 style="margin-bottom: 1rem;">Assign Upcoming Weeks</h4>
   `;
 
   const snapshot = await getDocs(collection(db, "users"));
@@ -1394,12 +1437,14 @@ window.showPlanDuty = async function(){
     
     // Get assigned TOD for this week
     let assignedTod = "";
+    let assignedTodName = "";
     try {
       const planSnap = await getDoc(doc(db, "dutyPlan", `week_${weekNum}`));
       if (planSnap.exists()) {
         const todId = planSnap.data().todId;
         const assigned = todList.find(t => t.id === todId);
         assignedTod = assigned ? assigned.id : "";
+        assignedTodName = assigned ? assigned.name : "";
       }
     } catch (e) {
       console.log("No plan for week " + weekNum);
@@ -1446,9 +1491,18 @@ window.showPlanDuty = async function(){
       <i class="fas fa-info-circle"></i> Assign TODs for each week. Only the assigned TOD can edit attendance during their week.
     </div>
   </div>
+  
+  <!-- DUTY PLAN HISTORY -->
+  <div class="duty-card">
+    <h4 style="margin-bottom: 1rem;"><i class="fas fa-history"></i> Duty Plan History</h4>
+    <div id="dutyHistory"></div>
+  </div>
   `;
 
   document.getElementById("content").innerHTML = html;
+  
+  // Load duty history
+  loadDutyHistory(todList);
 }
 
 window.savePlan = async function(weekNum){
@@ -1468,6 +1522,64 @@ window.savePlan = async function(weekNum){
   });
 
   alert(`✅ Week ${weekNum} assigned successfully`);
+  showPlanDuty(); // Refresh the page
+}
+
+/* ================= LOAD DUTY PLAN HISTORY ================= */
+
+async function loadDutyHistory(todList) {
+  const snapshot = await getDocs(collection(db, "dutyPlan"));
+  const currentYear = new Date().getFullYear();
+  const currentWeek = getCurrentWeekNumber();
+  
+  let history = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    history.push({
+      id: doc.id,
+      weekNum: data.weekNumber,
+      todId: data.todId,
+      assignedAt: data.assignedAt ? new Date(data.assignedAt.toDate()) : null
+    });
+  });
+  
+  // Sort by week number descending (newest first)
+  history.sort((a, b) => b.weekNum - a.weekNum);
+  
+  let historyHtml = '';
+  
+  if (history.length === 0) {
+    historyHtml = '<p class="empty-state">No duty assignments yet.</p>';
+  } else {
+    history.forEach(item => {
+      const tod = todList.find(t => t.id === item.todId);
+      const todName = tod ? tod.name : 'Unknown TOD';
+      const weekDates = getWeekDates(item.weekNum, currentYear);
+      const weekStart = formatDate(weekDates[0].date);
+      const weekEnd = formatDate(weekDates[4].date);
+      const isPast = item.weekNum < currentWeek;
+      const isCurrent = item.weekNum === currentWeek;
+      
+      historyHtml += `
+        <div class="history-card" style="${isCurrent ? 'border-left: 6px solid #10b981;' : ''}">
+          <div class="history-week">
+            <i class="fas fa-calendar-week"></i> Week ${item.weekNum}
+          </div>
+          <div class="history-tod">
+            <strong>${todName}</strong>
+          </div>
+          <div class="history-dates">
+            ${weekStart} - ${weekEnd}
+          </div>
+          <div class="history-assigned">
+            ${item.assignedAt ? item.assignedAt.toLocaleDateString() : 'N/A'}
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  document.getElementById("dutyHistory").innerHTML = historyHtml;
 }
 
 /* ================= LOGOUT BUTTONS ================= */
