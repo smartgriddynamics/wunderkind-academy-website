@@ -1345,7 +1345,6 @@ window.showPlanDuty = async function(){
   const currentYear = 2026;
   
   // Show ONLY 4 weeks: current + next 3
-  // This automatically rotates - past weeks disappear, new weeks appear at bottom
   for (let i = 0; i < 4; i++) {
     const weekNum = currentWeek + i;
     const weekDates = getWeekDates(weekNum, currentYear);
