@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<title>HT Dashboard · Head Teacher</title>
+<title>TOD Dashboard · BGT Attendance</title>
 
 <!-- Font Awesome 6 (free) for icons & brand -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<!-- jsPDF + html2canvas for PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- jsPDF for PDF downloads -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -78,10 +77,14 @@
     transition: box-shadow 0.25s ease, background 0.25s;
     margin-bottom: 1.8rem;
   }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 24px 42px -12px rgba(0,60,120,0.2), 0 0 0 1px rgba(255,255,255,0.7) inset;
+  }
 
   /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
-  body, input, select, button, td, th, li, .badge, .info-note, h2, h3, h4, textarea, p {
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
+  body, input, select, button, td, th, li, .badge, .info-note, h2, h3, h4, textarea {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
   }
 
   h2 {
@@ -105,16 +108,13 @@
   h4 {
     font-size: clamp(1rem, 3vw, 1.1rem);
     font-weight: 600;
-    color: #0a4e7a;
+    color: #065f46;
     margin: 1rem 0 0.5rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
   }
   .section-icon {
     font-size: clamp(1.4rem, 4vw, 1.6rem);
-    color: #0a66c2;
-    background: rgba(10,102,194,0.08);
+    color: #10b981;
+    background: rgba(16,185,129,0.08);
     padding: 0.6rem;
     border-radius: 18px;
     display: inline-flex;
@@ -122,7 +122,7 @@
     justify-content: center;
   }
 
-  /* ---------- HEADER CARD (brand + role) ---------- */
+  /* ---------- HEADER CARD ---------- */
   .header-card {
     display: flex;
     flex-wrap: wrap;
@@ -137,8 +137,8 @@
   }
   .brand i {
     font-size: clamp(1.6rem, 5vw, 2rem);
-    color: #0a66c2;
-    filter: drop-shadow(0 4px 6px rgba(0,102,204,0.2));
+    color: #10b981;
+    filter: drop-shadow(0 4px 6px rgba(16,185,129,0.2));
   }
   .brand-text {
     background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
@@ -150,9 +150,9 @@
     letter-spacing: -0.01em;
   }
   .role-badge {
-    background: rgba(10,102,194,0.15);
+    background: rgba(16,185,129,0.15);
     border-radius: 40px;
-    color: #0a4e7a;
+    color: #065f46;
     padding: 0.5rem 1.5rem;
     font-weight: 600;
     font-size: 0.95rem;
@@ -161,159 +161,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  /* ---------- BUTTON VARIANTS ---------- */
-  button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 40px;
-    padding: 0.7rem 1.5rem;
-    font-weight: 600;
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
-    transition: all 0.2s;
-    cursor: pointer;
-    margin: 0.25rem;
-    background: transparent;
-    color: inherit;
-    white-space: nowrap;
-  }
-  button i {
-    font-size: 0.95rem;
-  }
-  .btn-primary {
-    background: #0a66c2;
-    color: white;
-    box-shadow: 0 8px 16px -6px rgba(10,102,194,0.25);
-  }
-  .btn-primary:hover {
-    background: #004a8f;
-    scale: 1.02;
-  }
-  .btn-success {
-    background: #10b981;
-    color: white;
-  }
-  .btn-success:hover {
-    background: #059669;
-    scale: 1.02;
-  }
-  .btn-danger {
-    background: #ef4444;
-    color: white;
-  }
-  .btn-danger:hover {
-    background: #dc2626;
-    scale: 1.02;
-  }
-  .btn-outline {
-    background: transparent;
-    border: 1.5px solid #0a66c2;
-    color: #0a66c2;
-  }
-  .btn-outline:hover {
-    background: #0a66c2;
-    color: white;
-    scale: 1.02;
-  }
-  .btn-warning {
-    background: #f59e0b;
-    color: white;
-  }
-  .btn-warning:hover {
-    background: #d97706;
-    scale: 1.02;
-  }
-  .btn-info {
-    background: #8e44ad;
-    color: white;
-  }
-  .btn-info:hover {
-    background: #71368a;
-    scale: 1.02;
-  }
-  .btn-small {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-  }
-  @media (max-width: 768px) {
-    button { width: 100%; justify-content: center; }
-  }
-
-  /* ---------- NAVIGATION BUTTONS ---------- */
-  .nav-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  .nav-btn {
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(10,102,194,0.2);
-    color: #0a4e7a;
-    font-weight: 600;
-    padding: 0.8rem 2rem;
-    border-radius: 40px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .nav-btn:hover {
-    background: white;
-    border-color: #0a66c2;
-    color: #0a66c2;
-  }
-  .nav-btn.active {
-    background: #0a66c2;
-    color: white;
-    border-color: #0a66c2;
-  }
-
-  /* ---------- TABLE STYLES ---------- */
-  .table-responsive {
-    overflow-x: auto;
-    margin-top: 1.5rem;
-    border-radius: 20px;
-    width: 100%;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: rgba(255,255,255,0.4);
-    backdrop-filter: blur(4px);
-    border-radius: 20px;
-    border-style: hidden;
-    box-shadow: 0 0 0 1px rgba(10,102,194,0.1);
-    margin-bottom: 1rem;
-  }
-  th {
-    background: #0a66c2;
-    color: white;
-    padding: 0.9rem 0.5rem;
-    font-weight: 600;
-    text-align: center;
-    font-size: 0.85rem;
-    letter-spacing: 0.3px;
-  }
-  th:first-child { border-radius: 16px 0 0 0; }
-  th:last-child { border-radius: 0 16px 0 0; }
-  td {
-    padding: 0.8rem 0.5rem;
-    border-bottom: 1px solid rgba(10,102,194,0.1);
-    background: transparent;
-    text-align: center;
-    vertical-align: middle;
-  }
-  tbody tr:hover {
-    background: rgba(10,102,194,0.02);
-  }
-  .totalRow {
-    background: rgba(10,102,194,0.08);
-    font-weight: 700;
   }
 
   /* ---------- FORM INPUTS WITH ICONS ---------- */
@@ -332,7 +179,7 @@
     font-size: 1rem;
     z-index: 2;
   }
-  .input-icon-wrapper select,
+  .input-icon-wrapper input,
   .input-icon-wrapper textarea {
     width: 100%;
     padding: 0.85rem 1rem 0.85rem 2.8rem;
@@ -343,7 +190,6 @@
     transition: all 0.2s;
     outline: none;
     color: #1e2f3e;
-    appearance: none;
   }
   .input-icon-wrapper textarea {
     padding: 1rem 1rem 1rem 2.8rem;
@@ -351,41 +197,143 @@
     min-height: 120px;
     line-height: 1.6;
   }
-  .input-icon-wrapper select {
-    background: rgba(255,255,255,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b8ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat;
-    background-position: right 1rem center;
-    background-size: 16px;
-    padding-right: 2.5rem;
-  }
-  .input-icon-wrapper select:focus,
+  .input-icon-wrapper input:focus,
   .input-icon-wrapper textarea:focus {
-    border-color: #0a66c2;
+    border-color: #10b981;
     background: white;
-    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+    box-shadow: 0 6px 14px rgba(16,185,129,0.08);
+  }
+  input[readonly] {
+    background: rgba(200,215,225,0.2);
+    cursor: not-allowed;
   }
 
-  /* ---------- ANSWER CARD ---------- */
-  .answer-card {
-    background: rgba(224,242,254,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 24px;
-    padding: 1.5rem;
-    border-left: 6px solid #0a66c2;
-    margin: 1.5rem 0;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #0a4e7a;
-    box-shadow: 0 8px 20px -8px rgba(0,0,0,0.1);
+  /* ---------- BUTTON VARIANTS ---------- */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    cursor: pointer;
+    margin: 0.3rem;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+  }
+  button i {
+    font-size: 0.95rem;
+  }
+  .btn-success { background: #10b981; color: white; }
+  .btn-success:hover { background: #059669; scale: 1.02; }
+  .btn-primary { background: #0a66c2; color: white; }
+  .btn-primary:hover { background: #004a8f; scale: 1.02; }
+  .btn-info { background: #2563eb; color: white; }
+  .btn-info:hover { background: #1e4c8f; scale: 1.02; }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid #10b981;
+    color: #10b981;
+  }
+  .btn-outline:hover { background: #10b981; color: white; scale: 1.02; }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-danger:hover { background: #dc2626; scale: 1.02; }
+  
+  @media (max-width: 768px) {
+    button { width: 100%; justify-content: center; }
   }
 
-  /* ---------- BEAUTIFUL CALENDAR CARD ---------- */
+  /* ---------- GRID & FLEX ---------- */
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 1rem;
+    align-items: end;
+  }
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* ---------- TABLE STYLES ---------- */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px rgba(16,185,129,0.15);
+  }
+  th {
+    background: #10b981;
+    color: white;
+    padding: 0.7rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  td {
+    padding: 0.5rem 0.3rem;
+    border-bottom: 1px solid rgba(16,185,129,0.1);
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:hover {
+    background: rgba(16,185,129,0.04);
+  }
+  td input {
+    width: 55px;
+    padding: 0.4rem;
+    border-radius: 12px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: white;
+    text-align: center;
+  }
+  td input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    outline: none;
+  }
+  td input[readonly] {
+    background: rgba(200,215,225,0.2);
+    color: #065f46;
+    font-weight: 600;
+  }
+  .totalRow {
+    background: rgba(16,185,129,0.15);
+    font-weight: 700;
+  }
+  .grandTotal {
+    font-weight: 700;
+    color: #065f46;
+  }
+  
+  /* ---------- BEAUTIFUL CALENDAR CARD (SAME AS HT) ---------- */
   .calendar-card {
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
     border-radius: 24px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(10,102,194,0.2);
+    border: 1px solid rgba(16,185,129,0.2);
   }
   
   .calendar-header {
@@ -394,12 +342,12 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px dashed rgba(10,102,194,0.2);
+    border-bottom: 2px dashed rgba(16,185,129,0.2);
   }
   
   .calendar-header i {
     font-size: 2rem;
-    color: #0a66c2;
+    color: #10b981;
   }
   
   .calendar-header h3 {
@@ -417,21 +365,21 @@
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    border-left: 6px solid #0a66c2;
+    border-left: 6px solid #10b981;
     transition: all 0.2s;
   }
   
   .week-row:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(10,102,194,0.1);
+    box-shadow: 0 8px 20px rgba(16,185,129,0.1);
   }
   
   .week-number {
     font-weight: 700;
-    color: #0a66c2;
+    color: #10b981;
     min-width: 90px;
     font-size: 1.2rem;
-    background: rgba(10,102,194,0.1);
+    background: rgba(16,185,129,0.1);
     padding: 0.5rem 1rem;
     border-radius: 40px;
     text-align: center;
@@ -445,18 +393,18 @@
   }
   
   .date-chip {
-    background: rgba(10,102,194,0.05);
+    background: rgba(16,185,129,0.05);
     border-radius: 40px;
     padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    border: 1px solid rgba(10,102,194,0.1);
+    border: 1px solid rgba(16,185,129,0.1);
   }
   
   .date-chip .day {
     font-weight: 600;
-    color: #0a4e7a;
+    color: #065f46;
     min-width: 60px;
   }
   
@@ -465,7 +413,7 @@
     padding: 0.3rem 1rem;
     border-radius: 30px;
     font-weight: 600;
-    color: #0a66c2;
+    color: #10b981;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
   
@@ -479,244 +427,287 @@
     border-left: 6px solid #10b981;
   }
   
-  .week-assign {
-    flex: 1;
-    min-width: 300px;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
-  
-  .clear-btn {
-    background: #ef4444;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 30px;
-    font-size: 0.8rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-  
-  .clear-btn:hover {
-    background: #dc2626;
-    transform: scale(1.02);
-  }
-  
-  .current-badge {
+  .assigned-badge {
     background: #10b981;
     color: white;
-    padding: 0.2rem 1rem;
+    padding: 0.3rem 1rem;
     border-radius: 30px;
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
   }
   
-  .info-note {
-    background: rgba(10,102,194,0.04);
-    border-radius: 16px;
-    padding: 1rem;
-    border: 1px dashed rgba(10,102,194,0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    color: #2c5a73;
-    margin: 1.2rem 0;
+  .not-assigned-badge {
+    background: #ef4444;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  
+  .sunday-message {
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 1rem;
   }
 
-  /* ---------- RECORD LIST ---------- */
-  .record-item {
+  /* ---------- PERCENTAGE BADGE ---------- */
+  .percentage-badge {
+    background: rgba(16,185,129,0.2);
+    border-radius: 40px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #065f46;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(16,185,129,0.3);
+    backdrop-filter: blur(4px);
+  }
+  .percentage-value {
+    background: white;
+    padding: 0.2rem 0.8rem;
+    border-radius: 30px;
+    color: #10b981;
+    font-weight: 800;
+  }
+
+  /* ---------- ACTIVITY SECTION ---------- */
+  #activitySection {
+    display: none;
+    margin-top: 2rem;
+    border-top: 2px dashed rgba(16,185,129,0.3);
+    padding-top: 1.5rem;
+  }
+
+  /* ---------- SUMMARY CARD ---------- */
+  .summary-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+    border: 1px solid rgba(16,185,129,0.3);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 0.8rem;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    border: 1px solid rgba(10,102,194,0.2);
-    transition: all 0.2s;
   }
-  .record-item:hover {
-    background: white;
-    border-color: rgba(10,102,194,0.4);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-  }
-  .record-date {
-    font-weight: 600;
-    color: #1e4c6b;
-  }
-  .record-badge {
-    background: rgba(10,102,194,0.1);
-    border-radius: 30px;
-    padding: 0.2rem 1rem;
-    font-size: 0.8rem;
-    color: #0a4e7a;
-  }
-
-  /* ---------- WEEK GROUP ---------- */
-  .week-group {
-    margin-bottom: 2rem;
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .week-header {
-    background: rgba(142,68,173,0.15);
-    color: #71368a;
-    padding: 0.8rem 1.5rem;
-    font-weight: 700;
+  .summary-stat {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.8rem;
-    border-left: 6px solid #8e44ad;
-    margin-bottom: 0.5rem;
-    border-radius: 16px 16px 0 0;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
-  .week-days {
-    padding-left: 1.5rem;
+  .summary-label {
+    font-size: 0.75rem;
+    color: #6b8ca3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .summary-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #065f46;
+  }
+  .summary-value small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #6b8ca3;
   }
 
-  /* ---------- BADGES & INFO ---------- */
   .badge {
-    background: rgba(10,102,194,0.1);
+    background: rgba(16,185,129,0.1);
     border-radius: 30px;
     padding: 0.3rem 1rem;
     font-size: 0.8rem;
-    color: #0a4e7a;
+    color: #065f46;
     display: inline-block;
-    border: 1px solid rgba(255,255,255,0.2);
   }
-  
   .empty-state {
     text-align: center;
-    padding: 3rem;
+    padding: 2rem;
     color: #6b8ca3;
     background: rgba(255,255,255,0.5);
     border-radius: 24px;
     font-style: italic;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.2);
   }
 
-  /* ---------- ANIMATIONS ---------- */
   @keyframes fadeSlide {
     0% { opacity: 0; transform: translateY(12px); }
     100% { opacity: 1; transform: translateY(0); }
   }
 
-  hr {
-    margin: 2rem 0;
-    border: none;
-    border-top: 1px solid rgba(10,102,194,0.2);
+  #todayHeader {
+    font-weight: 600;
+    color: #1e4c6b;
+    background: rgba(255,255,255,0.4);
+    padding: 0.5rem 1.5rem;
+    border-radius: 40px;
+    display: inline-block;
+    backdrop-filter: blur(4px);
+    margin-bottom: 1.5rem;
   }
 
-  /* ---------- LOGOUT BUTTON ---------- */
-  #logoutBtn i, #logoutBtnBottom i {
-    transition: transform 0.2s;
-  }
-  #logoutBtn:hover i, #logoutBtnBottom:hover i {
-    transform: translateX(3px);
-  }
-
-  /* ---------- CONTENT AREA ---------- */
-  #content {
-    margin-top: 1.5rem;
-  }
-
-  /* ---------- PDF CONTENT ---------- */
-  .pdf-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 16px;
+  .day-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 1rem 0;
   }
   
-  /* PDF Container - Hidden but used for generation */
-  .pdf-container {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    width: 1000px;
-    background: white;
+  /* ---------- LOGOUT BUTTON CONTAINER ---------- */
+  .logout-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
   }
 </style>
 </head>
 
 <body>
-<!-- Decorative background circles -->
 <div class="bg-circle-1"></div>
 <div class="bg-circle-2"></div>
 
 <div class="dashboard-container">
-  <!-- HEADER CARD (brand + role) -->
+  <!-- HEADER CARD -->
   <div class="glass-card header-card">
     <div class="brand">
-      <i class="fas fa-user-tie"></i>
-      <span class="brand-text">HT Dashboard</span>
+      <i class="fas fa-clipboard-check"></i>
+      <span class="brand-text">TOD Dashboard</span>
     </div>
     <div class="role-badge">
-      <i class="fas fa-user-shield"></i> Head Teacher
-      <span class="badge" style="margin-left: 0.5rem;" id="headerEmail"></span>
+      <i class="fas fa-user-tie"></i> Teacher On Duty
+      <span class="badge" style="margin-left: 0.5rem;">BGT</span>
     </div>
   </div>
 
-  <!-- LOGOUT BUTTON - TOP -->
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
-    <button id="logoutBtn" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
+  <!-- LOGOUT BUTTON - TOP RIGHT -->
+  <div class="logout-container">
+    <button id="logoutBtn" class="btn-danger" style="border-width: 1.5px; padding: 0.7rem 2.2rem;">
       <i class="fas fa-sign-out-alt"></i> Logout
     </button>
   </div>
 
-  <!-- MAIN CONTENT CARD -->
+  <!-- MAIN DASHBOARD CARD -->
   <div class="glass-card">
-    <!-- NAVIGATION BUTTONS -->
-    <div class="nav-buttons">
-      <button id="navUsers" class="nav-btn" onclick="showUsers()">
-        <i class="fas fa-users"></i> Users
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 0.5rem;">
+      <h2>
+        <i class="fas fa-calendar-alt" style="color: #10b981;"></i>
+        <span id="todayHeader"></span>
+      </h2>
+      
+      <!-- PRESENT PERCENTAGE DISPLAY -->
+      <div id="presentPercentageDisplay" class="percentage-badge">
+        <i class="fas fa-chart-pie"></i> Present Rate: 
+        <span id="presentPercentageValue" class="percentage-value">0%</span>
+      </div>
+    </div>
+
+    <!-- SUNDAY MESSAGE (if today is Sunday) -->
+    <div id="sundayMessage" class="sunday-message" style="display: none;">
+      <i class="fas fa-sun"></i> Today is Sunday. Your week starts tomorrow (Monday). No editing until Monday.
+    </div>
+
+    <!-- BEAUTIFUL CALENDAR CARD -->
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <i class="fas fa-calendar-alt"></i>
+        <h3>Your Duty Schedule</h3>
+      </div>
+      <div id="assignedWeekCalendar"></div>
+    </div>
+
+    <!-- ATTENDANCE TABLE -->
+    <div id="attendanceTable"></div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="flex-wrap" style="justify-content: space-between; margin-top: 1.5rem;">
+      <button id="saveAttendanceBtn" class="btn-success" onclick="saveAttendance()">
+        <i class="fas fa-save"></i> Save Attendance
       </button>
-      <button id="navToday" class="nav-btn" onclick="showToday()">
-        <i class="fas fa-calendar-day"></i> Today
+      <button class="btn-info" onclick="showActivity()">
+        <i class="fas fa-history"></i> My Activity
       </button>
-      <button id="navDutyHistory" class="nav-btn" onclick="showDutyHistory()">
-        <i class="fas fa-history"></i> Duty History
+    </div>
+  </div>
+
+  <!-- IT DAILY QUESTION SECTION -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-question-circle"></i></span> IT Daily Question</h3>
+    <div id="questionBox" class="questionBox" style="background: rgba(224,242,254,0.7); backdrop-filter: blur(8px); border-radius: 24px; padding: 1.5rem; border-left: 6px solid #10b981; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 500; color: #065f46;">
+      <i class="fas fa-spinner fa-spin"></i> Loading question...
+    </div>
+    <div class="input-icon-wrapper" style="margin-bottom: 1rem;">
+      <i class="fas fa-pen-to-square"></i>
+      <textarea id="todAnswer" placeholder="Write your answer here..."></textarea>
+    </div>
+    <div style="display: flex; justify-content: flex-end;">
+      <button id="submitAnswerBtn" class="btn-success" onclick="saveAnswer()">
+        <i class="fas fa-paper-plane"></i> Submit Answer
       </button>
-      <button id="navPlanDuty" class="nav-btn" onclick="showPlanDuty()">
-        <i class="fas fa-calendar-plus"></i> Plan Duty
+    </div>
+  </div>
+
+  <!-- ACTIVITY SECTION -->
+  <div id="activitySection" class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-clock-rotate-left"></i></span> My Activity History</h3>
+    
+    <h4>Select Day</h4>
+    <div class="day-buttons">
+      <button class="btn-outline" onclick="loadDay('Monday')">Monday</button>
+      <button class="btn-outline" onclick="loadDay('Tuesday')">Tuesday</button>
+      <button class="btn-outline" onclick="loadDay('Wednesday')">Wednesday</button>
+      <button class="btn-outline" onclick="loadDay('Thursday')">Thursday</button>
+      <button class="btn-outline" onclick="loadDay('Friday')">Friday</button>
+    </div>
+
+    <div class="flex-wrap" style="margin-top: 1rem;">
+      <button class="btn-primary" onclick="downloadPDF()">
+        <i class="fas fa-file-pdf"></i> Download Selected Day PDF
+      </button>
+      <button class="btn-primary" onclick="downloadWeekPDF()">
+        <i class="fas fa-file-pdf"></i> Download Full Week PDF
       </button>
     </div>
 
-    <hr>
-
-    <!-- CONTENT AREA -->
-    <div id="content"></div>
+    <div id="activityTable" style="margin-top: 1.5rem;"></div>
   </div>
-
-  <!-- LOGOUT BUTTON - BOTTOM -->
+  
+  <!-- LOGOUT BUTTON - BOTTOM (SECONDARY) -->
   <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
-    <button id="logoutBtnBottom" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
+    <button id="logoutBtnBottom" class="btn-outline btn-danger" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
       <i class="fas fa-sign-out-alt"></i> Logout
     </button>
   </div>
 </div>
 
-<!-- Hidden PDF Container -->
-<div id="pdfReportContainer" class="pdf-container"></div>
-
 <script type="module">
-/* ================= FIREBASE ================= */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-  getFirestore, collection, getDocs, doc, getDoc, 
-  setDoc, updateDoc, deleteDoc, query, where 
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// ========== FIREBASE CONFIG ==========
 const firebaseConfig = {
   apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
   authDomain: "teacher-on-duty-system.firebaseapp.com",
@@ -727,16 +718,26 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-/* ================= CORRECTED DATE FUNCTIONS ================= */
+/* ================= CORRECTED DATE FUNCTIONS - MONDAY TO FRIDAY ================= */
 
 function getWeekDates(weekNum, year) {
   // First Monday of 2026 is January 5
   const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
   
   // Calculate Monday of target week
+  // Week 1: Jan 5, 2026
+  // Week 2: Jan 12, 2026
+  // Week 3: Jan 19, 2026
+  // Week 4: Jan 26, 2026
+  // Week 5: Feb 2, 2026
+  // Week 6: Feb 9, 2026
+  // Week 7: Feb 16, 2026
+  // Week 8: Feb 23, 2026 ✓ (This matches your image)
+  // Week 9: Mar 2, 2026
+  
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
@@ -762,26 +763,22 @@ function getWeekDates(weekNum, year) {
 
 function getWeekNumber(date) {
   // For 2026, Week 1 starts Jan 5
-  const firstMonday = new Date(2026, 0, 5);
+  const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
+  
+  // Calculate days difference
   const diffTime = date - firstMonday;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
   // If date is before first Monday, it's week 1
   if (diffDays < 0) return 1;
   
+  // Calculate week number (week 1 = Jan 5-9)
   return Math.floor(diffDays / 7) + 1;
 }
 
 function getCurrentWeekNumber() {
   const today = new Date();
-  const weekNum = getWeekNumber(today);
-  
-  // If today is Sunday, show next week (for planning view)
-  if (today.getDay() === 0) { // 0 = Sunday
-    return weekNum + 1;
-  }
-  
-  return weekNum;
+  return getWeekNumber(today);
 }
 
 function formatDate(date) {
@@ -792,595 +789,204 @@ function formatDate(date) {
   });
 }
 
-function formatDateLong(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  });
+// Test the dates
+console.log("✅ TOD PAGE CORRECT DATES:");
+console.log("Week 8 (Feb 23):", getWeekDates(8, 2026).map(d => d.formatted).join(' | '));
+console.log("Week 9 (Mar 2):", getWeekDates(9, 2026).map(d => d.formatted).join(' | '));
+console.log("Week 10 (Mar 9):", getWeekDates(10, 2026).map(d => d.formatted).join(' | '));
+
+// Test specific date
+const testDate = new Date(2026, 1, 23); // Feb 23, 2026
+console.log("Feb 23, 2026 is Week:", getWeekNumber(testDate)); // Should be 8
+
+// ---------- GLOBAL VARIABLES ----------
+let isActiveWeek = false;
+let canEditToday = false;
+let currentUserTodId = null;
+let assignedWeekNumber = null;
+let assignedWeekData = null;
+let currentWeek = getCurrentWeekNumber();
+let currentYear = 2026; // Fixed to 2026
+
+// ---------- DATE SETUP ----------
+let today = new Date();
+let todayISO = today.toISOString().split("T")[0];
+let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
+let dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+document.getElementById("todayHeader").innerHTML = `
+  <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+  ${dayName} - ${todayISO} (Week ${currentWeek})
+`;
+
+// Show Sunday message if today is Sunday
+if (dayOfWeek === 0) {
+  document.getElementById('sundayMessage').style.display = 'block';
 }
 
-// Test the dates
-console.log("✅ HT PAGE CORRECT DATES:");
-console.log("Today is Sunday Feb 15, 2026");
-console.log("Current Week (for planning):", getCurrentWeekNumber()); // Should be 8
-console.log("Week 8:", getWeekDates(8, 2026).map(d => d.formatted).join(' | '));
-console.log("Week 9:", getWeekDates(9, 2026).map(d => d.formatted).join(' | '));
-console.log("Week 10:", getWeekDates(10, 2026).map(d => d.formatted).join(' | '));
+// ---------- CLASS LIST ----------
+let classes = [
+  "Prep 1", "Prep 2",
+  "Class 1", "Class 2", "Class 3",
+  "Class 4", "Class 5", "Class 6", "Class 7"
+];
 
-function generateTableFromData(dataArray) {
-  if (!dataArray || dataArray.length === 0) {
-    return `<p>No attendance data available</p>`;
-  }
-  
+let selectedDayData = null;
+
+// ---------- CREATE TABLE ----------
+function createTable(isEditable = false) {
   let html = `<div class="table-responsive"><table>
     <thead>
       <tr>
-        <th>Class</th>
-        <th>Reg B</th>
-        <th>Reg G</th>
-        <th>Pre B</th>
-        <th>Pre G</th>
-        <th>Abs B</th>
-        <th>Abs G</th>
-        <th>Sick B</th>
-        <th>Sick G</th>
-        <th>Perm B</th>
-        <th>Perm G</th>
-        <th>Total Pre</th>
+        <th rowspan="2">Class</th>
+        <th colspan="3">Registered</th>
+        <th colspan="3">Present</th>
+        <th colspan="3">Absent</th>
+        <th colspan="3">Sick</th>
+        <th colspan="3">Permission</th>
+      </tr>
+      <tr>
+        ${["B","G","T","B","G","T","B","G","T","B","G","T","B","G","T"]
+          .map(h => `<th>${h}</th>`).join("")}
       </tr>
     </thead>
     <tbody>`;
   
-  let totalReg = 0, totalPre = 0;
-  
-  dataArray.forEach(item => {
-    let preTotal = (parseInt(item.preB) || 0) + (parseInt(item.preG) || 0);
-    let regTotal = (parseInt(item.regB) || 0) + (parseInt(item.regG) || 0);
-    totalReg += regTotal;
-    totalPre += preTotal;
+  classes.forEach(c => {
+    const preReadonly = isEditable ? '' : 'readonly';
+    const absReadonly = isEditable ? '' : 'readonly';
+    const sickReadonly = isEditable ? '' : 'readonly';
+    const perReadonly = isEditable ? '' : 'readonly';
     
-    html += `<tr>
-      <td><strong>${item.class}</strong></td>
-      <td>${item.regB || 0}</td>
-      <td>${item.regG || 0}</td>
-      <td>${item.preB || 0}</td>
-      <td>${item.preG || 0}</td>
-      <td>${item.absB || 0}</td>
-      <td>${item.absG || 0}</td>
-      <td>${item.sickB || 0}</td>
-      <td>${item.sickG || 0}</td>
-      <td>${item.perB || 0}</td>
-      <td>${item.perG || 0}</td>
-      <td><strong>${preTotal}</strong></td>
-    </tr>`;
+    html += `
+      <tr>
+        <td><strong>${c}</strong></td>
+        <td><input id="regB_${c}" readonly></td>
+        <td><input id="regG_${c}" readonly></td>
+        <td><input id="regT_${c}" readonly></td>
+        
+        <td><input id="preB_${c}" oninput="calcRow('${c}')" min="0" ${preReadonly}></td>
+        <td><input id="preG_${c}" oninput="calcRow('${c}')" min="0" ${preReadonly}></td>
+        <td><input id="preT_${c}" readonly></td>
+        
+        <td><input id="absB_${c}" oninput="calcRow('${c}')" min="0" ${absReadonly}></td>
+        <td><input id="absG_${c}" oninput="calcRow('${c}')" min="0" ${absReadonly}></td>
+        <td><input id="absT_${c}" readonly></td>
+        
+        <td><input id="sickB_${c}" oninput="calcRow('${c}')" min="0" ${sickReadonly}></td>
+        <td><input id="sickG_${c}" oninput="calcRow('${c}')" min="0" ${sickReadonly}></td>
+        <td><input id="sickT_${c}" readonly></td>
+        
+        <td><input id="perB_${c}" oninput="calcRow('${c}')" min="0" ${perReadonly}></td>
+        <td><input id="perG_${c}" oninput="calcRow('${c}')" min="0" ${perReadonly}></td>
+        <td><input id="perT_${c}" readonly></td>
+      </tr>
+    `;
   });
+
+  html += `
+    <tr class="totalRow">
+      <td><strong>Total</strong></td>
+      ${Array(15).fill('<td class="grandTotal">0</td>').join("")}
+    </tr>
+    </tbody></table></div>`;
+
+  document.getElementById("attendanceTable").innerHTML = html;
   
-  let percentage = totalReg > 0 ? Math.round((totalPre / totalReg) * 100) : 0;
-  
-  html += `<tr class="totalRow">
-    <td><strong>GRAND TOTAL</strong></td>
-    <td colspan="11" style="text-align: left; padding-left: 1rem;">
-      <strong>Total Students: ${totalReg} | Present: ${totalPre} (${percentage}%)</strong>
-    </td>
-  </tr></tbody></table></div>`;
-  
-  return html;
+  if (isEditable) {
+    document.querySelectorAll('.preB, .preG, .absB, .absG, .sickB, .sickG, .perB, .perG').forEach(input => {
+      input.addEventListener('input', function() {
+        const classId = this.id.split('_')[1];
+        calcRow(classId);
+      });
+    });
+  }
 }
 
-/* ================= AUTH CHECK ================= */
+// ---------- FIND WHICH WEEK THE TOD IS ASSIGNED TO ----------
+async function findAssignedWeek() {
+  try {
+    const user = auth.currentUser;
+    if (!user) return null;
+    
+    currentUserTodId = user.uid;
+    
+    // Get all duty plans
+    const dutyPlansSnap = await getDocs(collection(db, "dutyPlan"));
+    let assignedWeek = null;
+    
+    dutyPlansSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.todId === currentUserTodId) {
+        assignedWeek = data.weekNumber;
+      }
+    });
+    
+    return assignedWeek;
+  } catch (error) {
+    console.error("Error finding assigned week:", error);
+    return null;
+  }
+}
 
-onAuthStateChanged(auth, async(user)=>{
-  if(!user){
-    alert("Not logged in");
-    window.location = "index.html";
-  } else {
-    document.getElementById("headerEmail").innerText = user.email;
+// ---------- CHECK IF USER CAN EDIT TODAY ----------
+function canEditTodayCheck(assignedWeek) {
+  // If not assigned to any week
+  if (!assignedWeek) return false;
+  
+  // If not assigned to current week
+  if (assignedWeek !== currentWeek) return false;
+  
+  // If today is Sunday, cannot edit (week starts Monday)
+  if (dayOfWeek === 0) return false;
+  
+  // All checks passed - can edit
+  return true;
+}
+
+// ---------- CHECK IF CURRENT WEEK IS USER'S ACTIVE WEEK ----------
+async function checkActiveWeek() {
+  try {
+    const user = auth.currentUser;
+    if (!user) return false;
     
     const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists() && userDoc.data().role === "HT") {
-      showToday();
-    } else {
-      alert("Access Denied: Head Teacher only");
-      window.location = "index.html";
-    }
-  }
-});
-
-/* ================= LOGOUT FUNCTION ================= */
-
-window.logout = async function() {
-  try {
-    await signOut(auth);
-    alert("✅ Logged out successfully");
-    window.location = "index.html";
-  } catch (error) {
-    alert("Error logging out: " + error.message);
-  }
-};
-
-/* ================= USERS ================= */
-
-window.showUsers = async function(){
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navUsers').classList.add('active');
-
-  let html = `
-    <h3><i class="fas fa-users" style="color: #0a66c2; margin-right: 0.5rem;"></i> All Users</h3>
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-
-  const snapshot = await getDocs(collection(db, "users"));
-
-  snapshot.forEach(docSnap => {
-    let u = docSnap.data();
-    let roleColor = u.role === "IT" ? "#0a66c2" : 
-                    u.role === "HT" ? "#10b981" : 
-                    u.role === "TOD" ? "#f59e0b" : "#6b8ca3";
+    if (!userDoc.exists()) return false;
     
-    html += `<tr>
-      <td><strong>${u.name || '-'}</strong></td>
-      <td>${u.email || '-'}</td>
-      <td><span style="color: ${roleColor}; font-weight: 600;">${u.role || '-'}</span></td>
-    </tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-  html += `<div class="info-note" style="margin-top: 1rem;">
-    <i class="fas fa-info-circle"></i> Total Users: ${snapshot.size}
-  </div>`;
-
-  document.getElementById("content").innerHTML = html;
+    currentUserTodId = user.uid;
+    
+    // Find which week this TOD is assigned to
+    assignedWeekNumber = await findAssignedWeek();
+    
+    // Check if they're assigned to current week
+    isActiveWeek = (assignedWeekNumber === currentWeek);
+    
+    // Check if they can edit TODAY specifically
+    canEditToday = canEditTodayCheck(assignedWeekNumber);
+    
+    // Update UI
+    updateWeekUI();
+    
+    return canEditToday;
+  } catch (error) {
+    console.error("Error checking active week:", error);
+    return false;
+  }
 }
 
-/* ================= SHOW TODAY ================= */
-
-window.showToday = async function() {
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navToday').classList.add('active');
-
-  const todayISO = new Date().toISOString().split("T")[0];
-  const docSnap = await getDoc(doc(db, "attendance", todayISO));
-
-  if (!docSnap.exists()) {
-    document.getElementById("content").innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-        <h3 style="color: #6b8ca3; margin-bottom: 0.5rem;">No Report Submitted</h3>
-        <p>No attendance report has been submitted for today.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const data = docSnap.data();
+// ---------- UPDATE UI WITH BEAUTIFUL CALENDAR ----------
+function updateWeekUI() {
+  const calendarDiv = document.getElementById('assignedWeekCalendar');
+  const saveBtn = document.getElementById('saveAttendanceBtn');
+  const submitAnswerBtn = document.getElementById('submitAnswerBtn');
   
-  let tableHTML = data.data ? generateTableFromData(data.data) : (data.tableHTML || "<p>No attendance data available</p>");
-
-  document.getElementById("content").innerHTML = `
-  <div id="todayReportContainer" class="pdf-content" style="padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3>
-        <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-        ${data.day || 'Today'} - ${formatDateLong(todayISO)}
-      </h3>
-      <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
-        <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
-      </span>
-    </div>
-
-    ${tableHTML}
-
-    <h4>
-      <i class="fas fa-comment-dots" style="color: #0a66c2;"></i>
-      TOD Answer:
-    </h4>
-    <div class="answer-card">
-      <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
-      ${data.todAnswer || data.answer || "No answer provided"}
-    </div>
-
-    <h4>
-      <i class="fas fa-reply" style="color: #0a66c2;"></i>
-      HT Response:
-    </h4>
-    <div class="input-icon-wrapper">
-      <i class="fas fa-pen-to-square"></i>
-      <textarea id="htResponse" placeholder="Write your response here...">${data.htAnswer || ""}</textarea>
-    </div>
-
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <button class="btn-success" onclick="saveHT('${todayISO}')">
-        <i class="fas fa-save"></i> Save Response
-      </button>
-      <button class="btn-primary" onclick="downloadPDFFromElement('todayReportContainer', 'Today_Report_${todayISO}.pdf')">
-        <i class="fas fa-file-pdf"></i> Download PDF
-      </button>
-    </div>
-  </div>
-  `;
-};
-
-/* ================= SAVE HT RESPONSE ================= */
-
-window.saveHT = async function(id) {
-  const text = document.getElementById("htResponse").value;
-
-  await setDoc(doc(db, "attendance", id), {
-    htAnswer: text,
-    status: "Reviewed",
-    reviewedBy: auth.currentUser?.email || 'HT',
-    reviewedAt: new Date()
-  }, { merge: true });
-
-  alert("✅ Response saved successfully");
-};
-
-/* ================= PDF DOWNLOAD FUNCTION ================= */
-window.downloadPDFFromElement = async function(elementId, filename) {
-  const element = document.getElementById(elementId);
-  if (!element) {
-    alert("Could not find content to download");
-    return;
-  }
+  let calendarHtml = '';
   
-  try {
-    const { jsPDF } = window.jspdf;
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      allowTaint: true,
-      useCORS: true
-    });
+  if (assignedWeekNumber) {
+    // Show the week they're assigned to
+    const weekDates = getWeekDates(assignedWeekNumber, currentYear);
+    const isCurrent = (assignedWeekNumber === currentWeek);
     
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    const imgWidth = 210;
-    const pageHeight = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-    
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-    
-    pdf.save(filename || "HT_Report.pdf");
-  } catch (error) {
-    console.error("PDF generation error:", error);
-    alert("Error generating PDF: " + error.message);
-  }
-};
-
-/* ================= SHOW DUTY HISTORY ================= */
-
-window.showDutyHistory = async function() {
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navDutyHistory').classList.add('active');
-
-  const usersSnap = await getDocs(collection(db, "users"));
-
-  let html = `<div class="glass-card">
-    <h3>
-      <i class="fas fa-users" style="color: #8e44ad; margin-right: 0.5rem;"></i>
-      Select Teacher On Duty
-    </h3>
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">`;
-
-  usersSnap.forEach(d => {
-    const u = d.data();
-    if (u.role === "TOD") {
-      html += `
-        <button class="btn-info" onclick="openTodHistory('${d.id}', '${u.name}')">
-          <i class="fas fa-user-tie"></i> ${u.name}
-        </button>
-      `;
-    }
-  });
-
-  html += `</div></div>`;
-
-  document.getElementById("content").innerHTML = html;
-};
-
-/* ================= OPEN TOD HISTORY ================= */
-
-window.openTodHistory = async function(todId, name, selectedYear = null) {
-  const userDoc = await getDoc(doc(db, "users", todId));
-  const userEmail = userDoc.exists() ? userDoc.data().email : todId;
-  
-  const q = query(collection(db, "attendance"), where("todName", "==", userEmail));
-  const snap = await getDocs(q);
-
-  if (snap.empty) {
-    document.getElementById("content").innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-info-circle"></i> No attendance records found for ${name}
-      </div>
-    `;
-    return;
-  }
-
-  let records = [];
-  snap.forEach(d => {
-    records.push({
-      id: d.id,
-      ...d.data()
-    });
-  });
-
-  const recordsByYearWeek = {};
-  const availableYears = new Set();
-  
-  records.forEach(r => {
-    const date = new Date(r.id);
-    const year = date.getFullYear();
-    const week = getWeekNumber(date);
-    const dayName = r.day;
-    
-    availableYears.add(year);
-    
-    if (!recordsByYearWeek[year]) {
-      recordsByYearWeek[year] = {};
-    }
-    if (!recordsByYearWeek[year][week]) {
-      recordsByYearWeek[year][week] = {
-        weekNumber: week,
-        days: {}
-      };
-    }
-    
-    recordsByYearWeek[year][week].days[dayName] = {
-      id: r.id,
-      date: r.id,
-      day: dayName,
-      present: r.data ? r.data.reduce((sum, cls) => sum + (parseInt(cls.preB) || 0) + (parseInt(cls.preG) || 0), 0) : 0,
-      total: r.data ? r.data.reduce((sum, cls) => sum + (parseInt(cls.regB) || 0) + (parseInt(cls.regG) || 0), 0) : 0,
-      hasAnswer: !!(r.todAnswer || r.answer),
-      hasHTResponse: !!(r.htAnswer)
-    };
-  });
-
-  const sortedYears = Array.from(availableYears).sort((a, b) => b - a);
-  const currentYear = selectedYear || sortedYears[0];
-  
-  let yearSelector = `
-    <div class="year-selector">
-      <span style="font-weight: 600; color: #1e4c6b;">Select Year:</span>
-  `;
-  
-  sortedYears.forEach(year => {
-    yearSelector += `
-      <button class="year-btn ${year === currentYear ? 'active' : ''}" 
-              onclick="openTodHistory('${todId}', '${name}', ${year})">
-        ${year}
-      </button>
-    `;
-  });
-  
-  yearSelector += `</div>`;
-
-  let html = `<div class="glass-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h3>
-        <i class="fas fa-history" style="color: #8e44ad; margin-right: 0.5rem;"></i>
-        ${name} - Duty History
-      </h3>
-      <span class="badge" style="background: rgba(142,68,173,0.15); color: #71368a;">
-        <i class="fas fa-calendar"></i> ${records.length} Total Reports
-      </span>
-    </div>
-    
-    <div style="margin-bottom: 1rem;">
-      <button class="btn-outline" onclick="showDutyHistory()" style="border-color: #8e44ad; color: #8e44ad;">
-        <i class="fas fa-arrow-left"></i> Back to TOD List
-      </button>
-    </div>
-    
-    ${yearSelector}
-    `;
-
-  const weeks = Object.values(recordsByYearWeek[currentYear] || {}).sort((a, b) => b.weekNumber - a.weekNumber);
-  
-  if (weeks.length === 0) {
-    html += `<div class="empty-state">No records found for ${currentYear}</div>`;
-  } else {
-    weeks.forEach(week => {
-      const weekData = week;
-      const days = weekData.days;
-      const dayCount = Object.keys(days).length;
-      
-      html += `
-        <div class="week-group">
-          <div class="week-header">
-            <i class="fas fa-calendar-week"></i>
-            Week ${weekData.weekNumber}
-            <span class="badge" style="background: white; color: #71368a; margin-left: 1rem;">
-              ${dayCount} day${dayCount > 1 ? 's' : ''}
-            </span>
-          </div>
-          <div class="week-days">
-      `;
-      
-      const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-      dayOrder.forEach(dayName => {
-        if (days[dayName]) {
-          const day = days[dayName];
-          const percentage = day.total > 0 ? Math.round((day.present / day.total) * 100) : 0;
-          
-          html += `
-            <div class="record-item">
-              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem;">
-                <span class="record-date">
-                  <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-                  ${dayName} - ${formatDateLong(day.date)}
-                </span>
-                <span class="record-badge">
-                  <i class="fas fa-user-graduate"></i> Present: ${day.present}/${day.total} (${percentage}%)
-                </span>
-                ${day.hasAnswer ? 
-                  `<span class="record-badge" style="background: rgba(16,185,129,0.1); color: #059669;">
-                    <i class="fas fa-check-circle"></i> Answered
-                  </span>` : 
-                  `<span class="record-badge" style="background: rgba(245,158,11,0.1); color: #d97706;">
-                    <i class="fas fa-clock"></i> No Answer
-                  </span>`
-                }
-                ${day.hasHTResponse ? 
-                  `<span class="record-badge" style="background: rgba(10,102,194,0.1); color: #0a66c2;">
-                    <i class="fas fa-reply"></i> HT Responded
-                  </span>` : ''
-                }
-              </div>
-              <button class="btn-primary btn-small" onclick="openRecord('${day.id}')">
-                <i class="fas fa-eye"></i> View
-              </button>
-            </div>
-          `;
-        }
-      });
-      
-      html += `</div></div>`;
-    });
-  }
-
-  html += `</div>`;
-  document.getElementById("content").innerHTML = html;
-};
-
-/* ================= OPEN RECORD ================= */
-
-window.openRecord = async function(id) {
-  const docSnap = await getDoc(doc(db, "attendance", id));
-  if (!docSnap.exists()) return;
-
-  const data = docSnap.data();
-  
-  let tableHTML = data.data ? generateTableFromData(data.data) : (data.tableHTML || "<p>No attendance data available</p>");
-
-  document.getElementById("content").innerHTML = `
-  <div id="recordReportContainer" class="pdf-content" style="padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3>
-        <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-        ${data.day} - ${formatDateLong(id)}
-      </h3>
-      <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
-        <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
-      </span>
-    </div>
-
-    <div style="margin-bottom: 1rem;">
-      <button class="btn-outline" onclick="openTodHistory('${data.todId}', '${data.todName}')" style="border-color: #8e44ad; color: #8e44ad;">
-        <i class="fas fa-arrow-left"></i> Back to History
-      </button>
-    </div>
-
-    ${tableHTML}
-
-    <h4>
-      <i class="fas fa-comment-dots" style="color: #0a66c2;"></i>
-      TOD Answer:
-    </h4>
-    <div class="answer-card">
-      <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
-      ${data.todAnswer || data.answer || "No answer provided"}
-    </div>
-
-    <h4>
-      <i class="fas fa-reply" style="color: #0a66c2;"></i>
-      HT Response:
-    </h4>
-    <div style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); border-radius: 20px; padding: 1.2rem; border-left: 6px solid #f59e0b; margin-top: 0.5rem;">
-      <i class="fas fa-quote-left" style="color: #f59e0b; opacity: 0.5; margin-right: 0.5rem;"></i>
-      ${data.htAnswer || "No response yet"}
-    </div>
-
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <button class="btn-primary" onclick="downloadPDFFromElement('recordReportContainer', 'Record_Report_${id}.pdf')">
-        <i class="fas fa-file-pdf"></i> Download PDF
-      </button>
-    </div>
-  </div>
-  `;
-};
-
-/* ================= PLAN DUTY - AUTO-ROTATING WEEKS WITH DESELECT ================= */
-
-window.showPlanDuty = async function(){
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navPlanDuty').classList.add('active');
-
-  let html = `
-    <div class="calendar-card">
-      <div class="calendar-header">
-        <i class="fas fa-calendar-alt"></i>
-        <h3>Weekly Duty Schedule - Auto Rotating</h3>
-      </div>
-  `;
-
-  const snapshot = await getDocs(collection(db, "users"));
-  let todList = [];
-
-  snapshot.forEach(docSnap => {
-    let u = docSnap.data();
-    if (u.role === "TOD") {
-      todList.push({
-        id: docSnap.id,
-        name: u.name,
-        email: u.email
-      });
-    }
-  });
-
-  // Get current week (with Sunday fix)
-  const currentWeek = getCurrentWeekNumber();
-  const currentYear = 2026;
-  
-  // Show ONLY 4 weeks: current + next 3
-  for (let i = 0; i < 4; i++) {
-    const weekNum = currentWeek + i;
-    const weekDates = getWeekDates(weekNum, currentYear);
-    const isCurrentWeek = (i === 0);
-    
-    // Get assigned TOD for this week
-    let assignedTodId = "";
-    let assignedTodName = "";
-    try {
-      const planSnap = await getDoc(doc(db, "dutyPlan", `week_${weekNum}`));
-      if (planSnap.exists()) {
-        assignedTodId = planSnap.data().todId || "";
-        const assigned = todList.find(t => t.id === assignedTodId);
-        assignedTodName = assigned ? assigned.name : "";
-      }
-    } catch (e) {
-      console.log("No plan for week " + weekNum);
-    }
-
-    // Create beautiful date chips
     let datesHtml = '';
     weekDates.forEach(day => {
       datesHtml += `
@@ -1390,115 +996,677 @@ window.showPlanDuty = async function(){
         </div>
       `;
     });
-
-    // Create select options
-    let optionsHtml = `<option value="">-- Select TOD (or leave empty) --</option>`;
-    todList.forEach(t => {
-      const selected = (t.id === assignedTodId) ? 'selected' : '';
-      optionsHtml += `<option value="${t.id}" ${selected}>${t.name}</option>`;
-    });
-
-    html += `
-    <div class="week-row ${isCurrentWeek ? 'current-week' : ''}">
-      <div class="week-number">
-        <i class="fas fa-calendar-week"></i> Week ${weekNum}
-        ${isCurrentWeek ? '<div class="current-badge">Current</div>' : ''}
-      </div>
-      <div class="week-dates">
-        ${datesHtml}
-      </div>
-      <div class="week-assign">
-        <div class="input-icon-wrapper" style="flex: 1;">
-          <i class="fas fa-user-tie"></i>
-          <select id="select_week_${weekNum}" onchange="autoSavePlan('${weekNum}')">
-            ${optionsHtml}
-          </select>
+    
+    let statusMessage = '';
+    if (isCurrent && dayOfWeek === 0) {
+      statusMessage = '<span class="not-assigned-badge" style="background: #f59e0b;">⏳ Starts Tomorrow</span>';
+    } else if (isCurrent && canEditToday) {
+      statusMessage = '<span class="assigned-badge">✓ Your Active Week</span>';
+    } else if (isCurrent && !canEditToday) {
+      statusMessage = '<span class="not-assigned-badge">✗ Cannot Edit Today</span>';
+    } else if (assignedWeekNumber > currentWeek) {
+      statusMessage = `<span class="not-assigned-badge">✗ Your Week ${assignedWeekNumber} (Future)</span>`;
+    } else if (assignedWeekNumber < currentWeek) {
+      statusMessage = `<span class="not-assigned-badge">✗ Your Week ${assignedWeekNumber} (Past)</span>`;
+    }
+    
+    calendarHtml = `
+      <div class="week-row ${isCurrent ? 'current-week' : ''}">
+        <div class="week-number">
+          <i class="fas fa-calendar-week"></i> Week ${assignedWeekNumber}
+          ${isCurrent ? '<span class="assigned-badge" style="margin-left: 0.5rem;">Current</span>' : ''}
         </div>
-        <button class="clear-btn" onclick="clearAssignment('${weekNum}')" title="Clear assignment">
-          <i class="fas fa-times"></i> Clear
-        </button>
+        <div class="week-dates">
+          ${datesHtml}
+        </div>
+        <div>
+          ${statusMessage}
+        </div>
       </div>
-    </div>
+    `;
+  } else {
+    // No assignment found - show current week
+    const weekDates = getWeekDates(currentWeek, currentYear);
+    let datesHtml = '';
+    weekDates.forEach(day => {
+      datesHtml += `
+        <div class="date-chip">
+          <span class="day">${day.name}:</span>
+          <span class="date">${day.formatted}</span>
+        </div>
+      `;
+    });
+    
+    calendarHtml = `
+      <div class="week-row">
+        <div class="week-number">
+          <i class="fas fa-calendar-week"></i> Current Week ${currentWeek}
+        </div>
+        <div class="week-dates">
+          ${datesHtml}
+        </div>
+        <div>
+          <span class="not-assigned-badge">✗ Not Assigned Yet</span>
+        </div>
+      </div>
     `;
   }
-
-  html += `
-    <div class="info-note" style="margin-top: 1rem;">
-      <i class="fas fa-info-circle"></i> 
-      <span><strong>Auto-rotating weeks:</strong> Only current + next 3 weeks shown. Past weeks disappear automatically. Use <strong>Clear</strong> button to unassign a TOD.</span>
-    </div>
-    </div>
-  `;
-
-  document.getElementById("content").innerHTML = html;
+  
+  calendarDiv.innerHTML = calendarHtml;
+  
+  // Enable/disable buttons based on canEditToday
+  if (canEditToday) {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '1';
+      saveBtn.style.cursor = 'pointer';
+    }
+    if (submitAnswerBtn) {
+      submitAnswerBtn.disabled = false;
+      submitAnswerBtn.style.opacity = '1';
+      submitAnswerBtn.style.cursor = 'pointer';
+    }
+  } else {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
+    }
+    if (submitAnswerBtn) {
+      submitAnswerBtn.disabled = true;
+      submitAnswerBtn.style.opacity = '0.5';
+      submitAnswerBtn.style.cursor = 'not-allowed';
+    }
+  }
 }
 
-// Auto-save when selection changes
-window.autoSavePlan = async function(weekNum) {
-  const selectId = `select_week_${weekNum}`;
-  const todId = document.getElementById(selectId).value;
-  
-  if (!todId) {
-    // If empty is selected, ask if they want to clear
-    if (confirm("Clear assignment for this week?")) {
-      await clearAssignment(weekNum);
+// ---------- LOAD REGISTRATION DATA FROM SYSTEM ----------
+async function loadRegistrationData() {
+  try {
+    const regSnap = await getDoc(doc(db, "system", "classRegistration"));
+    if (regSnap.exists()) {
+      const data = regSnap.data().classes;
+      if (data && data.length) {
+        data.forEach(item => {
+          const regB = document.getElementById(`regB_${item.class}`);
+          const regG = document.getElementById(`regG_${item.class}`);
+          const regT = document.getElementById(`regT_${item.class}`);
+          if (regB && regG && regT) {
+            regB.value = item.regB || 0;
+            regG.value = item.regG || 0;
+            regT.value = (item.regB || 0) + (item.regG || 0);
+          }
+        });
+      }
     }
+  } catch (e) {
+    console.error("Error loading registration data:", e);
+  }
+}
+
+// ---------- CALCULATE ROW TOTALS ----------
+window.calcRow = function(c) {
+  function sum(bId, gId, tId) {
+    let b = Number(document.getElementById(bId)?.value) || 0;
+    let g = Number(document.getElementById(gId)?.value) || 0;
+    let tEl = document.getElementById(tId);
+    if (tEl) tEl.value = b + g;
+  }
+  sum(`preB_${c}`, `preG_${c}`, `preT_${c}`);
+  sum(`absB_${c}`, `absG_${c}`, `absT_${c}`);
+  sum(`sickB_${c}`, `sickG_${c}`, `sickT_${c}`);
+  sum(`perB_${c}`, `perG_${c}`, `perT_${c}`);
+  calculateGrandTotals();
+};
+
+// ---------- CALCULATE GRAND TOTALS & PERCENTAGE ----------
+window.calculateGrandTotals = function() {
+  const totals = Array(15).fill(0);
+  classes.forEach(c => {
+    [
+      `regB_${c}`, `regG_${c}`, `regT_${c}`,
+      `preB_${c}`, `preG_${c}`, `preT_${c}`,
+      `absB_${c}`, `absG_${c}`, `absT_${c}`,
+      `sickB_${c}`, `sickG_${c}`, `sickT_${c}`,
+      `perB_${c}`, `perG_${c}`, `perT_${c}`
+    ].forEach((id, i) => {
+      let el = document.getElementById(id);
+      if (el) totals[i] += Number(el.value) || 0;
+    });
+  });
+  document.querySelectorAll(".grandTotal").forEach((cell, i) => {
+    cell.innerText = totals[i];
+  });
+  
+  const totalRegistered = totals[2];
+  const totalPresent = totals[5];
+  let percentage = 0;
+  if (totalRegistered > 0) {
+    percentage = Math.round((totalPresent / totalRegistered) * 100);
+  }
+  const percentageElement = document.getElementById("presentPercentageValue");
+  if (percentageElement) {
+    percentageElement.innerText = `${percentage}%`;
+    if (percentage >= 90) percentageElement.style.color = "#10b981";
+    else if (percentage >= 75) percentageElement.style.color = "#f59e0b";
+    else percentageElement.style.color = "#ef4444";
+  }
+};
+
+// ---------- INITIALIZE TABLE ----------
+createTable(false);
+
+// ---------- SAVE ATTENDANCE ----------
+window.saveAttendance = async () => {
+  if (!canEditToday) {
+    alert("You can only save attendance during your assigned week (Monday-Friday)!");
     return;
   }
-
-  await setDoc(doc(db, "dutyPlan", `week_${weekNum}`), {
-    weekNumber: parseInt(weekNum),
-    todId: todId,
-    assignedAt: new Date(),
-    assignedBy: auth.currentUser?.email || 'HT'
+  
+  const user = auth.currentUser;
+  if (!user) { alert("Login required"); return; }
+  
+  let data = [];
+  classes.forEach(c => {
+    data.push({
+      class: c,
+      regB: document.getElementById(`regB_${c}`)?.value || 0,
+      regG: document.getElementById(`regG_${c}`)?.value || 0,
+      preB: document.getElementById(`preB_${c}`)?.value || 0,
+      preG: document.getElementById(`preG_${c}`)?.value || 0,
+      absB: document.getElementById(`absB_${c}`)?.value || 0,
+      absG: document.getElementById(`absG_${c}`)?.value || 0,
+      sickB: document.getElementById(`sickB_${c}`)?.value || 0,
+      sickG: document.getElementById(`sickG_${c}`)?.value || 0,
+      perB: document.getElementById(`perB_${c}`)?.value || 0,
+      perG: document.getElementById(`perG_${c}`)?.value || 0
+    });
   });
+  
+  const existingSnap = await getDoc(doc(db, "attendance", todayISO));
+  const existingData = existingSnap.exists() ? existingSnap.data() : {};
+  
+  await setDoc(doc(db, "attendance", todayISO), {
+    date: todayISO, 
+    day: dayName, 
+    weekNumber: currentWeek,
+    todId: currentUserTodId,
+    todName: user.email,
+    todDisplayName: user.displayName || user.email, 
+    data: data, 
+    todAnswer: existingData.todAnswer || "",
+    htAnswer: existingData.htAnswer || "",
+    savedAt: new Date()
+  });
+  alert("✅ Attendance Saved");
+};
 
-  alert(`✅ Week ${weekNum} assigned successfully`);
+// ---------- LOAD SAVED ATTENDANCE ----------
+async function loadSavedAttendance() {
+  const snap = await getDoc(doc(db, "attendance", todayISO));
+  if (snap.exists()) {
+    const data = snap.data().data;
+    const todAnswer = snap.data().todAnswer || "";
+    
+    const answerTextarea = document.getElementById("todAnswer");
+    if (answerTextarea && todAnswer) {
+      answerTextarea.value = todAnswer;
+    }
+    
+    data.forEach(item => {
+      const preB = document.getElementById(`preB_${item.class}`);
+      const preG = document.getElementById(`preG_${item.class}`);
+      const absB = document.getElementById(`absB_${item.class}`);
+      const absG = document.getElementById(`absG_${item.class}`);
+      const sickB = document.getElementById(`sickB_${item.class}`);
+      const sickG = document.getElementById(`sickG_${item.class}`);
+      const perB = document.getElementById(`perB_${item.class}`);
+      const perG = document.getElementById(`perG_${item.class}`);
+      if (preB) preB.value = item.preB || 0;
+      if (preG) preG.value = item.preG || 0;
+      if (absB) absB.value = item.absB || 0;
+      if (absG) absG.value = item.absG || 0;
+      if (sickB) sickB.value = item.sickB || 0;
+      if (sickG) sickG.value = item.sickG || 0;
+      if (perB) perB.value = item.perB || 0;
+      if (perG) perG.value = item.perG || 0;
+      window.calcRow(item.class);
+    });
+    calculateGrandTotals();
+  }
+  
+  await loadRegistrationData();
 }
 
-// Clear assignment (set to empty)
-window.clearAssignment = async function(weekNum) {
-  if (confirm(`Are you sure you want to clear the assignment for Week ${weekNum}?`)) {
-    try {
-      // Delete the document
-      await deleteDoc(doc(db, "dutyPlan", `week_${weekNum}`));
+// ---------- LOAD QUESTION ----------
+async function loadQuestion() {
+  const snap = await getDoc(doc(db, "questions", "daily"));
+  if (!snap.exists() || !snap.data().tod) {
+    document.getElementById("questionBox").innerHTML = `<i class="fas fa-info-circle"></i> No question posted by IT`;
+    return;
+  }
+  document.getElementById("questionBox").innerHTML = snap.data().tod;
+}
+
+// ---------- SAVE ANSWER ----------
+window.saveAnswer = async () => {
+  if (!canEditToday) {
+    alert("You can only submit answers during your assigned week (Monday-Friday)!");
+    return;
+  }
+  
+  const user = auth.currentUser;
+  let answer = document.getElementById("todAnswer").value.trim();
+  if (!answer) { alert("Please write an answer"); return; }
+  
+  await setDoc(doc(db, "attendance", todayISO), {
+    todAnswer: answer,
+    answer: answer,
+    submittedAt: new Date()
+  }, { merge: true });
+  
+  alert("✅ Answer Submitted - Visible to Head Teacher");
+};
+
+// ---------- SHOW ACTIVITY ----------
+window.showActivity = function() {
+  document.getElementById("activitySection").style.display = "block";
+  document.getElementById("activitySection").scrollIntoView({ behavior: 'smooth' });
+};
+
+// ---------- LOAD DAY FOR ACTIVITY ----------
+window.loadDay = async function(day) {
+  const user = auth.currentUser;
+  const q = query(
+    collection(db, "attendance"),
+    where("todName", "==", user.email),
+    where("day", "==", day)
+  );
+  const snap = await getDocs(q);
+  let html = "";
+  selectedDayData = null;
+
+  if (snap.empty) {
+    html = `<div class="empty-state"><i class="fas fa-info-circle"></i> No records found for ${day}</div>`;
+  } else {
+    snap.forEach(d => {
+      let data = d.data();
+      selectedDayData = data;
       
-      // Reset the select to empty
-      const selectEl = document.getElementById(`select_week_${weekNum}`);
-      if (selectEl) {
-        selectEl.value = "";
+      let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+      let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+      let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+      let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+      let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+      
+      data.data.forEach(r => {
+        totalRegB += parseInt(r.regB) || 0;
+        totalRegG += parseInt(r.regG) || 0;
+        totalPreB += parseInt(r.preB) || 0;
+        totalPreG += parseInt(r.preG) || 0;
+        totalAbsB += parseInt(r.absB) || 0;
+        totalAbsG += parseInt(r.absG) || 0;
+        totalSickB += parseInt(r.sickB) || 0;
+        totalSickG += parseInt(r.sickG) || 0;
+        totalPerB += parseInt(r.perB) || 0;
+        totalPerG += parseInt(r.perG) || 0;
+      });
+      
+      totalRegT = totalRegB + totalRegG;
+      totalPreT = totalPreB + totalPreG;
+      totalAbsT = totalAbsB + totalAbsG;
+      totalSickT = totalSickB + totalSickG;
+      totalPerT = totalPerB + totalPerG;
+      
+      let presentPercentage = 0;
+      if (totalRegT > 0) {
+        presentPercentage = Math.round((totalPreT / totalRegT) * 100);
       }
       
-      alert(`✅ Week ${weekNum} assignment cleared`);
-    } catch (error) {
-      console.error("Error clearing assignment:", error);
-      alert("Error clearing assignment");
+      html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4><i class="fas fa-calendar-day"></i> ${data.day} - ${data.date} (Week ${data.weekNumber || '?'})</h4>
+        <span class="percentage-badge" style="background: rgba(16,185,129,0.15);">
+          <i class="fas fa-chart-line"></i> Present Rate: 
+          <span style="background: white; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 800; color: ${presentPercentage >= 90 ? '#10b981' : presentPercentage >= 75 ? '#f59e0b' : '#ef4444'};">
+            ${presentPercentage}%
+          </span>
+        </span>
+      </div>`;
+      
+      html += `<div style="margin-bottom: 1.5rem;">
+        <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #065f46; margin-bottom: 0.5rem;">
+          <i class="fas fa-comment-dots" style="color: #10b981;"></i> Your Answer:
+        </h5>
+        <div style="background: rgba(16,185,129,0.05); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #10b981;">
+          <i class="fas fa-quote-left" style="color: #10b981; opacity: 0.5; margin-right: 0.5rem;"></i>
+          ${data.todAnswer || data.answer || "No answer provided"}
+        </div>
+      </div>`;
+      
+      if (data.htAnswer) {
+        html += `<div style="margin-bottom: 1.5rem;">
+          <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #0a4e7a; margin-bottom: 0.5rem;">
+            <i class="fas fa-reply" style="color: #0a66c2;"></i> HT Response:
+          </h5>
+          <div style="background: rgba(224,242,254,0.7); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #0a66c2;">
+            <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
+            ${data.htAnswer}
+          </div>
+        </div>`;
+      }
+      
+      html += `<div class="table-responsive"><table>
+        <thead>
+          <tr>
+            <th rowspan="2">Class</th>
+            <th colspan="2">Registered</th>
+            <th colspan="2">Present</th>
+            <th colspan="2">Absent</th>
+            <th colspan="2">Sick</th>
+            <th colspan="2">Permission</th>
+            <th rowspan="2">Total Present</th>
+          </tr>
+          <tr>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      
+      data.data.forEach(r => {
+        let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+        html += `
+          <tr>
+            <td><strong>${r.class}</strong></td>
+            <td>${r.regB || 0}</td>
+            <td>${r.regG || 0}</td>
+            <td>${r.preB || 0}</td>
+            <td>${r.preG || 0}</td>
+            <td>${r.absB || 0}</td>
+            <td>${r.absG || 0}</td>
+            <td>${r.sickB || 0}</td>
+            <td>${r.sickG || 0}</td>
+            <td>${r.perB || 0}</td>
+            <td>${r.perG || 0}</td>
+            <td><strong>${preTotal}</strong></td>
+          </tr>
+        `;
+      });
+      
+      html += `
+        <tr class="totalRow">
+          <td><strong>GRAND TOTAL</strong></td>
+          <td><strong>${totalRegB}</strong></td>
+          <td><strong>${totalRegG}</strong></td>
+          <td><strong>${totalPreB}</strong></td>
+          <td><strong>${totalPreG}</strong></td>
+          <td><strong>${totalAbsB}</strong></td>
+          <td><strong>${totalAbsG}</strong></td>
+          <td><strong>${totalSickB}</strong></td>
+          <td><strong>${totalSickG}</strong></td>
+          <td><strong>${totalPerB}</strong></td>
+          <td><strong>${totalPerG}</strong></td>
+          <td><strong>${totalPreT}</strong></td>
+        </tr>
+      </tbody></table></div>`;
+      
+      html += `<div class="summary-card">
+        <div class="summary-stat">
+          <span class="summary-label">Total Students</span>
+          <span class="summary-value">${totalRegT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Present</span>
+          <span class="summary-value">${totalPreT} <small>(${presentPercentage}%)</small></span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Absent</span>
+          <span class="summary-value">${totalAbsT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Sick</span>
+          <span class="summary-value">${totalSickT}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-label">Permission</span>
+          <span class="summary-value">${totalPerT}</span>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById("activityTable").innerHTML = html;
+};
+
+// ---------- DOWNLOAD SELECTED DAY PDF ----------
+window.downloadPDF = function() {
+  if (!selectedDayData) { alert("Select a day first"); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+  let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+  let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+  let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+  let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+  
+  selectedDayData.data.forEach(r => {
+    totalRegB += parseInt(r.regB) || 0;
+    totalRegG += parseInt(r.regG) || 0;
+    totalPreB += parseInt(r.preB) || 0;
+    totalPreG += parseInt(r.preG) || 0;
+    totalAbsB += parseInt(r.absB) || 0;
+    totalAbsG += parseInt(r.absG) || 0;
+    totalSickB += parseInt(r.sickB) || 0;
+    totalSickG += parseInt(r.sickG) || 0;
+    totalPerB += parseInt(r.perB) || 0;
+    totalPerG += parseInt(r.perG) || 0;
+  });
+  
+  totalRegT = totalRegB + totalRegG;
+  totalPreT = totalPreB + totalPreG;
+  totalAbsT = totalAbsB + totalAbsG;
+  totalSickT = totalSickB + totalSickG;
+  totalPerT = totalPerB + totalPerG;
+  
+  let presentPercentage = 0;
+  if (totalRegT > 0) {
+    presentPercentage = Math.round((totalPreT / totalRegT) * 100);
+  }
+  
+  pdf.setFontSize(18);
+  pdf.text("TOD Attendance Report", 10, 10);
+  pdf.setFontSize(14);
+  pdf.text(`${selectedDayData.day} - ${selectedDayData.date}`, 10, 20);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${selectedDayData.todName || 'N/A'}`, 10, 30);
+  pdf.setFontSize(14);
+  pdf.text(`Present Rate: ${presentPercentage}%`, 10, 40);
+  
+  pdf.setFontSize(12);
+  pdf.text("TOD Answer:", 10, 55);
+  pdf.setFontSize(10);
+  const todAnswer = selectedDayData.todAnswer || selectedDayData.answer || "No answer provided";
+  const splitAnswer = pdf.splitTextToSize(todAnswer, 180);
+  pdf.text(splitAnswer, 15, 65);
+  
+  let y = 65 + (splitAnswer.length * 5);
+  if (selectedDayData.htAnswer) {
+    pdf.setFontSize(12);
+    pdf.text("HT Response:", 10, y);
+    pdf.setFontSize(10);
+    const htResponse = selectedDayData.htAnswer;
+    const splitResponse = pdf.splitTextToSize(htResponse, 180);
+    pdf.text(splitResponse, 15, y + 10);
+    y += 10 + (splitResponse.length * 5) + 10;
+  } else {
+    y += 15;
+  }
+  
+  pdf.setFontSize(9);
+  pdf.text("Class", 10, y);
+  pdf.text("Reg B", 35, y);
+  pdf.text("Reg G", 50, y);
+  pdf.text("Pre B", 70, y);
+  pdf.text("Pre G", 85, y);
+  pdf.text("Abs B", 105, y);
+  pdf.text("Abs G", 120, y);
+  pdf.text("Sick B", 140, y);
+  pdf.text("Sick G", 155, y);
+  pdf.text("Perm B", 175, y);
+  pdf.text("Perm G", 190, y);
+  pdf.text("Total", 210, y);
+  
+  y += 7;
+  
+  selectedDayData.data.forEach(r => {
+    let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    pdf.text(r.class, 10, y);
+    pdf.text(String(r.regB || 0), 35, y);
+    pdf.text(String(r.regG || 0), 50, y);
+    pdf.text(String(r.preB || 0), 70, y);
+    pdf.text(String(r.preG || 0), 85, y);
+    pdf.text(String(r.absB || 0), 105, y);
+    pdf.text(String(r.absG || 0), 120, y);
+    pdf.text(String(r.sickB || 0), 140, y);
+    pdf.text(String(r.sickG || 0), 155, y);
+    pdf.text(String(r.perB || 0), 175, y);
+    pdf.text(String(r.perG || 0), 190, y);
+    pdf.text(String(preTotal), 210, y);
+    y += 7;
+  });
+  
+  pdf.setFontSize(10);
+  pdf.text("GRAND TOTAL", 10, y);
+  pdf.text(String(totalRegB), 35, y);
+  pdf.text(String(totalRegG), 50, y);
+  pdf.text(String(totalPreB), 70, y);
+  pdf.text(String(totalPreG), 85, y);
+  pdf.text(String(totalAbsB), 105, y);
+  pdf.text(String(totalAbsG), 120, y);
+  pdf.text(String(totalSickB), 140, y);
+  pdf.text(String(totalSickG), 155, y);
+  pdf.text(String(totalPerB), 175, y);
+  pdf.text(String(totalPerG), 190, y);
+  pdf.text(String(totalPreT), 210, y);
+  
+  y += 15;
+  pdf.setFontSize(12);
+  pdf.text(`SUMMARY:`, 10, y);
+  y += 8;
+  pdf.setFontSize(10);
+  pdf.text(`Total Students: ${totalRegT}`, 15, y);
+  y += 6;
+  pdf.text(`Present: ${totalPreT} (${presentPercentage}%)`, 15, y);
+  y += 6;
+  pdf.text(`Absent: ${totalAbsT}`, 15, y);
+  y += 6;
+  pdf.text(`Sick: ${totalSickT}`, 15, y);
+  y += 6;
+  pdf.text(`Permission: ${totalPerT}`, 15, y);
+  
+  pdf.save(`TOD_Report_${selectedDayData.day}.pdf`);
+};
+
+// ---------- DOWNLOAD FULL WEEK PDF ----------
+window.downloadWeekPDF = async function() {
+  const user = auth.currentUser;
+  const q = query(collection(db, "attendance"), where("todName", "==", user.email));
+  const snap = await getDocs(q);
+  if (snap.empty) { alert("No attendance records found"); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  pdf.setFontSize(18);
+  pdf.text("Weekly Attendance Report", 10, 10);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${user.email}`, 10, 20);
+  
+  let y = 35;
+  
+  snap.forEach((d) => {
+    let data = d.data();
+    
+    if (y > 250) {
+      pdf.addPage();
+      y = 20;
     }
+    
+    let totalRegT = 0, totalPreT = 0;
+    data.data.forEach(r => {
+      totalRegT += (parseInt(r.regB) || 0) + (parseInt(r.regG) || 0);
+      totalPreT += (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    });
+    let percentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
+    
+    pdf.setFontSize(11);
+    pdf.text(`${data.day} - ${data.date} (Week ${data.weekNumber || '?'})`, 10, y);
+    pdf.text(`Present: ${totalPreT}/${totalRegT} (${percentage}%)`, 100, y);
+    y += 6;
+    
+    pdf.setFontSize(9);
+    data.data.forEach(r => {
+      let pre = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+      let abs = (parseInt(r.absB) || 0) + (parseInt(r.absG) || 0);
+      pdf.text(`${r.class}: P:${pre} A:${abs}`, 15, y);
+      y += 5;
+    });
+    y += 5;
+  });
+  
+  pdf.save("TOD_Weekly_Report.pdf");
+};
+
+// ---------- LOGOUT FUNCTION ----------
+async function logout() {
+  try {
+    await signOut(auth);
+    alert("✅ Logged out successfully");
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
   }
 }
 
-/* ================= LOGOUT BUTTONS ================= */
+// ---------- AUTH STATE ----------
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists() || userDoc.data().role !== "TOD") {
+      alert("Access Denied: Teacher On Duty only");
+      window.location.href = "index.html";
+      return;
+    }
+    
+    await checkActiveWeek();
+    createTable(canEditToday);
+    loadQuestion();
+    await loadSavedAttendance();
+    await loadRegistrationData();
+    calculateGrandTotals();
+  } else {
+    window.location.href = "index.html";
+  }
+});
 
-document.getElementById('logoutBtn').addEventListener('click', window.logout);
-document.getElementById('logoutBtnBottom').addEventListener('click', window.logout);
-
-// Make functions global
-window.showUsers = showUsers;
-window.showToday = showToday;
-window.showDutyHistory = showDutyHistory;
-window.openTodHistory = openTodHistory;
-window.openRecord = openRecord;
-window.showPlanDuty = showPlanDuty;
-window.autoSavePlan = autoSavePlan;
-window.clearAssignment = clearAssignment;
-window.saveHT = saveHT;
-window.downloadPDFFromElement = downloadPDFFromElement;
+// ---------- MAKE FUNCTIONS GLOBAL ----------
+window.saveAttendance = saveAttendance;
+window.showActivity = showActivity;
+window.loadDay = loadDay;
+window.downloadPDF = downloadPDF;
+window.downloadWeekPDF = downloadWeekPDF;
+window.saveAnswer = saveAnswer;
+window.calcRow = calcRow;
+window.calculateGrandTotals = calculateGrandTotals;
 window.logout = logout;
 
-// Set initial active state
-window.addEventListener('load', function() {
-  document.getElementById('navToday').classList.add('active');
-});
+// ---------- ATTACH LOGOUT BUTTONS ----------
+document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("logoutBtnBottom").addEventListener("click", logout);
 </script>
 
 </body>
