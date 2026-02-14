@@ -378,8 +378,8 @@
     box-shadow: 0 8px 20px -8px rgba(0,0,0,0.1);
   }
 
-  /* ---------- DUTY PLAN SECTION (WEEK-BASED) ---------- */
-  .duty-card {
+  /* ---------- BEAUTIFUL CALENDAR CARD ---------- */
+  .calendar-card {
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
     border-radius: 24px;
@@ -387,96 +387,125 @@
     margin-bottom: 1.5rem;
     border: 1px solid rgba(10,102,194,0.2);
   }
+  
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed rgba(10,102,194,0.2);
+  }
+  
+  .calendar-header i {
+    font-size: 2rem;
+    color: #0a66c2;
+  }
+  
+  .calendar-header h3 {
+    color: #0b2b4e;
+    margin-bottom: 0;
+  }
+  
   .week-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
     margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: rgba(255,255,255,0.5);
-    border-radius: 16px;
-    border: 1px solid rgba(10,102,194,0.1);
+    padding: 1.2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border-left: 6px solid #0a66c2;
+    transition: all 0.2s;
   }
+  
+  .week-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(10,102,194,0.1);
+  }
+  
   .week-number {
     font-weight: 700;
     color: #0a66c2;
-    min-width: 80px;
-    font-size: 1.1rem;
+    min-width: 90px;
+    font-size: 1.2rem;
     background: rgba(10,102,194,0.1);
     padding: 0.5rem 1rem;
-    border-radius: 30px;
+    border-radius: 40px;
     text-align: center;
   }
+  
   .week-dates {
-    font-size: 0.95rem;
-    color: #2c5a73;
-    min-width: 300px;
+    flex: 2;
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
-  .date-row {
+  
+  .date-chip {
+    background: rgba(10,102,194,0.05);
+    border-radius: 40px;
+    padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
-  }
-  .date-label {
-    font-weight: 600;
-    color: #0a4e7a;
-    width: 70px;
-  }
-  .date-value {
-    font-family: 'Courier New', monospace;
-    background: white;
-    padding: 0.2rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    border: 1px solid rgba(10,102,194,0.1);
   }
   
-  /* Active week indicator */
-  .current-week {
-    background: rgba(16,185,129,0.1);
-    border: 2px solid #10b981;
+  .date-chip .day {
+    font-weight: 600;
+    color: #0a4e7a;
+    min-width: 60px;
   }
-
-  /* Duty Plan History */
-  .history-card {
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid rgba(10,102,194,0.2);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .history-week {
-    font-weight: 700;
+  
+  .date-chip .date {
+    background: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-weight: 600;
     color: #0a66c2;
-    min-width: 80px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
-  .history-tod {
+  
+  .current-week .date-chip .date {
+    background: #10b981;
+    color: white;
+  }
+  
+  .current-week {
+    background: rgba(16,185,129,0.05);
+    border-left: 6px solid #10b981;
+  }
+  
+  .week-assign {
     flex: 1;
-    color: #1e4c6b;
-  }
-  .history-dates {
-    color: #2c5a73;
-    font-size: 0.85rem;
     min-width: 250px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
   }
-  .history-assigned {
-    color: #6b8ca3;
-    font-size: 0.8rem;
-  }
-  .unassigned-badge {
-    background: rgba(239,68,68,0.1);
-    color: #dc2626;
+  
+  .current-badge {
+    background: #10b981;
+    color: white;
     padding: 0.2rem 1rem;
     border-radius: 30px;
     font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .info-note {
+    background: rgba(10,102,194,0.04);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(10,102,194,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #2c5a73;
+    margin: 1.2rem 0;
   }
 
   /* ---------- RECORD LIST ---------- */
@@ -542,17 +571,7 @@
     display: inline-block;
     border: 1px solid rgba(255,255,255,0.2);
   }
-  .info-note {
-    background: rgba(10,102,194,0.04);
-    border-radius: 16px;
-    padding: 1rem;
-    border: 1px dashed rgba(10,102,194,0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    color: #2c5a73;
-    margin: 1.2rem 0;
-  }
+  
   .empty-state {
     text-align: center;
     padding: 3rem;
@@ -594,97 +613,6 @@
     background: white;
     padding: 2rem;
     border-radius: 16px;
-  }
-
-  /* ---------- WEEK NUMBER BADGE ---------- */
-  .week-badge {
-    background: rgba(142,68,173,0.1);
-    color: #71368a;
-    padding: 0.2rem 1rem;
-    border-radius: 30px;
-    font-size: 0.8rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  /* ---------- YEAR SELECTOR ---------- */
-  .year-selector {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .year-btn {
-    background: rgba(255,255,255,0.7);
-    border: 1px solid rgba(10,102,194,0.2);
-    color: #0a4e7a;
-    padding: 0.5rem 1.2rem;
-    border-radius: 40px;
-    font-weight: 600;
-  }
-  .year-btn.active {
-    background: #0a66c2;
-    color: white;
-    border-color: #0a66c2;
-  }
-  
-  /* ---------- PDF REPORT STYLES ---------- */
-  .pdf-report {
-    font-family: 'Inter', sans-serif;
-    background: white;
-    padding: 30px;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  .pdf-report h1 {
-    font-size: 24px;
-    color: #0b2b4e;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #0a66c2;
-    padding-bottom: 10px;
-  }
-  .pdf-report .subtitle {
-    font-size: 16px;
-    color: #1e4c6b;
-    margin-bottom: 5px;
-  }
-  .pdf-report .tod-info {
-    font-size: 14px;
-    color: #0a4e7a;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #e6f7ff;
-    border-radius: 8px;
-  }
-  .pdf-report table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 12px;
-  }
-  .pdf-report th {
-    background: #0a66c2;
-    color: white;
-    padding: 10px 5px;
-    text-align: center;
-  }
-  .pdf-report td {
-    border: 1px solid #ddd;
-    padding: 8px 5px;
-    text-align: center;
-  }
-  .pdf-report .grand-total {
-    background: #e6f7ff;
-    font-weight: bold;
-  }
-  .pdf-report .summary {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-left: 6px solid #0a66c2;
-    font-size: 14px;
   }
   
   /* PDF Container - Hidden but used for generation */
@@ -755,7 +683,7 @@
   </div>
 </div>
 
-<!-- Hidden PDF Container - Used for generating clean PDFs -->
+<!-- Hidden PDF Container -->
 <div id="pdfReportContainer" class="pdf-container"></div>
 
 <script type="module">
@@ -782,63 +710,51 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ================= HELPER FUNCTIONS ================= */
+/* ================= CORRECT DATE FUNCTIONS ================= */
 
-function getTodayISO() {
-  return new Date().toISOString().split("T")[0];
+function getTodayDate() {
+  return new Date();
 }
 
-function getWeekNumber(date) {
-  const firstDay = new Date(date.getFullYear(), 0, 1);
-  const pastDays = (date - firstDay) / 86400000;
-  return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
-}
-
-function getCurrentWeekNumber() {
-  return getWeekNumber(new Date());
-}
-
-function getMondayDate(weekNum, year) {
-  // Get first day of year
-  const firstDay = new Date(year, 0, 1);
-  // Get day of week (0 = Sunday, 1 = Monday, etc.)
-  const dayOfWeek = firstDay.getDay();
+function getWeekDates(weekOffset = 0) {
+  // Get current date
+  const today = getTodayDate();
   
-  // Calculate days to add to get to the Monday of the target week
-  // Week 1 starts on the first Monday of the year
-  let daysToAdd;
-  if (dayOfWeek === 0) { // Sunday
-    daysToAdd = 1; // First Monday is Jan 2
-  } else if (dayOfWeek === 1) { // Monday
-    daysToAdd = 0; // First Monday is Jan 1
-  } else { // Tuesday to Saturday
-    daysToAdd = 8 - dayOfWeek; // Days until next Monday
-  }
+  // Find the most recent Monday
+  const day = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const diffToMonday = day === 0 ? 6 : day - 1; // Days to go back to Monday
   
-  // Calculate Monday of week 1
-  const firstMonday = new Date(year, 0, 1 + daysToAdd);
+  const thisMonday = new Date(today);
+  thisMonday.setDate(today.getDate() - diffToMonday + (weekOffset * 7));
   
-  // Calculate Monday of target week
-  const targetMonday = new Date(firstMonday);
-  targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
-  
-  return targetMonday;
-}
-
-function getWeekDates(weekNum, year) {
-  const monday = getMondayDate(weekNum, year);
-  const days = [];
+  const weekDays = [];
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   
   for (let i = 0; i < 5; i++) {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    days.push({
-      name: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][i],
-      date: date
+    const date = new Date(thisMonday);
+    date.setDate(thisMonday.getDate() + i);
+    weekDays.push({
+      name: dayNames[i],
+      date: date,
+      formatted: date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
     });
   }
   
-  return days;
+  return weekDays;
+}
+
+function getWeekNumber(date) {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDays = (date - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDays + firstDayOfYear.getDay() + 1) / 7);
+}
+
+function getCurrentWeekNumber() {
+  return getWeekNumber(getTodayDate());
 }
 
 function formatDate(date) {
@@ -846,11 +762,7 @@ function formatDate(date) {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
-  }).replace(/\//g, '/');
-}
-
-function getYear(date) {
-  return date.getFullYear();
+  });
 }
 
 function formatDateLong(dateString) {
@@ -862,6 +774,153 @@ function formatDateLong(dateString) {
     day: 'numeric' 
   });
 }
+
+// ========== TEST DATE ==========
+// For testing with Sunday Feb 15, 2026
+// const testDate = new Date(2026, 1, 15); // Feb 15, 2026 (Sunday)
+// Monday should be Feb 16, 2026 ✓
+
+/* ================= AUTH CHECK ================= */
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
+    alert("Not logged in");
+    window.location = "index.html";
+  } else {
+    document.getElementById("headerEmail").innerText = user.email;
+    
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists() && userDoc.data().role === "HT") {
+      showToday();
+    } else {
+      alert("Access Denied: Head Teacher only");
+      window.location = "index.html";
+    }
+  }
+});
+
+/* ================= LOGOUT FUNCTION ================= */
+
+window.logout = async function() {
+  try {
+    await signOut(auth);
+    alert("✅ Logged out successfully");
+    window.location = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
+  }
+};
+
+/* ================= USERS ================= */
+
+window.showUsers = async function(){
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('navUsers').classList.add('active');
+
+  let html = `
+    <h3><i class="fas fa-users" style="color: #0a66c2; margin-right: 0.5rem;"></i> All Users</h3>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  const snapshot = await getDocs(collection(db, "users"));
+
+  snapshot.forEach(docSnap => {
+    let u = docSnap.data();
+    let roleColor = u.role === "IT" ? "#0a66c2" : 
+                    u.role === "HT" ? "#10b981" : 
+                    u.role === "TOD" ? "#f59e0b" : "#6b8ca3";
+    
+    html += `<tr>
+      <td><strong>${u.name || '-'}</strong></td>
+      <td>${u.email || '-'}</td>
+      <td><span style="color: ${roleColor}; font-weight: 600;">${u.role || '-'}</span></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  html += `<div class="info-note" style="margin-top: 1rem;">
+    <i class="fas fa-info-circle"></i> Total Users: ${snapshot.size}
+  </div>`;
+
+  document.getElementById("content").innerHTML = html;
+}
+
+/* ================= SHOW TODAY ================= */
+
+window.showToday = async function() {
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('navToday').classList.add('active');
+
+  const todayISO = getTodayDate().toISOString().split("T")[0];
+  const docSnap = await getDoc(doc(db, "attendance", todayISO));
+
+  if (!docSnap.exists()) {
+    document.getElementById("content").innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+        <h3 style="color: #6b8ca3; margin-bottom: 0.5rem;">No Report Submitted</h3>
+        <p>No attendance report has been submitted for today.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const data = docSnap.data();
+  
+  let tableHTML = data.data ? generateTableFromData(data.data) : (data.tableHTML || "<p>No attendance data available</p>");
+
+  document.getElementById("content").innerHTML = `
+  <div id="todayReportContainer" class="pdf-content" style="padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3>
+        <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
+        ${data.day || 'Today'} - ${formatDateLong(todayISO)}
+      </h3>
+      <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
+        <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
+      </span>
+    </div>
+
+    ${tableHTML}
+
+    <h4>
+      <i class="fas fa-comment-dots" style="color: #0a66c2;"></i>
+      TOD Answer:
+    </h4>
+    <div class="answer-card">
+      <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
+      ${data.todAnswer || data.answer || "No answer provided"}
+    </div>
+
+    <h4>
+      <i class="fas fa-reply" style="color: #0a66c2;"></i>
+      HT Response:
+    </h4>
+    <div class="input-icon-wrapper">
+      <i class="fas fa-pen-to-square"></i>
+      <textarea id="htResponse" placeholder="Write your response here...">${data.htAnswer || ""}</textarea>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn-success" onclick="saveHT('${todayISO}')">
+        <i class="fas fa-save"></i> Save Response
+      </button>
+      <button class="btn-primary" onclick="downloadPDFFromElement('todayReportContainer', 'Today_Report_${todayISO}.pdf')">
+        <i class="fas fa-file-pdf"></i> Download PDF
+      </button>
+    </div>
+  </div>
+  `;
+};
 
 function generateTableFromData(dataArray) {
   if (!dataArray || dataArray.length === 0) {
@@ -922,154 +981,6 @@ function generateTableFromData(dataArray) {
   
   return html;
 }
-
-/* ================= AUTH CHECK ================= */
-
-onAuthStateChanged(auth, async(user)=>{
-  if(!user){
-    alert("Not logged in");
-    window.location = "index.html";
-  } else {
-    // Display user email in header
-    document.getElementById("headerEmail").innerText = user.email;
-    
-    // Check if user has HT role
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists() && userDoc.data().role === "HT") {
-      // Show HT dashboard
-      showToday(); // Default view
-    } else {
-      alert("Access Denied: Head Teacher only");
-      window.location = "index.html";
-    }
-  }
-});
-
-/* ================= LOGOUT FUNCTION ================= */
-
-window.logout = async function() {
-  try {
-    await signOut(auth);
-    alert("✅ Logged out successfully");
-    window.location = "index.html";
-  } catch (error) {
-    alert("Error logging out: " + error.message);
-  }
-};
-
-/* ================= USERS ================= */
-
-window.showUsers = async function(){
-  // Set active nav button
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navUsers').classList.add('active');
-
-  let html = `
-    <h3><i class="fas fa-users" style="color: #0a66c2; margin-right: 0.5rem;"></i> All Users</h3>
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-
-  const snapshot = await getDocs(collection(db, "users"));
-
-  snapshot.forEach(docSnap => {
-    let u = docSnap.data();
-    let roleColor = u.role === "IT" ? "#0a66c2" : 
-                    u.role === "HT" ? "#10b981" : 
-                    u.role === "TOD" ? "#f59e0b" : "#6b8ca3";
-    
-    html += `<tr>
-      <td><strong>${u.name || '-'}</strong></td>
-      <td>${u.email || '-'}</td>
-      <td><span style="color: ${roleColor}; font-weight: 600;">${u.role || '-'}</span></td>
-    </tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-  html += `<div class="info-note" style="margin-top: 1rem;">
-    <i class="fas fa-info-circle"></i> Total Users: ${snapshot.size}
-  </div>`;
-
-  document.getElementById("content").innerHTML = html;
-}
-
-/* ================= SHOW TODAY ================= */
-
-window.showToday = async function() {
-  // Set active nav button
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('navToday').classList.add('active');
-
-  const todayISO = getTodayISO();
-  const docSnap = await getDoc(doc(db, "attendance", todayISO));
-
-  if (!docSnap.exists()) {
-    document.getElementById("content").innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-        <h3 style="color: #6b8ca3; margin-bottom: 0.5rem;">No Report Submitted</h3>
-        <p>No attendance report has been submitted for today.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const data = docSnap.data();
-  
-  // Generate table HTML from data
-  let tableHTML = data.data ? generateTableFromData(data.data) : (data.tableHTML || "<p>No attendance data available</p>");
-
-  document.getElementById("content").innerHTML = `
-  <div id="todayReportContainer" class="pdf-content" style="padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3>
-        <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
-        ${data.day || 'Today'} - ${formatDateLong(todayISO)}
-      </h3>
-      <span class="badge" style="background: rgba(16,185,129,0.15); color: #059669;">
-        <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
-      </span>
-    </div>
-
-    ${tableHTML}
-
-    <h4>
-      <i class="fas fa-comment-dots" style="color: #0a66c2;"></i>
-      TOD Answer:
-    </h4>
-    <div class="answer-card">
-      <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
-      ${data.todAnswer || data.answer || "No answer provided"}
-    </div>
-
-    <h4>
-      <i class="fas fa-reply" style="color: #0a66c2;"></i>
-      HT Response:
-    </h4>
-    <div class="input-icon-wrapper">
-      <i class="fas fa-pen-to-square"></i>
-      <textarea id="htResponse" placeholder="Write your response here...">${data.htAnswer || ""}</textarea>
-    </div>
-
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <button class="btn-success" onclick="saveHT('${todayISO}')">
-        <i class="fas fa-save"></i> Save Response
-      </button>
-      <button class="btn-primary" onclick="downloadPDFFromElement('todayReportContainer', 'Today_Report_${todayISO}.pdf')">
-        <i class="fas fa-file-pdf"></i> Download PDF
-      </button>
-    </div>
-  </div>
-  `;
-};
 
 /* ================= SAVE HT RESPONSE ================= */
 
@@ -1137,7 +1048,6 @@ window.downloadPDFFromElement = async function(elementId, filename) {
 /* ================= SHOW DUTY HISTORY ================= */
 
 window.showDutyHistory = async function() {
-  // Set active nav button
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById('navDutyHistory').classList.add('active');
 
@@ -1169,7 +1079,6 @@ window.showDutyHistory = async function() {
 /* ================= OPEN TOD HISTORY ================= */
 
 window.openTodHistory = async function(todId, name, selectedYear = null) {
-  // Get the user document to get the email
   const userDoc = await getDoc(doc(db, "users", todId));
   const userEmail = userDoc.exists() ? userDoc.data().email : todId;
   
@@ -1193,7 +1102,6 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
     });
   });
 
-  // Group records by year and week
   const recordsByYearWeek = {};
   const availableYears = new Set();
   
@@ -1226,13 +1134,9 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
     };
   });
 
-  // Sort years descending
   const sortedYears = Array.from(availableYears).sort((a, b) => b - a);
-  
-  // Use selected year or first year
   const currentYear = selectedYear || sortedYears[0];
   
-  // Year selector
   let yearSelector = `
     <div class="year-selector">
       <span style="font-weight: 600; color: #1e4c6b;">Select Year:</span>
@@ -1269,7 +1173,6 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
     ${yearSelector}
     `;
 
-  // Get weeks for current year and sort descending
   const weeks = Object.values(recordsByYearWeek[currentYear] || {}).sort((a, b) => b.weekNumber - a.weekNumber);
   
   if (weeks.length === 0) {
@@ -1278,8 +1181,6 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
     weeks.forEach(week => {
       const weekData = week;
       const days = weekData.days;
-      
-      // Count how many days in this week
       const dayCount = Object.keys(days).length;
       
       html += `
@@ -1294,7 +1195,6 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
           <div class="week-days">
       `;
       
-      // Sort days in week order
       const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
       dayOrder.forEach(dayName => {
         if (days[dayName]) {
@@ -1349,7 +1249,6 @@ window.openRecord = async function(id) {
 
   const data = docSnap.data();
   
-  // Generate table HTML from data
   let tableHTML = data.data ? generateTableFromData(data.data) : (data.tableHTML || "<p>No attendance data available</p>");
 
   document.getElementById("content").innerHTML = `
@@ -1399,23 +1298,21 @@ window.openRecord = async function(id) {
   `;
 };
 
-/* ================= PLAN DUTY - SHOWS REAL MONDAY-FRIDAY DATES ================= */
+/* ================= BEAUTIFUL PLAN DUTY - CORRECT DATES ================= */
 
 window.showPlanDuty = async function(){
-  // Set active nav button
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById('navPlanDuty').classList.add('active');
 
   let html = `
-    <h3><i class="fas fa-calendar-plus" style="color: #0a66c2; margin-right: 0.5rem;"></i> Plan Duty - Weekly Schedule</h3>
-    
-    <!-- UPCOMING WEEKS ASSIGNMENT -->
-    <div class="duty-card">
-    <h4 style="margin-bottom: 1rem;">Assign Upcoming Weeks</h4>
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <i class="fas fa-calendar-alt"></i>
+        <h3>Weekly Duty Schedule</h3>
+      </div>
   `;
 
   const snapshot = await getDocs(collection(db, "users"));
-
   let todList = [];
 
   snapshot.forEach(docSnap => {
@@ -1425,21 +1322,17 @@ window.showPlanDuty = async function(){
     }
   });
 
-  // Get current week number
-  const currentWeek = getCurrentWeekNumber();
-  const currentYear = new Date().getFullYear();
-  
-  // Show next 4 weeks for planning
+  // Show next 4 weeks with CORRECT dates starting from this Monday
   for (let i = 0; i < 4; i++) {
-    const weekNum = currentWeek + i;
-    const weekDates = getWeekDates(weekNum, currentYear);
+    const weekDays = getWeekDates(i);
+    const weekNumber = getCurrentWeekNumber() + i;
     const isCurrentWeek = (i === 0);
     
     // Get assigned TOD for this week
     let assignedTod = "";
     let assignedTodName = "";
     try {
-      const planSnap = await getDoc(doc(db, "dutyPlan", `week_${weekNum}`));
+      const planSnap = await getDoc(doc(db, "dutyPlan", `week_${weekNumber}`));
       if (planSnap.exists()) {
         const todId = planSnap.data().todId;
         const assigned = todList.find(t => t.id === todId);
@@ -1447,16 +1340,16 @@ window.showPlanDuty = async function(){
         assignedTodName = assigned ? assigned.name : "";
       }
     } catch (e) {
-      console.log("No plan for week " + weekNum);
+      console.log("No plan for week " + weekNumber);
     }
 
-    // Create dates display
+    // Create beautiful date chips
     let datesHtml = '';
-    weekDates.forEach(day => {
+    weekDays.forEach(day => {
       datesHtml += `
-        <div class="date-row">
-          <span class="date-label">${day.name}:</span>
-          <span class="date-value">${formatDate(day.date)}</span>
+        <div class="date-chip">
+          <span class="day">${day.name}:</span>
+          <span class="date">${day.formatted}</span>
         </div>
       `;
     });
@@ -1464,45 +1357,36 @@ window.showPlanDuty = async function(){
     html += `
     <div class="week-row ${isCurrentWeek ? 'current-week' : ''}">
       <div class="week-number">
-        <i class="fas fa-calendar-week"></i> Week ${weekNum}
+        <i class="fas fa-calendar-week"></i> Week ${weekNumber}
+        ${isCurrentWeek ? '<div class="current-badge">Current</div>' : ''}
       </div>
       <div class="week-dates">
         ${datesHtml}
-        ${isCurrentWeek ? '<span class="badge" style="background: #10b981; color: white; margin-top: 0.5rem;">Current Week</span>' : ''}
       </div>
-      <div style="flex: 1;">
-        <div class="input-icon-wrapper">
+      <div class="week-assign">
+        <div class="input-icon-wrapper" style="flex: 1;">
           <i class="fas fa-user-tie"></i>
-          <select id="select_week_${weekNum}">
-            <option value="">-- Select TOD for this week --</option>
-            ${todList.map(t => `<option value="${t.id}" ${t.id === assignedTod ? 'selected' : ''}>${t.name} (${t.email})</option>`).join("")}
+          <select id="select_week_${weekNumber}">
+            <option value="">-- Select TOD --</option>
+            ${todList.map(t => `<option value="${t.id}" ${t.id === assignedTod ? 'selected' : ''}>${t.name}</option>`).join("")}
           </select>
         </div>
+        <button class="btn-success" onclick="savePlan('${weekNumber}')" style="white-space: nowrap;">
+          <i class="fas fa-save"></i> Assign
+        </button>
       </div>
-      <button class="btn-success" onclick="savePlan('${weekNum}')">
-        <i class="fas fa-save"></i> Assign
-      </button>
     </div>
     `;
   }
 
   html += `
     <div class="info-note" style="margin-top: 1rem;">
-      <i class="fas fa-info-circle"></i> Assign TODs for each week. Only the assigned TOD can edit attendance during their week.
+      <i class="fas fa-info-circle"></i> Assign TODs for each week. Current week is highlighted in green.
     </div>
-  </div>
-  
-  <!-- DUTY PLAN HISTORY -->
-  <div class="duty-card">
-    <h4 style="margin-bottom: 1rem;"><i class="fas fa-history"></i> Duty Plan History</h4>
-    <div id="dutyHistory"></div>
-  </div>
+    </div>
   `;
 
   document.getElementById("content").innerHTML = html;
-  
-  // Load duty history
-  loadDutyHistory(todList);
 }
 
 window.savePlan = async function(weekNum){
@@ -1522,69 +1406,11 @@ window.savePlan = async function(weekNum){
   });
 
   alert(`✅ Week ${weekNum} assigned successfully`);
-  showPlanDuty(); // Refresh the page
-}
-
-/* ================= LOAD DUTY PLAN HISTORY ================= */
-
-async function loadDutyHistory(todList) {
-  const snapshot = await getDocs(collection(db, "dutyPlan"));
-  const currentYear = new Date().getFullYear();
-  const currentWeek = getCurrentWeekNumber();
-  
-  let history = [];
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    history.push({
-      id: doc.id,
-      weekNum: data.weekNumber,
-      todId: data.todId,
-      assignedAt: data.assignedAt ? new Date(data.assignedAt.toDate()) : null
-    });
-  });
-  
-  // Sort by week number descending (newest first)
-  history.sort((a, b) => b.weekNum - a.weekNum);
-  
-  let historyHtml = '';
-  
-  if (history.length === 0) {
-    historyHtml = '<p class="empty-state">No duty assignments yet.</p>';
-  } else {
-    history.forEach(item => {
-      const tod = todList.find(t => t.id === item.todId);
-      const todName = tod ? tod.name : 'Unknown TOD';
-      const weekDates = getWeekDates(item.weekNum, currentYear);
-      const weekStart = formatDate(weekDates[0].date);
-      const weekEnd = formatDate(weekDates[4].date);
-      const isPast = item.weekNum < currentWeek;
-      const isCurrent = item.weekNum === currentWeek;
-      
-      historyHtml += `
-        <div class="history-card" style="${isCurrent ? 'border-left: 6px solid #10b981;' : ''}">
-          <div class="history-week">
-            <i class="fas fa-calendar-week"></i> Week ${item.weekNum}
-          </div>
-          <div class="history-tod">
-            <strong>${todName}</strong>
-          </div>
-          <div class="history-dates">
-            ${weekStart} - ${weekEnd}
-          </div>
-          <div class="history-assigned">
-            ${item.assignedAt ? item.assignedAt.toLocaleDateString() : 'N/A'}
-          </div>
-        </div>
-      `;
-    });
-  }
-  
-  document.getElementById("dutyHistory").innerHTML = historyHtml;
+  showPlanDuty();
 }
 
 /* ================= LOGOUT BUTTONS ================= */
 
-// Attach logout buttons
 document.getElementById('logoutBtn').addEventListener('click', window.logout);
 document.getElementById('logoutBtnBottom').addEventListener('click', window.logout);
 
@@ -1599,7 +1425,6 @@ window.savePlan = savePlan;
 window.saveHT = saveHT;
 window.downloadPDFFromElement = downloadPDFFromElement;
 window.logout = logout;
-window.getCurrentWeekNumber = getCurrentWeekNumber;
 
 // Set initial active state
 window.addEventListener('load', function() {
