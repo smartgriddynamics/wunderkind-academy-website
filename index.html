@@ -32,7 +32,6 @@
             --secondary-light: #ffdb80;
             --secondary-dark: #e6b33d;
             --success: #10b981;
-            --success-light: #34d399;
             --dark: #2a3b5d;
             --dark-light: #4a5b7d;
             --light: #f8f9fa;
@@ -41,9 +40,6 @@
             --glass-bg: rgba(255, 255, 255, 0.25);
             --glass-border: rgba(255, 255, 255, 0.3);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
             --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
@@ -65,14 +61,14 @@
         /* ---------- CUSTOM CURSOR GLOW ---------- */
         .cursor-glow {
             position: fixed;
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(74, 123, 217, 0.15) 0%, transparent 70%);
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s;
+            transition: width 0.2s, height 0.2s;
         }
 
         /* ---------- DECORATIVE BACKGROUND ---------- */
@@ -206,7 +202,7 @@
         /* ---------- BUTTONS ---------- */
         .btn {
             display: inline-block;
-            padding: 14px 32px;
+            padding: 12px 28px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
@@ -216,6 +212,7 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
+            font-size: 0.95rem;
         }
 
         .btn::before {
@@ -267,7 +264,7 @@
         .btn-success:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.6);
-            background: var(--success-dark, #059669);
+            background: #059669;
         }
 
         /* ---------- MODAL (UNDER CONSTRUCTION) ---------- */
@@ -376,7 +373,7 @@
             box-shadow: 0 10px 20px var(--primary);
         }
 
-        /* ---------- HEADER & NAVIGATION ---------- */
+        /* ---------- HEADER & NAVIGATION (CLEAN & SMALL) ---------- */
         header {
             position: fixed;
             top: 20px;
@@ -400,28 +397,33 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
+            padding: 8px 15px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            position: relative;
+            transition: var(--transition-bounce);
         }
 
         .logo-img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            transition: var(--transition);
+            transition: var(--transition-bounce);
+            filter: drop-shadow(0 5px 10px rgba(74, 123, 217, 0.2));
         }
 
+        /* BIGGER LOGO WITH MOUSE EFFECT */
         .logo:hover .logo-img {
-            transform: rotate(5deg) scale(1.1);
+            transform: scale(1.15) rotate(3deg);
+            filter: drop-shadow(0 10px 20px rgba(74, 123, 217, 0.4));
         }
 
         .logo-name {
             font-family: 'Quicksand', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--dark), var(--primary));
             -webkit-background-clip: text;
@@ -431,28 +433,36 @@
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 20px;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            white-space: nowrap;
         }
 
         .nav-links a {
             text-decoration: none;
             color: var(--dark);
             font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 40px;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 30px;
             transition: var(--transition);
             position: relative;
+            display: block;
         }
 
         .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.4);
             color: var(--primary);
         }
 
         .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: 2px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -462,24 +472,29 @@
         }
 
         .nav-links a:hover::after {
-            width: 30px;
+            width: 20px;
         }
 
         .nav-cta {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+
+        .nav-cta .btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
         }
 
         .mobile-menu-btn {
             display: none;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: var(--dark);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -489,7 +504,7 @@
             transform: rotate(90deg);
         }
 
-        /* ---------- MOBILE NAVIGATION ---------- */
+        /* ---------- MOBILE NAVIGATION (TAP TO CLOSE) ---------- */
         .mobile-nav-overlay {
             display: none;
             position: fixed;
@@ -502,6 +517,7 @@
             z-index: 1001;
             opacity: 0;
             transition: opacity 0.3s;
+            cursor: pointer;
         }
 
         .mobile-nav-overlay.active {
@@ -588,23 +604,7 @@
         }
 
         .mobile-close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            color: var(--dark);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .mobile-close-btn:hover {
-            background: white;
-            transform: rotate(90deg);
+            display: none; /* Hide the X button - we'll use overlay to close */
         }
 
         /* ---------- HERO SECTION ---------- */
@@ -656,7 +656,12 @@
             height: 120px;
             width: auto;
             filter: drop-shadow(0 20px 30px rgba(74, 123, 217, 0.3));
-            animation: float 6s ease-in-out infinite;
+            transition: var(--transition-bounce);
+        }
+
+        .hero-logo-img:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 30px 40px rgba(74, 123, 217, 0.4));
         }
 
         .hero-logo-text {
@@ -936,6 +941,12 @@
             height: 70px;
             width: auto;
             filter: brightness(0) invert(1);
+            transition: var(--transition-bounce);
+        }
+
+        .footer-logo:hover img {
+            transform: scale(1.1) rotate(3deg);
+            filter: brightness(1) invert(1) drop-shadow(0 0 10px var(--secondary));
         }
 
         .footer-logo-name {
@@ -1140,15 +1151,11 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation Overlay -->
+    <!-- Mobile Navigation Overlay (TAP TO CLOSE) -->
     <div class="mobile-nav-overlay" id="mobileOverlay"></div>
     
-    <!-- Mobile Navigation Panel -->
+    <!-- Mobile Navigation Panel (NO X BUTTON) -->
     <div class="mobile-nav-panel" id="mobileNavPanel">
-        <button class="mobile-close-btn" id="mobileCloseBtn">
-            <i class="fas fa-times"></i>
-        </button>
-        
         <div class="mobile-nav-header">
             <img src="wunderkindscho-logo.PNG" alt="Wunderkind Academy" class="mobile-logo-img">
             <div class="mobile-logo-name">Wunderkind Academy</div>
@@ -1180,7 +1187,7 @@
         </div>
     </div>
 
-    <!-- Header -->
+    <!-- Header - CLEAN & SMALL -->
     <header id="header">
         <nav class="glass">
             <div class="logo">
@@ -1192,9 +1199,9 @@
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#programs">Programs</a></li>
-                <li><a href="#why-us">Why Us</a></li>
+                <li><a href="#why-us">WhyUs</a></li> <!-- One word -->
                 <li><a href="#facilities">Facilities</a></li>
-                <li><a href="#student-life">Student Life</a></li>
+                <li><a href="#student-life">StudentLife</a></li> <!-- One word -->
                 <li><a href="#admissions">Admissions</a></li>
             </ul>
             
@@ -1324,7 +1331,7 @@
         </div>
     </section>
 
-    <!-- Why Choose Us -->
+    <!-- Why Choose Us - Now one word in nav but full here -->
     <section id="why-us" class="section-light">
         <div class="container">
             <h2 class="fade-in">Why Choose Us</h2>
@@ -1554,16 +1561,6 @@
             color: var(--secondary);
             transform: translateX(10px);
         }
-        
-        /* Button success color */
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #059669;
-        }
     </style>
 
     <script>
@@ -1587,9 +1584,8 @@
             }
         });
 
-        // Mobile menu functionality
+        // Mobile menu functionality - TAP TO CLOSE
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileCloseBtn = document.getElementById('mobileCloseBtn');
         const mobileNavPanel = document.getElementById('mobileNavPanel');
         const mobileOverlay = document.getElementById('mobileOverlay');
         const body = document.body;
@@ -1606,9 +1602,10 @@
             body.style.overflow = '';
         }
 
-        mobileCloseBtn.addEventListener('click', closeMobileMenu);
+        // Close when clicking overlay (TAP TO CLOSE)
         mobileOverlay.addEventListener('click', closeMobileMenu);
 
+        // Close when clicking any mobile nav link
         document.querySelectorAll('.mobile-nav-links a').forEach(link => {
             link.addEventListener('click', closeMobileMenu);
         });
@@ -1623,12 +1620,30 @@
             }
         });
 
-        // Mouse glow effect
+        // Mouse glow effect - BIGGER
         const cursorGlow = document.getElementById('cursorGlow');
         
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.left = e.clientX + 'px';
             cursorGlow.style.top = e.clientY + 'px';
+            
+            // Make glow bigger near logo
+            const logo = document.querySelector('.logo-img');
+            if (logo) {
+                const rect = logo.getBoundingClientRect();
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - (rect.left + rect.width/2), 2) + 
+                    Math.pow(e.clientY - (rect.top + rect.height/2), 2)
+                );
+                
+                if (distance < 200) {
+                    cursorGlow.style.width = '600px';
+                    cursorGlow.style.height = '600px';
+                } else {
+                    cursorGlow.style.width = '500px';
+                    cursorGlow.style.height = '500px';
+                }
+            }
         });
 
         document.addEventListener('mouseenter', () => {
