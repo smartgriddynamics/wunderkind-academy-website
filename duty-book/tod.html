@@ -721,23 +721,16 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* ================= CORRECTED DATE FUNCTIONS - MONDAY TO FRIDAY ================= */
+/* ================= CORRECTED DATE FUNCTIONS ================= */
 
 function getWeekDates(weekNum, year) {
   // First Monday of 2026 is January 5
   const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
   
   // Calculate Monday of target week
-  // Week 1: Jan 5, 2026
-  // Week 2: Jan 12, 2026
-  // Week 3: Jan 19, 2026
-  // Week 4: Jan 26, 2026
-  // Week 5: Feb 2, 2026
-  // Week 6: Feb 9, 2026
-  // Week 7: Feb 16, 2026
-  // Week 8: Feb 23, 2026 ✓ (This matches your image)
-  // Week 9: Mar 2, 2026
-  
+  // Week 1 = Jan 5
+  // Week 2 = Jan 12
+  // Week 8 = Feb 16 ✓
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
@@ -763,16 +756,14 @@ function getWeekDates(weekNum, year) {
 
 function getWeekNumber(date) {
   // For 2026, Week 1 starts Jan 5
-  const firstMonday = new Date(2026, 0, 5); // Jan 5, 2026
-  
-  // Calculate days difference
+  const firstMonday = new Date(2026, 0, 5);
   const diffTime = date - firstMonday;
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
   // If date is before first Monday, it's week 1
   if (diffDays < 0) return 1;
   
-  // Calculate week number (week 1 = Jan 5-9)
+  // FIX: Add 1 to correct the offset
   return Math.floor(diffDays / 7) + 1;
 }
 
@@ -791,13 +782,13 @@ function formatDate(date) {
 
 // Test the dates
 console.log("✅ TOD PAGE CORRECT DATES:");
-console.log("Week 8 (Feb 23):", getWeekDates(8, 2026).map(d => d.formatted).join(' | '));
-console.log("Week 9 (Mar 2):", getWeekDates(9, 2026).map(d => d.formatted).join(' | '));
-console.log("Week 10 (Mar 9):", getWeekDates(10, 2026).map(d => d.formatted).join(' | '));
+console.log("Week 8:", getWeekDates(8, 2026).map(d => d.formatted).join(' | '));
+console.log("Week 9:", getWeekDates(9, 2026).map(d => d.formatted).join(' | '));
+console.log("Week 10:", getWeekDates(10, 2026).map(d => d.formatted).join(' | '));
 
 // Test specific date
-const testDate = new Date(2026, 1, 23); // Feb 23, 2026
-console.log("Feb 23, 2026 is Week:", getWeekNumber(testDate)); // Should be 8
+const testDate = new Date(2026, 1, 16); // Feb 16, 2026
+console.log("Feb 16, 2026 is Week:", getWeekNumber(testDate)); // Should be 8
 
 // ---------- GLOBAL VARIABLES ----------
 let isActiveWeek = false;
