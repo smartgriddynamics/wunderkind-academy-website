@@ -31,6 +31,8 @@
             --secondary: #ffcc4d;
             --secondary-light: #ffdb80;
             --secondary-dark: #e6b33d;
+            --success: #10b981;
+            --success-light: #34d399;
             --dark: #2a3b5d;
             --dark-light: #4a5b7d;
             --light: #f8f9fa;
@@ -256,6 +258,124 @@
             background: var(--secondary-dark);
         }
 
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.6);
+            background: var(--success-dark, #059669);
+        }
+
+        /* ---------- MODAL (UNDER CONSTRUCTION) ---------- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            border-radius: 40px;
+            padding: 50px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .modal h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px var(--primary);
+        }
+
         /* ---------- HEADER & NAVIGATION ---------- */
         header {
             position: fixed;
@@ -348,6 +468,7 @@
         .nav-cta {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .mobile-menu-btn {
@@ -943,6 +1064,14 @@
             .card-grid, .features-grid, .facilities-grid, .gallery-grid, .steps-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+            
+            .modal h2 {
+                font-size: 2rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -971,6 +1100,18 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            
+            .modal-content {
+                padding: 25px 15px;
+            }
+            
+            .modal-icon {
+                font-size: 4rem;
+            }
+            
+            .modal h2 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
@@ -981,6 +1122,23 @@
     <!-- Background orbs -->
     <div class="bg-gradient-orb"></div>
     <div class="bg-gradient-orb-2"></div>
+
+    <!-- UNDER CONSTRUCTION MODAL -->
+    <div class="modal" id="constructionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-icon">
+                <i class="fas fa-hard-hat"></i>
+            </div>
+            <h2>Under Construction</h2>
+            <p>We're working hard to bring you an amazing experience. This page is coming soon!</p>
+            <button class="modal-btn" onclick="closeModal()">
+                <i class="fas fa-smile"></i> Got it!
+            </button>
+        </div>
+    </div>
 
     <!-- Mobile Navigation Overlay -->
     <div class="mobile-nav-overlay" id="mobileOverlay"></div>
@@ -1007,12 +1165,15 @@
         </ul>
         
         <div class="mobile-nav-footer">
-            <a href="/apply.html" class="btn btn-secondary mobile-nav-cta">
+            <button class="btn btn-secondary mobile-nav-cta" onclick="showModal()">
                 <i class="fas fa-pencil-alt"></i> Apply Now
-            </a>
-            <a href="/admin-portal.html" class="btn btn-outline mobile-nav-cta">
+            </button>
+            <button class="btn btn-success mobile-nav-cta" onclick="showModal()">
+                <i class="fas fa-chart-line"></i> Results
+            </button>
+            <button class="btn btn-outline mobile-nav-cta" onclick="showModal()">
                 <i class="fas fa-crown"></i> Admin Portal
-            </a>
+            </button>
             <a href="/duty-book/" class="btn btn-primary mobile-nav-cta">
                 <i class="fas fa-clipboard-list"></i> Duty Book
             </a>
@@ -1038,8 +1199,15 @@
             </ul>
             
             <div class="nav-cta">
-                <a href="/apply.html" class="btn btn-secondary">Apply</a>
-                <a href="/duty-book/" class="btn btn-primary">Duty Book</a>
+                <button class="btn btn-secondary" onclick="showModal()">
+                    <i class="fas fa-pencil-alt"></i> Apply
+                </button>
+                <button class="btn btn-success" onclick="showModal()">
+                    <i class="fas fa-chart-line"></i> Results
+                </button>
+                <a href="/duty-book/" class="btn btn-primary">
+                    <i class="fas fa-clipboard-list"></i> Duty Book
+                </a>
             </div>
             
             <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -1066,9 +1234,12 @@
                 <h1>Nurturing Young Minds for a Brighter Future</h1>
                 <p>At Wunderkind Academy, we provide excellence in academics, creativity, and character development. Our holistic approach prepares students to thrive in an ever-changing world.</p>
                 <div class="hero-buttons">
-                    <a href="/apply.html" class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="showModal()">
                         <i class="fas fa-pencil-alt"></i> Apply Now
-                    </a>
+                    </button>
+                    <button class="btn btn-success" onclick="showModal()">
+                        <i class="fas fa-chart-line"></i> Check Results
+                    </button>
                     <a href="/duty-book/" class="btn btn-primary">
                         <i class="fas fa-clipboard-list"></i> Duty Book
                     </a>
@@ -1310,9 +1481,9 @@
             </div>
             
             <div class="text-center fade-in">
-                <a href="/apply.html" class="btn btn-secondary">
+                <button class="btn btn-secondary" onclick="showModal()">
                     <i class="fas fa-pencil-alt"></i> Apply Now
-                </a>
+                </button>
             </div>
         </div>
     </section>
@@ -1350,9 +1521,10 @@
                     <a href="#programs">Programs</a>
                     <a href="#facilities">Facilities</a>
                     <a href="#admissions">Admissions</a>
-                    <a href="/apply.html">Apply Now</a>
+                    <button class="footer-link-btn" onclick="showModal()">Apply Now</button>
+                    <button class="footer-link-btn" onclick="showModal()">Check Results</button>
+                    <button class="footer-link-btn" onclick="showModal()">Admin Portal</button>
                     <a href="/duty-book/">Duty Book</a>
-                    <a href="/admin-portal.html">Admin Portal</a>
                 </div>
             </div>
             
@@ -1362,7 +1534,59 @@
         </div>
     </footer>
 
+    <style>
+        /* Footer button styles */
+        .footer-link-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            text-align: left;
+            padding: 0;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: fit-content;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .footer-link-btn:hover {
+            color: var(--secondary);
+            transform: translateX(10px);
+        }
+        
+        /* Button success color */
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+    </style>
+
     <script>
+        // Modal functionality
+        const modal = document.getElementById('constructionModal');
+        
+        function showModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
         // Mobile menu functionality
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileCloseBtn = document.getElementById('mobileCloseBtn');
@@ -1472,6 +1696,11 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && mobileNavPanel.classList.contains('active')) {
                 closeMobileMenu();
+            }
+            
+            // Close modal on escape
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
             }
         });
     </script>
