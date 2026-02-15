@@ -23,7 +23,7 @@
   body {
     background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
     min-height: 100vh;
-    padding: clamp(1rem, 5vw, 2rem);
+    padding: clamp(0.5rem, 2vw, 2rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,8 +34,8 @@
   /* ---------- DECORATIVE RADIAL CIRCLES (fixed) ---------- */
   .bg-circle-1, .bg-circle-2 {
     position: fixed;
-    width: 280px;
-    height: 280px;
+    width: min(280px, 40vw);
+    height: min(280px, 40vw);
     border-radius: 50%;
     background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 80%);
     pointer-events: none;
@@ -44,21 +44,17 @@
   .bg-circle-1 {
     top: 2%;
     left: 2%;
-    width: clamp(200px, 30vw, 280px);
-    height: clamp(200px, 30vw, 280px);
-    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 75%);
   }
   .bg-circle-2 {
     bottom: 5%;
     right: 2%;
-    width: clamp(240px, 35vw, 340px);
-    height: clamp(240px, 35vw, 340px);
-    background: radial-gradient(circle, rgba(0,180,210,0.07) 0%, transparent 80%);
+    width: min(340px, 45vw);
+    height: min(340px, 45vw);
   }
 
   /* ---------- MAIN CONTAINER (above circles) ---------- */
   .dashboard-container {
-    max-width: 1400px;
+    max-width: min(1400px, 100%);
     width: 100%;
     position: relative;
     z-index: 10;
@@ -70,49 +66,52 @@
     background: rgba(255,255,255,0.8);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border-radius: clamp(24px, 5vw, 32px);
+    border-radius: clamp(16px, 4vw, 32px);
     box-shadow: 0 20px 35px -10px rgba(0,20,40,0.15);
     border: 1px solid rgba(255,255,255,0.3);
     box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset, 0 20px 35px -10px rgba(0,20,40,0.15);
-    padding: clamp(1.2rem, 4vw, 2rem);
+    padding: clamp(1rem, 3vw, 2rem);
     transition: box-shadow 0.25s ease, background 0.25s;
     margin-bottom: 1.8rem;
   }
 
   /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
   body, input, select, button, td, th, li, .badge, .info-note, h2, h3, h4, textarea, p {
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
   }
 
   h2 {
-    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
     font-weight: 600;
     color: #0b2b4e;
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
   h3 {
-    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-size: clamp(1rem, 4vw, 1.4rem);
     font-weight: 600;
     color: #1e4c6b;
     margin-bottom: 1.2rem;
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
   h4 {
-    font-size: clamp(1rem, 3vw, 1.1rem);
+    font-size: clamp(0.95rem, 3.5vw, 1.2rem);
     font-weight: 600;
     color: #0a4e7a;
     margin: 1rem 0 0.5rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .section-icon {
-    font-size: clamp(1.4rem, 4vw, 1.6rem);
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
     color: #0a66c2;
     background: rgba(10,102,194,0.08);
     padding: 0.6rem;
@@ -129,14 +128,16 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 2rem;
+    gap: 1rem;
   }
   .brand {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-wrap: wrap;
   }
   .brand i {
-    font-size: clamp(1.6rem, 5vw, 2rem);
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
     color: #0a66c2;
     filter: drop-shadow(0 4px 6px rgba(0,102,204,0.2));
   }
@@ -146,21 +147,22 @@
     background-clip: text;
     color: transparent;
     font-weight: 700;
-    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    font-size: clamp(1.3rem, 6vw, 2rem);
     letter-spacing: -0.01em;
   }
   .role-badge {
     background: rgba(10,102,194,0.15);
     border-radius: 40px;
     color: #0a4e7a;
-    padding: 0.5rem 1.5rem;
+    padding: 0.5rem clamp(0.8rem, 3vw, 1.5rem);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
     border: 1px solid rgba(255,255,255,0.3);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   /* ---------- BUTTON VARIANTS ---------- */
@@ -171,9 +173,9 @@
     gap: 0.6rem;
     border: 1px solid rgba(255,255,255,0.3);
     border-radius: 40px;
-    padding: 0.7rem 1.5rem;
+    padding: 0.7rem clamp(1rem, 3vw, 1.5rem);
     font-weight: 600;
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
     transition: all 0.2s;
     cursor: pointer;
     margin: 0.25rem;
@@ -184,6 +186,34 @@
   button i {
     font-size: 0.95rem;
   }
+  
+  /* Mobile button adjustments */
+  @media (max-width: 768px) {
+    button {
+      width: 100%;
+      justify-content: center;
+      padding: 0.8rem 1rem;
+    }
+    .nav-buttons {
+      flex-direction: column;
+    }
+    .nav-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  /* TV and large screen adjustments */
+  @media (min-width: 1920px) {
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
+    .dashboard-container {
+      max-width: 1800px;
+    }
+  }
+
   .btn-primary {
     background: #0a66c2;
     color: white;
@@ -191,7 +221,7 @@
   }
   .btn-primary:hover {
     background: #004a8f;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-success {
     background: #10b981;
@@ -199,7 +229,7 @@
   }
   .btn-success:hover {
     background: #059669;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-danger {
     background: #ef4444;
@@ -207,7 +237,7 @@
   }
   .btn-danger:hover {
     background: #dc2626;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-outline {
     background: transparent;
@@ -217,7 +247,7 @@
   .btn-outline:hover {
     background: #0a66c2;
     color: white;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-warning {
     background: #f59e0b;
@@ -225,7 +255,7 @@
   }
   .btn-warning:hover {
     background: #d97706;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-info {
     background: #8e44ad;
@@ -233,21 +263,18 @@
   }
   .btn-info:hover {
     background: #71368a;
-    scale: 1.02;
+    transform: scale(1.02);
   }
   .btn-small {
     padding: 0.4rem 1rem;
     font-size: 0.8rem;
-  }
-  @media (max-width: 768px) {
-    button { width: 100%; justify-content: center; }
   }
 
   /* ---------- NAVIGATION BUTTONS ---------- */
   .nav-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: clamp(0.5rem, 2vw, 1rem);
     margin-bottom: 1.5rem;
   }
   .nav-btn {
@@ -256,11 +283,13 @@
     border: 1px solid rgba(10,102,194,0.2);
     color: #0a4e7a;
     font-weight: 600;
-    padding: 0.8rem 2rem;
+    padding: 0.8rem clamp(1rem, 3vw, 2rem);
     border-radius: 40px;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: fit-content;
   }
   .nav-btn:hover {
     background: white;
@@ -279,9 +308,11 @@
     margin-top: 1.5rem;
     border-radius: 20px;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
   table {
     width: 100%;
+    min-width: 600px; /* Ensures table doesn't get too squished on mobile */
     border-collapse: collapse;
     background: rgba(255,255,255,0.4);
     backdrop-filter: blur(4px);
@@ -293,20 +324,31 @@
   th {
     background: #0a66c2;
     color: white;
-    padding: 0.9rem 0.5rem;
+    padding: clamp(0.5rem, 2vw, 0.9rem) clamp(0.3rem, 1.5vw, 0.5rem);
     font-weight: 600;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
     letter-spacing: 0.3px;
   }
-  th:first-child { border-radius: 16px 0 0 0; }
+  th:first-child { 
+    border-radius: 16px 0 0 0; 
+    position: sticky;
+    left: 0;
+    background: #0a66c2;
+  }
   th:last-child { border-radius: 0 16px 0 0; }
   td {
-    padding: 0.8rem 0.5rem;
+    padding: clamp(0.5rem, 2vw, 0.8rem) clamp(0.3rem, 1.5vw, 0.5rem);
     border-bottom: 1px solid rgba(10,102,194,0.1);
     background: transparent;
     text-align: center;
     vertical-align: middle;
+  }
+  td:first-child {
+    position: sticky;
+    left: 0;
+    background: rgba(255,255,255,0.9);
+    font-weight: 600;
   }
   tbody tr:hover {
     background: rgba(10,102,194,0.02);
@@ -314,6 +356,9 @@
   .totalRow {
     background: rgba(10,102,194,0.08);
     font-weight: 700;
+  }
+  .totalRow td:first-child {
+    background: rgba(10,102,194,0.08);
   }
 
   /* ---------- FORM INPUTS WITH ICONS ---------- */
@@ -329,17 +374,19 @@
     top: 50%;
     transform: translateY(-50%);
     color: #6b8ca3;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
     z-index: 2;
+    pointer-events: none;
   }
   .input-icon-wrapper select,
-  .input-icon-wrapper textarea {
+  .input-icon-wrapper textarea,
+  .input-icon-wrapper input {
     width: 100%;
     padding: 0.85rem 1rem 0.85rem 2.8rem;
     background: rgba(255,255,255,0.8);
     border: 1.5px solid rgba(200,215,225,0.7);
     border-radius: 20px;
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
     transition: all 0.2s;
     outline: none;
     color: #1e2f3e;
@@ -358,7 +405,8 @@
     padding-right: 2.5rem;
   }
   .input-icon-wrapper select:focus,
-  .input-icon-wrapper textarea:focus {
+  .input-icon-wrapper textarea:focus,
+  .input-icon-wrapper input:focus {
     border-color: #0a66c2;
     background: white;
     box-shadow: 0 6px 14px rgba(10,102,194,0.08);
@@ -369,13 +417,14 @@
     background: rgba(224,242,254,0.7);
     backdrop-filter: blur(8px);
     border-radius: 24px;
-    padding: 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
     border-left: 6px solid #0a66c2;
     margin: 1.5rem 0;
     font-size: 1rem;
     line-height: 1.6;
     color: #0a4e7a;
     box-shadow: 0 8px 20px -8px rgba(0,0,0,0.1);
+    word-wrap: break-word;
   }
 
   /* ---------- BEAUTIFUL CALENDAR CARD ---------- */
@@ -383,7 +432,7 @@
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
     border-radius: 24px;
-    padding: 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
     margin-bottom: 1.5rem;
     border: 1px solid rgba(10,102,194,0.2);
   }
@@ -395,10 +444,11 @@
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 2px dashed rgba(10,102,194,0.2);
+    flex-wrap: wrap;
   }
   
   .calendar-header i {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
     color: #0a66c2;
   }
   
@@ -411,9 +461,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 2rem;
+    gap: clamp(1rem, 3vw, 2rem);
     margin-bottom: 1.5rem;
-    padding: 1.2rem;
+    padding: clamp(1rem, 3vw, 1.2rem);
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
@@ -429,29 +479,34 @@
   .week-number {
     font-weight: 700;
     color: #0a66c2;
-    min-width: 90px;
-    font-size: 1.2rem;
+    min-width: clamp(80px, 15vw, 90px);
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
     background: rgba(10,102,194,0.1);
-    padding: 0.5rem 1rem;
+    padding: 0.5rem clamp(0.8rem, 2vw, 1rem);
     border-radius: 40px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
   
   .week-dates {
     flex: 2;
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: clamp(0.5rem, 2vw, 1rem);
   }
   
   .date-chip {
     background: rgba(10,102,194,0.05);
     border-radius: 40px;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem clamp(0.8rem, 2vw, 1rem);
     display: flex;
     align-items: center;
     gap: 0.8rem;
     border: 1px solid rgba(10,102,194,0.1);
+    flex: 1 1 auto;
+    min-width: 140px;
   }
   
   .date-chip .day {
@@ -467,6 +522,7 @@
     font-weight: 600;
     color: #0a66c2;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    white-space: nowrap;
   }
   
   .current-week .date-chip .date {
@@ -481,10 +537,11 @@
   
   .week-assign {
     flex: 1;
-    min-width: 300px;
+    min-width: min(300px, 100%);
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex-wrap: wrap;
   }
   
   .clear-btn {
@@ -499,6 +556,7 @@
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    white-space: nowrap;
   }
   
   .clear-btn:hover {
@@ -526,6 +584,7 @@
     gap: 0.8rem;
     color: #2c5a73;
     margin: 1.2rem 0;
+    flex-wrap: wrap;
   }
 
   /* ---------- RECORD LIST ---------- */
@@ -541,6 +600,7 @@
     border-radius: 20px;
     border: 1px solid rgba(10,102,194,0.2);
     transition: all 0.2s;
+    gap: 1rem;
   }
   .record-item:hover {
     background: white;
@@ -550,6 +610,10 @@
   .record-date {
     font-weight: 600;
     color: #1e4c6b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .record-badge {
     background: rgba(10,102,194,0.1);
@@ -557,6 +621,7 @@
     padding: 0.2rem 1rem;
     font-size: 0.8rem;
     color: #0a4e7a;
+    white-space: nowrap;
   }
 
   /* ---------- WEEK GROUP ---------- */
@@ -576,9 +641,10 @@
     border-left: 6px solid #8e44ad;
     margin-bottom: 0.5rem;
     border-radius: 16px 16px 0 0;
+    flex-wrap: wrap;
   }
   .week-days {
-    padding-left: 1.5rem;
+    padding-left: clamp(0.5rem, 3vw, 1.5rem);
   }
 
   /* ---------- BADGES & INFO ---------- */
@@ -590,11 +656,12 @@
     color: #0a4e7a;
     display: inline-block;
     border: 1px solid rgba(255,255,255,0.2);
+    white-space: nowrap;
   }
   
   .empty-state {
     text-align: center;
-    padding: 3rem;
+    padding: clamp(2rem, 8vw, 3rem);
     color: #6b8ca3;
     background: rgba(255,255,255,0.5);
     border-radius: 24px;
@@ -616,6 +683,12 @@
   }
 
   /* ---------- LOGOUT BUTTON ---------- */
+  .logout-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  
   #logoutBtn i, #logoutBtnBottom i {
     transition: transform 0.2s;
   }
@@ -631,7 +704,7 @@
   /* ---------- PDF CONTENT ---------- */
   .pdf-content {
     background: white;
-    padding: 2rem;
+    padding: clamp(1rem, 4vw, 2rem);
     border-radius: 16px;
   }
   
@@ -642,6 +715,84 @@
     top: 0;
     width: 1000px;
     background: white;
+  }
+
+  /* ---------- YEAR SELECTOR ---------- */
+  .year-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  .year-btn {
+    background: rgba(142,68,173,0.1);
+    border: 1px solid rgba(142,68,173,0.2);
+    color: #71368a;
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .year-btn:hover,
+  .year-btn.active {
+    background: #8e44ad;
+    color: white;
+    border-color: #8e44ad;
+  }
+
+  /* ---------- GRID LAYOUTS ---------- */
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: 1rem;
+  }
+
+  /* ---------- TV AND LARGE SCREEN OPTIMIZATIONS ---------- */
+  @media (min-width: 1920px) {
+    body {
+      padding: 3rem;
+    }
+    .glass-card {
+      padding: 2.5rem;
+    }
+    .date-chip {
+      padding: 0.8rem 1.2rem;
+      font-size: 1.1rem;
+    }
+    .date-chip .day {
+      min-width: 80px;
+    }
+    th {
+      font-size: 1rem;
+      padding: 1rem 0.8rem;
+    }
+    td {
+      font-size: 1rem;
+      padding: 1rem 0.8rem;
+    }
+  }
+
+  /* ---------- PRINT STYLES ---------- */
+  @media print {
+    .bg-circle-1, .bg-circle-2,
+    .nav-buttons,
+    button,
+    .logout-wrapper {
+      display: none;
+    }
+    .glass-card {
+      background: white;
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
   }
 </style>
 </head>
@@ -665,7 +816,7 @@
   </div>
 
   <!-- LOGOUT BUTTON - TOP -->
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+  <div class="logout-wrapper">
     <button id="logoutBtn" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
       <i class="fas fa-sign-out-alt"></i> Logout
     </button>
@@ -696,7 +847,7 @@
   </div>
 
   <!-- LOGOUT BUTTON - BOTTOM -->
-  <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+  <div class="logout-wrapper" style="margin-top: 1rem;">
     <button id="logoutBtnBottom" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem; border-color: #ef4444; color: #ef4444;">
       <i class="fas fa-sign-out-alt"></i> Logout
     </button>
@@ -763,7 +914,7 @@ function getWeekDates(weekNum, year) {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
-      }).replace(/\//g, '/') // Keep the format as DD/MM/YYYY
+      }).replace(/\//g, '/')
     });
   }
   
@@ -987,8 +1138,8 @@ window.showToday = async function() {
 
   document.getElementById("content").innerHTML = `
   <div id="todayReportContainer" class="pdf-content" style="padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <h3 style="margin-bottom: 0;">
         <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
         ${data.day || 'Today'} - ${formatDateLong(todayISO)}
       </h3>
@@ -1105,7 +1256,7 @@ window.showDutyHistory = async function() {
       <i class="fas fa-users" style="color: #8e44ad; margin-right: 0.5rem;"></i>
       Select Teacher On Duty
     </h3>
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">`;
+    <div class="grid-auto" style="margin-top: 1rem;">`;
 
   usersSnap.forEach(d => {
     const u = d.data();
@@ -1201,8 +1352,8 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
   yearSelector += `</div>`;
 
   let html = `<div class="glass-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h3>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+      <h3 style="margin-bottom: 0;">
         <i class="fas fa-history" style="color: #8e44ad; margin-right: 0.5rem;"></i>
         ${name} - Duty History
       </h3>
@@ -1250,7 +1401,7 @@ window.openTodHistory = async function(todId, name, selectedYear = null) {
           
           html += `
             <div class="record-item">
-              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem;">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;">
                 <span class="record-date">
                   <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
                   ${dayName} - ${formatDateLong(day.date)}
@@ -1300,8 +1451,8 @@ window.openRecord = async function(id) {
 
   document.getElementById("content").innerHTML = `
   <div id="recordReportContainer" class="pdf-content" style="padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <h3 style="margin-bottom: 0;">
         <i class="fas fa-calendar-day" style="color: #0a66c2; margin-right: 0.5rem;"></i>
         ${data.day} - ${formatDateLong(id)}
       </h3>
