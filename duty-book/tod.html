@@ -996,6 +996,15 @@
           <i class="fas fa-trash-alt"></i> Delete All
         </button>
       </div>
+      
+      <!-- REPAIR BUTTON - Add this inside history section -->
+      <div style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 16px;">
+        <button class="btn-danger btn-small" onclick="repairDayNames()">
+          <i class="fas fa-tools"></i> Repair Wrong Day Names
+        </button>
+        <small style="margin-left: 1rem; color: #666;">Click if Tuesday data shows on Wednesday</small>
+      </div>
+      
       <div id="historyContent"></div>
     </div>
   </div>
@@ -1933,7 +1942,44 @@ async function loadSavedAttendance() {
   calculateGrandTotals();
 }
 
-// ---------- SAVE ATTENDANCE ----------
+// ==================== REPAIR FUNCTION - FIX WRONG DAY NAMES ====================
+window.repairDayNames = async function() {
+  if (!confirm("This will scan all attendance records and fix any with wrong day names. Continue?")) return;
+  
+  console.log("🔧 Starting day name repair...");
+  const attendanceSnap = await getDocs(collection(db, "attendance"));
+  let fixed = 0;
+  
+  for (const doc of attendanceSnap.docs) {
+    const data = doc.data();
+    const dateStr = data.date || doc.id;
+    
+    // Parse the date
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month-1, day);
+    
+    // Get correct day name
+    const correctDayName = date.toLocaleDateString("en-US", { weekday: "long" });
+    
+    // If the stored day name doesn't match the correct one
+    if (data.day && data.day !== correctDayName) {
+      console.log(`Found mismatch: ${doc.id} has day="${data.day}" but should be "${correctDayName}"`);
+      
+      // Fix it
+      await updateDoc(doc.ref, {
+        day: correctDayName,
+        repaired: true,
+        repairedAt: new Date()
+      });
+      fixed++;
+    }
+  }
+  
+  alert(`✅ Repaired ${fixed} records with wrong day names!`);
+  console.log(`Repair complete. Fixed ${fixed} records.`);
+};
+
+// ---------- SAVE ATTENDANCE (UPDATED with correct day calculation) ----------
 window.saveAttendance = async () => {
   if (!canEditToday) {
     alert("You can only save attendance during your assigned week (Monday-Friday)!");
@@ -1941,6 +1987,11 @@ window.saveAttendance = async () => {
   }
   const user = auth.currentUser;
   if (!user) { alert("Login required"); return; }
+  
+  // Calculate the correct day name from the date string
+  const [year, month, day] = todayISO.split('-').map(Number);
+  const correctDate = new Date(year, month-1, day);
+  const correctDayName = correctDate.toLocaleDateString("en-US", { weekday: "long" });
   
   let data = [];
   classes.forEach(c => {
@@ -1963,7 +2014,9 @@ window.saveAttendance = async () => {
   const existingData = existingSnap.exists() ? existingSnap.data() : {};
   
   await setDoc(doc(db, "attendance", todayISO), {
-    date: todayISO, day: dayName, weekNumber: currentWeek,
+    date: todayISO, 
+    day: correctDayName, // Use the calculated correct day name
+    weekNumber: currentWeek,
     todId: currentUserTodId,
     todName: isSuperView ? viewingUserData?.email : user.email,
     todDisplayName: isSuperView ? (viewingUserData?.name || viewingUserData?.email) : (user.displayName || user.email), 
@@ -2016,44 +2069,149 @@ window.showActivity = function() {
 
 // ---------- LOAD DAY FOR ACTIVITY - FIXED VERSION ----------
 window.loadDay = async function(day) {
+  console.log("========== LOAD DAY DEBUG ==========");
+  console.log("Looking for day:", day);
+  
   const user = auth.currentUser;
   const targetUserId = isSuperView ? viewingUserId : user.uid;
   
+  // Get user info
+  console.log("Current user ID:", targetUserId);
+  console.log("Is super view:", isSuperView);
+  if (isSuperView && viewingUserData) {
+    console.log("Viewing user data:", viewingUserData);
+  } else {
+    console.log("Current user data:", userData);
+  }
+  
+  // Get ALL attendance records to see what's in the database
+  const allRecords = await getDocs(collection(db, "attendance"));
+  console.log(`Total attendance records in database: ${allRecords.size}`);
+  
+  if (allRecords.size === 0) {
+    console.log("No attendance records found in database at all!");
+    document.getElementById("activityTable").innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i> No attendance records in database</div>`;
+    return;
+  }
+  
+  // Log all records to see their structure
+  console.log("ALL ATTENDANCE RECORDS:");
+  const allDays = [];
+  allRecords.forEach(doc => {
+    const data = doc.data();
+    allDays.push({
+      id: doc.id,
+      date: data.date,
+      day: data.day,
+      todName: data.todName,
+      todDisplayName: data.todDisplayName,
+      todId: data.todId,
+      hasData: !!data.data
+    });
+    console.log(`- ${doc.id}: Day=${data.day}, todName=${data.todName}, todId=${data.todId}`);
+  });
+  
+  // Filter records for the requested day
+  const dayRecords = [];
+  allRecords.forEach(doc => {
+    const data = doc.data();
+    if (data.day === day) {
+      dayRecords.push({
+        id: doc.id,
+        data: data
+      });
+    }
+  });
+  
+  console.log(`Records for ${day}: ${dayRecords.length}`);
+  if (dayRecords.length > 0) {
+    console.log("Records for", day, ":", dayRecords.map(r => ({
+      id: r.id,
+      todName: r.data.todName,
+      todId: r.data.todId,
+      date: r.data.date
+    })));
+  } else {
+    console.log(`No records found for ${day}`);
+    // Show what days DO exist
+    const existingDays = [...new Set(allRecords.docs.map(doc => doc.data().day))];
+    console.log("Days that exist in database:", existingDays);
+  }
+  
   // Get all possible identifiers for this user
   const possibleIdentifiers = [];
-  if (isSuperView && viewingUserData?.email) possibleIdentifiers.push(viewingUserData.email);
-  else if (user.email) possibleIdentifiers.push(user.email);
-  if (isSuperView && viewingUserData?.name) possibleIdentifiers.push(viewingUserData.name);
-  else if (userData?.name) possibleIdentifiers.push(userData.name);
+  
+  // Add email
+  if (isSuperView && viewingUserData?.email) {
+    possibleIdentifiers.push(viewingUserData.email);
+    console.log("Adding viewing email:", viewingUserData.email);
+  } else if (user.email) {
+    possibleIdentifiers.push(user.email);
+    console.log("Adding current email:", user.email);
+  }
+  
+  // Add name
+  if (isSuperView && viewingUserData?.name) {
+    possibleIdentifiers.push(viewingUserData.name);
+    console.log("Adding viewing name:", viewingUserData.name);
+  } else if (userData?.name) {
+    possibleIdentifiers.push(userData.name);
+    console.log("Adding current name:", userData.name);
+  }
+  
+  // Add user ID
   possibleIdentifiers.push(targetUserId);
+  console.log("Adding user ID:", targetUserId);
   
-  console.log("Searching for day:", day);
-  console.log("With identifiers:", possibleIdentifiers);
+  console.log("All possible identifiers:", possibleIdentifiers);
   
-  // Get all attendance records
-  const allRecords = await getDocs(collection(db, "attendance"));
-  console.log("All attendance records:", allRecords.docs.map(d => ({ id: d.id, data: d.data() })));
-  
-  // Find matching records
+  // Find matching records by checking each record manually
   let matchingRecords = [];
+  
   for (const doc of allRecords.docs) {
     const data = doc.data();
     if (data.day === day) {
-      const todValue = data.todName || data.todDisplayName || data.todId;
-      if (possibleIdentifiers.includes(todValue) || (data.todId && data.todId === targetUserId)) {
+      // Check multiple fields for matches
+      const fieldsToCheck = [
+        data.todName,
+        data.todDisplayName,
+        data.todId,
+        data.todEmail,
+        data.createdBy
+      ].filter(f => f); // Remove undefined/null
+      
+      console.log(`Checking record ${doc.id}:`, { fieldsToCheck, data });
+      
+      // See if any identifier matches any field
+      let isMatch = false;
+      for (const identifier of possibleIdentifiers) {
+        if (fieldsToCheck.includes(identifier) || 
+            (data.todId && data.todId === identifier) ||
+            (data.todName === identifier)) {
+          isMatch = true;
+          console.log(`✅ MATCH found! Record ${doc.id} matched identifier: ${identifier}`);
+          break;
+        }
+      }
+      
+      if (isMatch) {
         matchingRecords.push({ id: doc.id, data: data });
       }
     }
   }
   
-  console.log("Matching records:", matchingRecords);
+  console.log("Final matching records:", matchingRecords.length);
   
   let html = "";
   selectedDayData = null;
 
   if (matchingRecords.length === 0) {
-    html = `<div class="empty-state"><i class="fas fa-info-circle"></i> No records found for ${day}</div>`;
+    html = `<div class="empty-state">
+      <i class="fas fa-info-circle"></i> No records found for ${day}<br>
+      <small style="color: #999;">Check console for debug info (F12)</small>
+    </div>`;
   } else {
+    // Use the first matching record (or you could show multiple)
     matchingRecords.forEach(item => {
       let data = item.data;
       selectedDayData = data;
@@ -2064,18 +2222,20 @@ window.loadDay = async function(day) {
       let totalSickB = 0, totalSickG = 0, totalSickT = 0;
       let totalPerB = 0, totalPerG = 0, totalPerT = 0;
       
-      data.data.forEach(r => {
-        totalRegB += parseInt(r.regB) || 0;
-        totalRegG += parseInt(r.regG) || 0;
-        totalPreB += parseInt(r.preB) || 0;
-        totalPreG += parseInt(r.preG) || 0;
-        totalAbsB += parseInt(r.absB) || 0;
-        totalAbsG += parseInt(r.absG) || 0;
-        totalSickB += parseInt(r.sickB) || 0;
-        totalSickG += parseInt(r.sickG) || 0;
-        totalPerB += parseInt(r.perB) || 0;
-        totalPerG += parseInt(r.perG) || 0;
-      });
+      if (data.data && Array.isArray(data.data)) {
+        data.data.forEach(r => {
+          totalRegB += parseInt(r.regB) || 0;
+          totalRegG += parseInt(r.regG) || 0;
+          totalPreB += parseInt(r.preB) || 0;
+          totalPreG += parseInt(r.preG) || 0;
+          totalAbsB += parseInt(r.absB) || 0;
+          totalAbsG += parseInt(r.absG) || 0;
+          totalSickB += parseInt(r.sickB) || 0;
+          totalSickG += parseInt(r.sickG) || 0;
+          totalPerB += parseInt(r.perB) || 0;
+          totalPerG += parseInt(r.perG) || 0;
+        });
+      }
       
       totalRegT = totalRegB + totalRegG;
       totalPreT = totalPreB + totalPreG;
@@ -2085,25 +2245,32 @@ window.loadDay = async function(day) {
       
       let presentPercentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
       
-      html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h4><i class="fas fa-calendar-day"></i> ${data.day} - ${data.date} (Week ${data.weekNumber || '?'})</h4>
-        <span class="percentage-badge" style="background: rgba(16,185,129,0.15);">
-          <i class="fas fa-chart-line"></i> Present Rate: 
-          <span style="background: white; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 800; color: ${presentPercentage >= 90 ? '#10b981' : presentPercentage >= 75 ? '#f59e0b' : '#ef4444'};">
-            ${presentPercentage}%
+      html += `<div style="margin-bottom: 2rem; padding: 1rem; background: rgba(16,185,129,0.05); border-radius: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h4><i class="fas fa-calendar-day"></i> ${data.day} - ${data.date} (Week ${data.weekNumber || '?'})</h4>
+          <span class="percentage-badge" style="background: rgba(16,185,129,0.15);">
+            <i class="fas fa-chart-line"></i> Present Rate: 
+            <span style="background: white; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 800; color: ${presentPercentage >= 90 ? '#10b981' : presentPercentage >= 75 ? '#f59e0b' : '#ef4444'};">
+              ${presentPercentage}%
+            </span>
           </span>
-        </span>
-      </div>`;
-      
-      html += `<div style="margin-bottom: 1.5rem;">
-        <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #065f46; margin-bottom: 0.5rem;">
-          <i class="fas fa-comment-dots" style="color: #10b981;"></i> Your Answer:
-        </h5>
-        <div style="background: rgba(16,185,129,0.05); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #10b981;">
-          <i class="fas fa-quote-left" style="color: #10b981; opacity: 0.5; margin-right: 0.5rem;"></i>
-          ${data.todAnswer || data.answer || "No answer provided"}
         </div>
-      </div>`;
+        
+        <div style="margin-bottom: 1.5rem; font-size: 0.9rem; color: #4b5563; background: white; padding: 0.5rem 1rem; border-radius: 40px;">
+          <i class="fas fa-user"></i> TOD: ${data.todName || data.todDisplayName || 'Unknown'} (ID: ${data.todId || 'N/A'})
+        </div>`;
+      
+      if (data.todAnswer) {
+        html += `<div style="margin-bottom: 1.5rem;">
+          <h5 style="display: flex; align-items: center; gap: 0.5rem; color: #065f46; margin-bottom: 0.5rem;">
+            <i class="fas fa-comment-dots" style="color: #10b981;"></i> Your Answer:
+          </h5>
+          <div style="background: rgba(16,185,129,0.05); backdrop-filter: blur(8px); border-radius: 20px; padding: 1rem; border-left: 6px solid #10b981;">
+            <i class="fas fa-quote-left" style="color: #10b981; opacity: 0.5; margin-right: 0.5rem;"></i>
+            ${data.todAnswer || data.answer || "No answer provided"}
+          </div>
+        </div>`;
+      }
       
       if (data.htAnswer) {
         html += `<div style="margin-bottom: 1.5rem;">
@@ -2117,97 +2284,207 @@ window.loadDay = async function(day) {
         </div>`;
       }
       
-      html += `<div class="table-responsive"><table>
-        <thead>
-          <tr>
-            <th rowspan="2">Class</th>
-            <th colspan="2">Registered</th>
-            <th colspan="2">Present</th>
-            <th colspan="2">Absent</th>
-            <th colspan="2">Sick</th>
-            <th colspan="2">Permission</th>
-            <th rowspan="2">Total Present</th>
-          </tr>
-          <tr>
-            <th>B</th><th>G</th>
-            <th>B</th><th>G</th>
-            <th>B</th><th>G</th>
-            <th>B</th><th>G</th>
-            <th>B</th><th>G</th>
-          </tr>
-        </thead>
-        <tbody>`;
-      
-      data.data.forEach(r => {
-        let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        html += `<div class="table-responsive"><table>
+          <thead>
+            <tr>
+              <th rowspan="2">Class</th>
+              <th colspan="2">Registered</th>
+              <th colspan="2">Present</th>
+              <th colspan="2">Absent</th>
+              <th colspan="2">Sick</th>
+              <th colspan="2">Permission</th>
+              <th rowspan="2">Total Present</th>
+            </tr>
+            <tr>
+              <th>B</th><th>G</th>
+              <th>B</th><th>G</th>
+              <th>B</th><th>G</th>
+              <th>B</th><th>G</th>
+              <th>B</th><th>G</th>
+            </tr>
+          </thead>
+          <tbody>`;
+        
+        data.data.forEach(r => {
+          let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+          html += `
+            <tr>
+              <td><strong>${r.class}</strong></td>
+              <td>${r.regB || 0}</td>
+              <td>${r.regG || 0}</td>
+              <td>${r.preB || 0}</td>
+              <td>${r.preG || 0}</td>
+              <td>${r.absB || 0}</td>
+              <td>${r.absG || 0}</td>
+              <td>${r.sickB || 0}</td>
+              <td>${r.sickG || 0}</td>
+              <td>${r.perB || 0}</td>
+              <td>${r.perG || 0}</td>
+              <td><strong>${preTotal}</strong></td>
+            </tr>
+          `;
+        });
+        
         html += `
-          <tr>
-            <td><strong>${r.class}</strong></td>
-            <td>${r.regB || 0}</td>
-            <td>${r.regG || 0}</td>
-            <td>${r.preB || 0}</td>
-            <td>${r.preG || 0}</td>
-            <td>${r.absB || 0}</td>
-            <td>${r.absG || 0}</td>
-            <td>${r.sickB || 0}</td>
-            <td>${r.sickG || 0}</td>
-            <td>${r.perB || 0}</td>
-            <td>${r.perG || 0}</td>
-            <td><strong>${preTotal}</strong></td>
+          <tr class="totalRow">
+            <td><strong>GRAND TOTAL</strong></td>
+            <td><strong>${totalRegB}</strong></td>
+            <td><strong>${totalRegG}</strong></td>
+            <td><strong>${totalPreB}</strong></td>
+            <td><strong>${totalPreG}</strong></td>
+            <td><strong>${totalAbsB}</strong></td>
+            <td><strong>${totalAbsG}</strong></td>
+            <td><strong>${totalSickB}</strong></td>
+            <td><strong>${totalSickG}</strong></td>
+            <td><strong>${totalPerB}</strong></td>
+            <td><strong>${totalPerG}</strong></td>
+            <td><strong>${totalPreT}</strong></td>
           </tr>
-        `;
-      });
+        </tbody></table></div>`;
+      } else {
+        html += `<div class="empty-state">No attendance data found for this day</div>`;
+      }
       
-      html += `
-        <tr class="totalRow">
-          <td><strong>GRAND TOTAL</strong></td>
-          <td><strong>${totalRegB}</strong></td>
-          <td><strong>${totalRegG}</strong></td>
-          <td><strong>${totalPreB}</strong></td>
-          <td><strong>${totalPreG}</strong></td>
-          <td><strong>${totalAbsB}</strong></td>
-          <td><strong>${totalAbsG}</strong></td>
-          <td><strong>${totalSickB}</strong></td>
-          <td><strong>${totalSickG}</strong></td>
-          <td><strong>${totalPerB}</strong></td>
-          <td><strong>${totalPerG}</strong></td>
-          <td><strong>${totalPreT}</strong></td>
-        </tr>
-      </tbody></table></div>`;
-      
-      html += `<div class="summary-card">
-        <div class="summary-stat">
-          <span class="summary-label">Total Students</span>
-          <span class="summary-value">${totalRegT}</span>
-        </div>
-        <div class="summary-stat">
-          <span class="summary-label">Present</span>
-          <span class="summary-value">${totalPreT} <small>(${presentPercentage}%)</small></span>
-        </div>
-        <div class="summary-stat">
-          <span class="summary-label">Absent</span>
-          <span class="summary-value">${totalAbsT}</span>
-        </div>
-        <div class="summary-stat">
-          <span class="summary-label">Sick</span>
-          <span class="summary-value">${totalSickT}</span>
-        </div>
-        <div class="summary-stat">
-          <span class="summary-label">Permission</span>
-          <span class="summary-value">${totalPerT}</span>
-        </div>
-      </div>`;
+      html += `</div>`; // Close the container div
     });
   }
+  
   document.getElementById("activityTable").innerHTML = html;
+  
+  if (matchingRecords.length > 0) {
+    console.log("Displayed", matchingRecords.length, "records for", day);
+  } else {
+    console.log("No matching records found for", day);
+  }
+  console.log("========== END DEBUG ==========");
 };
 
 // ---------- PDF DOWNLOAD FUNCTIONS ----------
 window.downloadPDF = function() {
   if (!selectedDayData) { alert("Select a day first"); return; }
+  
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
-  // ... (keep existing PDF code)
+  
+  let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+  let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+  let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+  let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+  let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+  
+  selectedDayData.data.forEach(r => {
+    totalRegB += parseInt(r.regB) || 0;
+    totalRegG += parseInt(r.regG) || 0;
+    totalPreB += parseInt(r.preB) || 0;
+    totalPreG += parseInt(r.preG) || 0;
+    totalAbsB += parseInt(r.absB) || 0;
+    totalAbsG += parseInt(r.absG) || 0;
+    totalSickB += parseInt(r.sickB) || 0;
+    totalSickG += parseInt(r.sickG) || 0;
+    totalPerB += parseInt(r.perB) || 0;
+    totalPerG += parseInt(r.perG) || 0;
+  });
+  
+  totalRegT = totalRegB + totalRegG;
+  totalPreT = totalPreB + totalPreG;
+  totalAbsT = totalAbsB + totalAbsG;
+  totalSickT = totalSickB + totalSickG;
+  totalPerT = totalPerB + totalPerG;
+  
+  let presentPercentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
+  
+  pdf.setFontSize(18);
+  pdf.text("TOD Attendance Report", 10, 10);
+  pdf.setFontSize(14);
+  pdf.text(`${selectedDayData.day} - ${selectedDayData.date}`, 10, 20);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${selectedDayData.todName || 'N/A'}`, 10, 30);
+  pdf.setFontSize(14);
+  pdf.text(`Present Rate: ${presentPercentage}%`, 10, 40);
+  
+  pdf.setFontSize(12);
+  pdf.text("TOD Answer:", 10, 55);
+  pdf.setFontSize(10);
+  const todAnswer = selectedDayData.todAnswer || selectedDayData.answer || "No answer provided";
+  const splitAnswer = pdf.splitTextToSize(todAnswer, 180);
+  pdf.text(splitAnswer, 15, 65);
+  
+  let y = 65 + (splitAnswer.length * 5);
+  if (selectedDayData.htAnswer) {
+    pdf.setFontSize(12);
+    pdf.text("HT Response:", 10, y);
+    pdf.setFontSize(10);
+    const htResponse = selectedDayData.htAnswer;
+    const splitResponse = pdf.splitTextToSize(htResponse, 180);
+    pdf.text(splitResponse, 15, y + 10);
+    y += 10 + (splitResponse.length * 5) + 10;
+  } else {
+    y += 15;
+  }
+  
+  pdf.setFontSize(9);
+  pdf.text("Class", 10, y);
+  pdf.text("Reg B", 35, y);
+  pdf.text("Reg G", 50, y);
+  pdf.text("Pre B", 70, y);
+  pdf.text("Pre G", 85, y);
+  pdf.text("Abs B", 105, y);
+  pdf.text("Abs G", 120, y);
+  pdf.text("Sick B", 140, y);
+  pdf.text("Sick G", 155, y);
+  pdf.text("Perm B", 175, y);
+  pdf.text("Perm G", 190, y);
+  pdf.text("Total", 210, y);
+  
+  y += 7;
+  
+  selectedDayData.data.forEach(r => {
+    let preTotal = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    pdf.text(r.class, 10, y);
+    pdf.text(String(r.regB || 0), 35, y);
+    pdf.text(String(r.regG || 0), 50, y);
+    pdf.text(String(r.preB || 0), 70, y);
+    pdf.text(String(r.preG || 0), 85, y);
+    pdf.text(String(r.absB || 0), 105, y);
+    pdf.text(String(r.absG || 0), 120, y);
+    pdf.text(String(r.sickB || 0), 140, y);
+    pdf.text(String(r.sickG || 0), 155, y);
+    pdf.text(String(r.perB || 0), 175, y);
+    pdf.text(String(r.perG || 0), 190, y);
+    pdf.text(String(preTotal), 210, y);
+    y += 7;
+  });
+  
+  pdf.setFontSize(10);
+  pdf.text("GRAND TOTAL", 10, y);
+  pdf.text(String(totalRegB), 35, y);
+  pdf.text(String(totalRegG), 50, y);
+  pdf.text(String(totalPreB), 70, y);
+  pdf.text(String(totalPreG), 85, y);
+  pdf.text(String(totalAbsB), 105, y);
+  pdf.text(String(totalAbsG), 120, y);
+  pdf.text(String(totalSickB), 140, y);
+  pdf.text(String(totalSickG), 155, y);
+  pdf.text(String(totalPerB), 175, y);
+  pdf.text(String(totalPerG), 190, y);
+  pdf.text(String(totalPreT), 210, y);
+  
+  y += 15;
+  pdf.setFontSize(12);
+  pdf.text(`SUMMARY:`, 10, y);
+  y += 8;
+  pdf.setFontSize(10);
+  pdf.text(`Total Students: ${totalRegT}`, 15, y);
+  y += 6;
+  pdf.text(`Present: ${totalPreT} (${presentPercentage}%)`, 15, y);
+  y += 6;
+  pdf.text(`Absent: ${totalAbsT}`, 15, y);
+  y += 6;
+  pdf.text(`Sick: ${totalSickT}`, 15, y);
+  y += 6;
+  pdf.text(`Permission: ${totalPerT}`, 15, y);
+  
   pdf.save(`TOD_Report_${selectedDayData.day}.pdf`);
 };
 
@@ -2216,54 +2493,102 @@ window.downloadWeekPDF = async function() {
   const q = query(collection(db, "attendance"), where("todName", "==", isSuperView ? viewingUserData?.email : user.email));
   const snap = await getDocs(q);
   if (snap.empty) { alert("No attendance records found"); return; }
+  
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
-  // ... (keep existing PDF code)
+  
+  pdf.setFontSize(18);
+  pdf.text("Weekly Attendance Report", 10, 10);
+  pdf.setFontSize(12);
+  pdf.text(`TOD: ${isSuperView ? viewingUserData?.email : user.email}`, 10, 20);
+  
+  let y = 35;
+  
+  snap.forEach((d) => {
+    let data = d.data();
+    
+    if (y > 250) {
+      pdf.addPage();
+      y = 20;
+    }
+    
+    let totalRegT = 0, totalPreT = 0;
+    data.data.forEach(r => {
+      totalRegT += (parseInt(r.regB) || 0) + (parseInt(r.regG) || 0);
+      totalPreT += (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+    });
+    let percentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
+    
+    pdf.setFontSize(11);
+    pdf.text(`${data.day} - ${data.date} (Week ${data.weekNumber || '?'})`, 10, y);
+    pdf.text(`Present: ${totalPreT}/${totalRegT} (${percentage}%)`, 100, y);
+    y += 6;
+    
+    pdf.setFontSize(9);
+    data.data.forEach(r => {
+      let pre = (parseInt(r.preB) || 0) + (parseInt(r.preG) || 0);
+      let abs = (parseInt(r.absB) || 0) + (parseInt(r.absG) || 0);
+      pdf.text(`${r.class}: P:${pre} A:${abs}`, 15, y);
+      y += 5;
+    });
+    y += 5;
+  });
+  
   pdf.save("TOD_Weekly_Report.pdf");
 };
 
 window.downloadCTReport = function() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
+  
   pdf.setFontSize(18);
   pdf.text("Class Teacher Report", 10, 10);
   pdf.setFontSize(12);
   pdf.text(`${dayName} - ${todayISO}`, 10, 20);
   pdf.text(`Teacher: ${isSuperView ? viewingUserData?.name || viewingUserData?.email : currentUser?.email || 'N/A'}`, 10, 30);
+  
   let y = 45;
   assignedClasses.forEach(cls => {
     const regB = document.getElementById(`regB_${cls}`)?.value || 0;
     const regG = document.getElementById(`regG_${cls}`)?.value || 0;
     const preB = document.getElementById(`preB_${cls}`)?.value || 0;
     const preG = document.getElementById(`preG_${cls}`)?.value || 0;
+    
     const regTotal = parseInt(regB) + parseInt(regG);
     const preTotal = parseInt(preB) + parseInt(preG);
+    
     pdf.text(`${cls}: Registered: ${regTotal} | Present: ${preTotal} (${regTotal>0 ? Math.round(preTotal/regTotal*100) : 0}%)`, 10, y);
     y += 7;
   });
+  
   pdf.save(`CT_Report_${todayISO}.pdf`);
 };
 
 window.downloadTODReport = function() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
+  
   pdf.setFontSize(18);
   pdf.text("TOD Attendance Report", 10, 10);
   pdf.setFontSize(14);
   pdf.text(`${dayName} - ${todayISO}`, 10, 20);
   pdf.setFontSize(12);
   pdf.text(`Teacher: ${isSuperView ? viewingUserData?.name || viewingUserData?.email : currentUser?.email || 'N/A'}`, 10, 30);
+  
   let y = 45;
   classes.forEach(cls => {
     const regB = document.getElementById(`regB_${cls}`)?.value || 0;
     const regG = document.getElementById(`regG_${cls}`)?.value || 0;
     const preB = document.getElementById(`preB_${cls}`)?.value || 0;
     const preG = document.getElementById(`preG_${cls}`)?.value || 0;
+    
     const regTotal = parseInt(regB) + parseInt(regG);
     const preTotal = parseInt(preB) + parseInt(preG);
+    
     pdf.text(`${cls}: Reg: ${regB}+${regG}=${regTotal} | Present: ${preB}+${preG}=${preTotal}`, 10, y);
     y += 7;
   });
+  
   pdf.save(`TOD_Report_${todayISO}.pdf`);
 };
 
@@ -2307,6 +2632,7 @@ window.viewHistoryDay = viewHistoryDay;
 window.deleteHistoryDay = deleteHistoryDay;
 window.deleteAllHistory = deleteAllHistory;
 window.returnToOwnDashboard = returnToOwnDashboard;
+window.repairDayNames = repairDayNames;
 
 // ---------- ATTACH LOGOUT BUTTONS ----------
 document.getElementById("logoutBtn").addEventListener("click", logout);
