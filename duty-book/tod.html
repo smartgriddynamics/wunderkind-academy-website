@@ -1080,16 +1080,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* ================= DYNAMIC DATE FUNCTIONS (FIXED FOR CURRENT YEAR) ================= */
+/* ================= DYNAMIC DATE FUNCTIONS ================= */
 
 function getWeekDates(weekNum, year) {
-  // Get the current year instead of hardcoding 2026
   const currentYear = year || new Date().getFullYear();
-  
-  // Find the first Monday of the current year
   const firstMonday = getFirstMondayOfYear(currentYear);
-  
-  // Calculate Monday of target week
   const targetMonday = new Date(firstMonday);
   targetMonday.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
   
@@ -1107,7 +1102,7 @@ function getWeekDates(weekNum, year) {
         month: '2-digit',
         year: 'numeric'
       }),
-      fullDate: date // Store the full date object
+      fullDate: date
     });
   }
   
@@ -1115,33 +1110,16 @@ function getWeekDates(weekNum, year) {
 }
 
 function getFirstMondayOfYear(year) {
-  // January 1st of the given year
   const janFirst = new Date(year, 0, 1);
+  const dayOfWeek = janFirst.getDay();
   
-  // Find the first Monday (day 1 = Monday)
-  // If Jan 1 is Monday (1), then first Monday is Jan 1
-  // If Jan 1 is Tuesday (2), then first Monday is Jan 7
-  // If Jan 1 is Wednesday (3), then first Monday is Jan 6
-  // If Jan 1 is Thursday (4), then first Monday is Jan 5
-  // If Jan 1 is Friday (5), then first Monday is Jan 4
-  // If Jan 1 is Saturday (6), then first Monday is Jan 3
-  // If Jan 1 is Sunday (0), then first Monday is Jan 2
-  
-  const dayOfWeek = janFirst.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  
-  // Calculate days to add to get to first Monday
   let daysToAdd;
-  if (dayOfWeek === 1) { // Already Monday
-    daysToAdd = 0;
-  } else if (dayOfWeek === 0) { // Sunday
-    daysToAdd = 1;
-  } else { // Tuesday to Saturday
-    daysToAdd = 8 - dayOfWeek;
-  }
+  if (dayOfWeek === 1) daysToAdd = 0;
+  else if (dayOfWeek === 0) daysToAdd = 1;
+  else daysToAdd = 8 - dayOfWeek;
   
   const firstMonday = new Date(janFirst);
   firstMonday.setDate(janFirst.getDate() + daysToAdd);
-  
   return firstMonday;
 }
 
@@ -1149,24 +1127,18 @@ function getWeekNumber(date) {
   const year = date.getFullYear();
   const firstMonday = getFirstMondayOfYear(year);
   
-  // If date is before first Monday of the year, it belongs to previous year
   if (date < firstMonday) {
-    // Get last year's first Monday
     const lastYearFirstMonday = getFirstMondayOfYear(year - 1);
-    const diffTime = date - lastYearFirstMonday;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil((date - lastYearFirstMonday) / (1000 * 60 * 60 * 24));
     return Math.floor(diffDays / 7) + 1;
   }
   
-  const diffTime = date - firstMonday;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+  const diffDays = Math.ceil((date - firstMonday) / (1000 * 60 * 60 * 24));
   return Math.floor(diffDays / 7) + 1;
 }
 
 function getCurrentWeekNumber() {
-  const today = new Date();
-  return getWeekNumber(today);
+  return getWeekNumber(new Date());
 }
 
 function getCurrentYear() {
@@ -1180,7 +1152,7 @@ let currentUserTodId = null;
 let assignedWeekNumber = null;
 let assignedWeekData = null;
 let currentWeek = getCurrentWeekNumber();
-let currentYear = getCurrentYear(); // Dynamic current year
+let currentYear = getCurrentYear();
 let currentUser = null;
 let userData = null;
 let userRole = null;
@@ -1189,14 +1161,10 @@ let isAlsoCT = false;
 let selectedDayData = null;
 let autoSaveTimeout = null;
 
-// Test the dates with current year (NOW AFTER currentYear IS DECLARED)
+// Test logs
 console.log("✅ TOD PAGE DATES FOR", currentYear);
 console.log(`First Monday of ${currentYear}:`, getFirstMondayOfYear(currentYear).toDateString());
-console.log("Current Week:", getCurrentWeekNumber());
-
-// Test specific date
-const testDate = new Date(); // Today's date
-console.log(`Today (${testDate.toDateString()}) is Week:`, getWeekNumber(testDate));
+console.log("Current Week:", currentWeek);
 
 // ---------- SUPER VIEW SUPPORT ----------
 let isSuperView = false;
@@ -1212,18 +1180,25 @@ function getUrlParams() {
   };
 }
 
-// ---------- DATE SETUP ----------
+// ---------- DATE SETUP - FIXED TIMEZONE ISSUE ----------
+function getLocalDateString() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 let today = new Date();
-let todayISO = today.toISOString().split("T")[0];
+let todayISO = getLocalDateString(); // Use local date instead of UTC
 let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
-let dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+let dayOfWeek = today.getDay();
 
 document.getElementById("todayHeader").innerHTML = `
   <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
   ${dayName} - ${todayISO} (Week ${currentWeek})
 `;
 
-// Show Sunday message if today is Sunday
 if (dayOfWeek === 0) {
   document.getElementById('sundayMessage').style.display = 'block';
 }
@@ -1244,14 +1219,11 @@ onAuthStateChanged(auth, async (user) => {
   
   currentUser = user;
   
-  // Check for super user parameters
   const params = getUrlParams();
   
   if (params.superId && params.superToken) {
-    // Verify the super token
     const superUserDoc = await getDoc(doc(db, "users", params.superToken));
     if (superUserDoc.exists() && (superUserDoc.data().role === "IT" || superUserDoc.data().role === "SUPER")) {
-      // Valid super user access
       const targetUserDoc = await getDoc(doc(db, "users", params.superId));
       if (targetUserDoc.exists()) {
         isSuperView = true;
@@ -1259,7 +1231,6 @@ onAuthStateChanged(auth, async (user) => {
         viewingUserData = targetUserDoc.data();
         originalUserId = user.uid;
         
-        // Show super user info
         const superInfo = document.createElement('div');
         superInfo.className = 'super-user-info';
         superInfo.innerHTML = `
@@ -1279,7 +1250,6 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
   
-  // Get the appropriate user data (either real user or viewing user)
   const targetUserId = isSuperView ? viewingUserId : user.uid;
   const userDoc = await getDoc(doc(db, "users", targetUserId));
   
@@ -1296,11 +1266,9 @@ onAuthStateChanged(auth, async (user) => {
   assignedClasses = userData.assignedClasses || [];
   isAlsoCT = userData.isAlsoCT || false;
   
-  // Update user name display
   const displayName = userData.name || userData.email || user.email;
   document.getElementById("userNameText").innerText = displayName;
   
-  // Update role badge for SUPER view
   if (isSuperView) {
     document.getElementById("roleBadge").classList.add("super-badge");
     document.getElementById("roleText").innerText = `${userRole} (Super View)`;
@@ -1310,7 +1278,6 @@ onAuthStateChanged(auth, async (user) => {
   
   document.getElementById("classCount").innerText = assignedClasses.length ? `${assignedClasses.length} Classes` : '';
   
-  // Show/hide CT tab
   document.getElementById("tabCT").style.display = (userRole === "CT" || isAlsoCT) ? "block" : "none";
   document.getElementById("tabHistory").style.display = "block";
   
@@ -1323,18 +1290,16 @@ onAuthStateChanged(auth, async (user) => {
   calculateGrandTotals();
 });
 
-// Return to own dashboard
 window.returnToOwnDashboard = function() {
   window.location.href = "dashboard.html";
 };
 
-// ---------- FIND WHICH WEEK THE TOD IS ASSIGNED TO (UPDATED for SUPER view) ----------
+// ---------- FIND WHICH WEEK THE TOD IS ASSIGNED TO ----------
 async function findAssignedWeek(userId = null) {
   try {
     const targetId = userId || (isSuperView ? viewingUserId : currentUser?.uid);
     if (!targetId) return null;
     
-    // Get all duty plans
     const dutyPlansSnap = await getDocs(collection(db, "dutyPlan"));
     let assignedWeek = null;
     
@@ -1352,45 +1317,26 @@ async function findAssignedWeek(userId = null) {
   }
 }
 
-// ---------- CHECK IF USER CAN EDIT TODAY ----------
 function canEditTodayCheck(assignedWeek) {
-  // If not assigned to any week
   if (!assignedWeek) return false;
-  
-  // If not assigned to current week
   if (assignedWeek !== currentWeek) return false;
-  
-  // If today is Sunday, cannot edit (week starts Monday)
   if (dayOfWeek === 0) return false;
-  
-  // All checks passed - can edit
   return true;
 }
 
-// ---------- CHECK IF CURRENT WEEK IS USER'S ACTIVE WEEK (UPDATED for SUPER view) ----------
 async function checkActiveWeek() {
   try {
     const user = auth.currentUser;
     if (!user) return false;
     
-    // If in SUPER view, use the viewing user ID instead of current user
     const targetUserId = isSuperView ? viewingUserId : user.uid;
-    
     const userDoc = await getDoc(doc(db, "users", targetUserId));
     if (!userDoc.exists()) return false;
     
     currentUserTodId = targetUserId;
-    
-    // Find which week this TOD is assigned to
     assignedWeekNumber = await findAssignedWeek(targetUserId);
-    
-    // Check if they're assigned to current week
     isActiveWeek = (assignedWeekNumber === currentWeek);
-    
-    // Check if they can edit TODAY specifically
     canEditToday = canEditTodayCheck(assignedWeekNumber);
-    
-    // Update UI
     updateWeekUI();
     
     return canEditToday;
@@ -1400,7 +1346,6 @@ async function checkActiveWeek() {
   }
 }
 
-// ---------- UPDATE UI WITH BEAUTIFUL CALENDAR ----------
 function updateWeekUI() {
   const calendarDiv = document.getElementById('assignedWeekCalendar');
   const saveBtn = document.getElementById('saveAttendanceBtn');
@@ -1409,7 +1354,6 @@ function updateWeekUI() {
   let calendarHtml = '';
   
   if (assignedWeekNumber) {
-    // Show the week they're assigned to
     const weekDates = getWeekDates(assignedWeekNumber, currentYear);
     const isCurrent = (assignedWeekNumber === currentWeek);
     
@@ -1451,7 +1395,6 @@ function updateWeekUI() {
       </div>
     `;
   } else {
-    // No assignment found - show current week
     const weekDates = getWeekDates(currentWeek, currentYear);
     let datesHtml = '';
     weekDates.forEach(day => {
@@ -1480,7 +1423,6 @@ function updateWeekUI() {
   
   calendarDiv.innerHTML = calendarHtml;
   
-  // Enable/disable buttons based on canEditToday
   if (canEditToday) {
     if (saveBtn) {
       saveBtn.disabled = false;
@@ -1576,7 +1518,7 @@ function createTable(isEditable = false) {
   }
 }
 
-// ==================== CT SECTION WITH STUDENT NAMES (UPDATED for persistence) ====================
+// ==================== CT SECTION WITH STUDENT NAMES ====================
 function createCTCards() {
   const container = document.getElementById("classCardsContainer");
   if (assignedClasses.length === 0) {
@@ -1613,7 +1555,7 @@ function createCTCards() {
   assignedClasses.forEach(cls => loadStudents(cls));
 }
 
-// Load students for a class - UPDATED to handle date-specific attendance
+// Load students for a class
 async function loadStudents(cls) {
   const safeCls = cls.replace(/\s/g, '_');
   const studentList = document.getElementById(`students_${safeCls}`);
@@ -1634,16 +1576,12 @@ async function loadStudents(cls) {
     const student = studentDoc.data();
     const genderClass = student.gender === 'boy' ? 'boys' : 'girls';
     
-    // Get today's attendance status for this student
-    // This creates a new record each day automatically
     const statusDoc = await getDoc(doc(db, "attendance", todayISO, "students", studentDoc.id));
     
-    // If no record exists for today, create one with default 'absent'
     let todayStatus = 'absent';
     if (statusDoc.exists()) {
       todayStatus = statusDoc.data().status;
     } else {
-      // Create default attendance record for today
       await setDoc(doc(db, "attendance", todayISO, "students", studentDoc.id), {
         status: 'absent',
         studentId: studentDoc.id,
@@ -1684,7 +1622,6 @@ window.addStudent = async function(cls) {
   if (!name) { alert("Enter student name"); return; }
   
   try {
-    // Save student to permanent collection
     const studentRef = doc(collection(db, "students"));
     await setDoc(studentRef, {
       name,
@@ -1705,10 +1642,9 @@ window.addStudent = async function(cls) {
   }
 };
 
-// Set student attendance status - UPDATED to ensure it saves per day
+// Set student attendance status
 window.setStudentStatus = async function(studentId, status) {
   try {
-    // Save to date-specific subcollection
     await setDoc(doc(db, "attendance", todayISO, "students", studentId), {
       status,
       studentId: studentId,
@@ -1717,7 +1653,6 @@ window.setStudentStatus = async function(studentId, status) {
       updatedBy: currentUser?.email || 'system'
     });
     
-    // Update UI
     const studentDiv = document.getElementById(`student_${studentId}`);
     if (studentDiv) {
       studentDiv.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
@@ -1739,7 +1674,6 @@ window.deleteStudent = async function(studentId) {
     try {
       await deleteDoc(doc(db, "students", studentId));
       
-      // Also delete all attendance records for this student across all dates
       const attendanceQuery = query(collection(db, "attendance"), where("studentId", "==", studentId));
       const attendanceSnap = await getDocs(attendanceQuery);
       attendanceSnap.forEach(async (doc) => {
@@ -1778,11 +1712,9 @@ async function updateClassCountsFromStudents() {
   for (const studentDoc of studentsSnap.docs) {
     const student = studentDoc.data();
     
-    // Count by gender
     if (student.gender === 'boy') counts[student.class].boys++;
     else counts[student.class].girls++;
     
-    // Get today's status
     const statusDoc = await getDoc(doc(db, "attendance", todayISO, "students", studentDoc.id));
     const status = statusDoc.exists() ? statusDoc.data().status : 'absent';
     
@@ -1792,7 +1724,6 @@ async function updateClassCountsFromStudents() {
     else if (status === 'permission') counts[student.class].permission++;
   }
   
-  // Update TOD table
   classes.forEach(cls => {
     const totalBoys = counts[cls].boys;
     const totalGirls = counts[cls].girls;
@@ -1817,6 +1748,16 @@ async function updateClassCountsFromStudents() {
       setValue(`perG_${cls}`, Math.round(permTotal * girlRatio));
       
       calcRow(cls);
+    } else {
+      // No students - clear attendance fields
+      setValue(`preB_${cls}`, 0);
+      setValue(`preG_${cls}`, 0);
+      setValue(`absB_${cls}`, 0);
+      setValue(`absG_${cls}`, 0);
+      setValue(`sickB_${cls}`, 0);
+      setValue(`sickG_${cls}`, 0);
+      setValue(`perB_${cls}`, 0);
+      setValue(`perG_${cls}`, 0);
     }
   });
 }
@@ -2060,6 +2001,77 @@ window.calculateGrandTotals = function() {
   }
 };
 
+// ---------- LOAD SAVED ATTENDANCE (UPDATED to clear table for new day) ----------
+async function loadSavedAttendance() {
+  const snap = await getDoc(doc(db, "attendance", todayISO));
+  
+  // Always load registration numbers first
+  await loadRegistrationData();
+  
+  if (snap.exists()) {
+    const data = snap.data().data;
+    const todAnswer = snap.data().todAnswer || "";
+    
+    const answerTextarea = document.getElementById("todAnswer");
+    if (answerTextarea && todAnswer) {
+      answerTextarea.value = todAnswer;
+    }
+    
+    // If there's saved attendance data for today, load it
+    if (data && data.length) {
+      data.forEach(item => {
+        const preB = document.getElementById(`preB_${item.class}`);
+        const preG = document.getElementById(`preG_${item.class}`);
+        const absB = document.getElementById(`absB_${item.class}`);
+        const absG = document.getElementById(`absG_${item.class}`);
+        const sickB = document.getElementById(`sickB_${item.class}`);
+        const sickG = document.getElementById(`sickG_${item.class}`);
+        const perB = document.getElementById(`perB_${item.class}`);
+        const perG = document.getElementById(`perG_${item.class}`);
+        
+        if (preB) preB.value = item.preB || 0;
+        if (preG) preG.value = item.preG || 0;
+        if (absB) absB.value = item.absB || 0;
+        if (absG) absG.value = item.absG || 0;
+        if (sickB) sickB.value = item.sickB || 0;
+        if (sickG) sickG.value = item.sickG || 0;
+        if (perB) perB.value = item.perB || 0;
+        if (perG) perG.value = item.perG || 0;
+        
+        calcRow(item.class);
+      });
+    } else {
+      // New day - clear all attendance fields but keep registration numbers
+      classes.forEach(cls => {
+        setValue(`preB_${cls}`, 0);
+        setValue(`preG_${cls}`, 0);
+        setValue(`absB_${cls}`, 0);
+        setValue(`absG_${cls}`, 0);
+        setValue(`sickB_${cls}`, 0);
+        setValue(`sickG_${cls}`, 0);
+        setValue(`perB_${cls}`, 0);
+        setValue(`perG_${cls}`, 0);
+        calcRow(cls);
+      });
+    }
+  } else {
+    // New day with no saved attendance - clear all attendance fields
+    classes.forEach(cls => {
+      setValue(`preB_${cls}`, 0);
+      setValue(`preG_${cls}`, 0);
+      setValue(`absB_${cls}`, 0);
+      setValue(`absG_${cls}`, 0);
+      setValue(`sickB_${cls}`, 0);
+      setValue(`sickG_${cls}`, 0);
+      setValue(`perB_${cls}`, 0);
+      setValue(`perG_${cls}`, 0);
+      calcRow(cls);
+    });
+  }
+  
+  calculateGrandTotals();
+}
+
 // ---------- SAVE ATTENDANCE ----------
 window.saveAttendance = async () => {
   if (!canEditToday) {
@@ -2104,45 +2116,6 @@ window.saveAttendance = async () => {
   });
   alert("✅ Attendance Saved");
 };
-
-// ---------- LOAD SAVED ATTENDANCE ----------
-async function loadSavedAttendance() {
-  const snap = await getDoc(doc(db, "attendance", todayISO));
-  if (snap.exists()) {
-    const data = snap.data().data;
-    const todAnswer = snap.data().todAnswer || "";
-    
-    const answerTextarea = document.getElementById("todAnswer");
-    if (answerTextarea && todAnswer) {
-      answerTextarea.value = todAnswer;
-    }
-    
-    if (data) {
-      data.forEach(item => {
-        const preB = document.getElementById(`preB_${item.class}`);
-        const preG = document.getElementById(`preG_${item.class}`);
-        const absB = document.getElementById(`absB_${item.class}`);
-        const absG = document.getElementById(`absG_${item.class}`);
-        const sickB = document.getElementById(`sickB_${item.class}`);
-        const sickG = document.getElementById(`sickG_${item.class}`);
-        const perB = document.getElementById(`perB_${item.class}`);
-        const perG = document.getElementById(`perG_${item.class}`);
-        if (preB) preB.value = item.preB || 0;
-        if (preG) preG.value = item.preG || 0;
-        if (absB) absB.value = item.absB || 0;
-        if (absG) absG.value = item.absG || 0;
-        if (sickB) sickB.value = item.sickB || 0;
-        if (sickG) sickG.value = item.sickG || 0;
-        if (perB) perB.value = item.perB || 0;
-        if (perG) perG.value = item.perG || 0;
-        window.calcRow(item.class);
-      });
-    }
-    calculateGrandTotals();
-  }
-  
-  await loadRegistrationData();
-}
 
 // ---------- LOAD QUESTION ----------
 async function loadQuestion() {
@@ -2566,7 +2539,7 @@ window.downloadCTReport = function() {
   pdf.save(`CT_Report_${todayISO}.pdf`);
 };
 
-// ---------- DOWNLOAD TOD REPORT (New function for main dashboard) ----------
+// ---------- DOWNLOAD TOD REPORT ----------
 window.downloadTODReport = function() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
