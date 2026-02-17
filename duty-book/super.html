@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>SUPER Dashboard · System Administrator</title>
+
+<!-- Font Awesome 6 (free) for icons & brand -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+  /* ---------- GLOBAL & VARIABLES ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+    min-height: 100vh;
+    padding: clamp(1rem, 5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* ---------- DECORATIVE RADIAL CIRCLES (fixed) ---------- */
+  .bg-circle-1, .bg-circle-2 {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-circle-1 {
+    top: 2%;
+    left: 2%;
+    width: clamp(200px, 30vw, 280px);
+    height: clamp(200px, 30vw, 280px);
+  }
+  .bg-circle-2 {
+    bottom: 5%;
+    right: 2%;
+    width: clamp(240px, 35vw, 340px);
+    height: clamp(240px, 35vw, 340px);
+  }
+
+  /* ---------- MAIN CONTAINER (above circles) ---------- */
+  .dashboard-container {
+    max-width: 1400px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    animation: fadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ---------- GLASS CARD (reusable) ---------- */
+  .glass-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-radius: clamp(24px, 5vw, 32px);
+    box-shadow: 0 20px 35px -10px rgba(0,20,40,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset, 0 20px 35px -10px rgba(0,20,40,0.15);
+    padding: clamp(1.2rem, 4vw, 2rem);
+    transition: all 0.25s ease;
+    margin-bottom: 1.8rem;
+  }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 24px 42px -12px rgba(139,92,246,0.2), 0 0 0 1px rgba(255,255,255,0.7) inset;
+  }
+
+  /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
+  body, input, select, button, td, th, li, .badge, .info-note, h2, h3, h4 {
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    font-weight: 600;
+    color: #0b2b4e;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-weight: 600;
+    color: #1e4c6b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ---------- HEADER CARD ---------- */
+  .header-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand i {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    color: #8b5cf6;
+    filter: drop-shadow(0 4px 6px rgba(139,92,246,0.2));
+  }
+  .brand-text {
+    background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    letter-spacing: -0.01em;
+  }
+  .role-badge {
+    background: rgba(139,92,246,0.15);
+    border-radius: 40px;
+    color: #7c3aed;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ---------- BUTTON VARIANTS ---------- */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    cursor: pointer;
+    margin: 0.3rem;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+  }
+  button i {
+    font-size: 0.95rem;
+  }
+  
+  .btn-super {
+    background: #8b5cf6;
+    color: white;
+    box-shadow: 0 8px 16px -6px rgba(139,92,246,0.25);
+  }
+  .btn-super:hover {
+    background: #7c3aed;
+    transform: scale(1.02);
+  }
+  .btn-primary {
+    background: #0a66c2;
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #004a8f;
+    transform: scale(1.02);
+  }
+  .btn-success {
+    background: #10b981;
+    color: white;
+  }
+  .btn-success:hover {
+    background: #059669;
+    transform: scale(1.02);
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-outline-super {
+    background: transparent;
+    border: 1.5px solid #8b5cf6;
+    color: #8b5cf6;
+  }
+  .btn-outline-super:hover {
+    background: #8b5cf6;
+    color: white;
+    transform: scale(1.02);
+  }
+  .btn-small {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 768px) {
+    button { width: 100%; justify-content: center; }
+  }
+
+  /* ---------- GRID & FLEX ---------- */
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 1.2rem;
+  }
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* ---------- USER CARDS ---------- */
+  .user-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .user-card {
+    background: white;
+    border-radius: 24px;
+    padding: 1.5rem;
+    border-left: 6px solid;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.15);
+  }
+  .user-card.it { border-left-color: #0a66c2; }
+  .user-card.super { border-left-color: #8b5cf6; }
+  .user-card.ht { border-left-color: #10b981; }
+  .user-card.tod { border-left-color: #f59e0b; }
+  .user-card.ct { border-left-color: #059669; }
+  
+  .user-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .user-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .user-role {
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .user-role.it { background: rgba(10,102,194,0.15); color: #0a66c2; }
+  .user-role.super { background: rgba(139,92,246,0.15); color: #7c3aed; }
+  .user-role.ht { background: rgba(16,185,129,0.15); color: #059669; }
+  .user-role.tod { background: rgba(245,158,11,0.15); color: #d97706; }
+  .user-role.ct { background: rgba(5,150,105,0.15); color: #059669; }
+  
+  .user-email {
+    color: #6b8ca3;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .user-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+  }
+  .class-tag {
+    background: #f1f5f9;
+    padding: 0.2rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    color: #475569;
+  }
+  .user-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- DASHBOARD SELECTOR ---------- */
+  .dashboard-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: rgba(139,92,246,0.05);
+    border-radius: 24px;
+    border: 2px dashed rgba(139,92,246,0.3);
+  }
+  .selector-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #7c3aed;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .dashboard-btn {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 2px solid;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .dashboard-btn.tod { border-color: #f59e0b; color: #d97706; }
+  .dashboard-btn.tod:hover { background: #f59e0b; color: white; }
+  .dashboard-btn.ht { border-color: #10b981; color: #059669; }
+  .dashboard-btn.ht:hover { background: #10b981; color: white; }
+  .dashboard-btn.it { border-color: #0a66c2; color: #0a66c2; }
+  .dashboard-btn.it:hover { background: #0a66c2; color: white; }
+  .dashboard-btn.ct { border-color: #059669; color: #059669; }
+  .dashboard-btn.ct:hover { background: #059669; color: white; }
+
+  /* ---------- STATS CARDS ---------- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .stat-card {
+    background: white;
+    padding: 1.2rem;
+    border-radius: 20px;
+    text-align: center;
+    border-bottom: 4px solid #8b5cf6;
+  }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8b5cf6;
+  }
+  .stat-label {
+    color: #6b8ca3;
+    font-size: 0.9rem;
+  }
+
+  /* ---------- RECENT ACTIVITY ---------- */
+  .activity-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: white;
+    border-radius: 16px;
+    border-left: 4px solid #8b5cf6;
+  }
+  .activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b5cf6;
+  }
+  .activity-details {
+    flex: 1;
+  }
+  .activity-time {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .badge {
+    background: rgba(139,92,246,0.1);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: #7c3aed;
+  }
+  .info-note {
+    background: rgba(139,92,246,0.04);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(139,92,246,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #4b5563;
+    margin: 1rem 0;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b8ca3;
+    background: rgba(255,255,255,0.5);
+    border-radius: 24px;
+  }
+
+  @keyframes fadeSlide {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .logout-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  #logoutBtn i, #logoutBtnBottom i { transition: transform 0.2s; }
+  #logoutBtn:hover i, #logoutBtnBottom:hover i { transform: translateX(3px); }
+
+  /* ---------- YOU CARD (for current user) ---------- */
+  .you-card {
+    background: linear-gradient(145deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05));
+    border: 2px solid #8b5cf6;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .you-badge {
+    background: #8b5cf6;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+</style>
+</head>
+
+<body>
+<div class="bg-circle-1"></div>
+<div class="bg-circle-2"></div>
+
+<div class="dashboard-container">
+  <!-- HEADER CARD -->
+  <div class="glass-card header-card">
+    <div class="brand">
+      <i class="fas fa-crown"></i>
+      <span class="brand-text">SUPER Dashboard</span>
+    </div>
+    <div class="role-badge" id="roleBadge">
+      <i class="fas fa-user-shield"></i> 
+      <span id="roleText">Super User</span>
+      <span class="badge" id="userEmail" style="margin-left: 0.5rem;"></span>
+    </div>
+  </div>
+
+  <!-- LOGOUT BUTTON -->
+  <div class="logout-container">
+    <button id="logoutBtn" class="btn-outline-super"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <!-- YOU ARE HERE CARD (shows current user but not in list) -->
+  <div id="youCard" class="you-card" style="display: none;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="fas fa-crown" style="color: #8b5cf6; font-size: 1.5rem;"></i>
+      <div>
+        <strong>You are logged in as:</strong> <span id="youName"></span> · <span id="youRole"></span>
+      </div>
+    </div>
+    <span class="you-badge"><i class="fas fa-check"></i> Current Session</span>
+  </div>
+
+  <!-- QUICK DASHBOARD ACCESS -->
+  <div class="glass-card">
+    <h3><i class="fas fa-rocket" style="color: #8b5cf6;"></i> Quick Dashboard Access</h3>
+    <div class="dashboard-selector">
+      <div class="selector-title">
+        <i class="fas fa-arrow-right"></i> View any dashboard as a specific user:
+      </div>
+      <select id="userSelector" class="btn-small" style="padding: 0.8rem; border-radius: 20px; border: 2px solid #8b5cf6; background: white; min-width: 300px;">
+        <option value="">Select a user to view...</option>
+      </select>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn-super" onclick="viewSelectedUser()">
+          <i class="fas fa-eye"></i> View Dashboard
+        </button>
+        <button class="btn-outline-super" onclick="loadUsers()">
+          <i class="fas fa-sync-alt"></i> Refresh List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM STATISTICS -->
+  <div class="glass-card">
+    <h3><i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> System Overview</h3>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalTOD">0</div>
+        <div class="stat-label">TOD</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalCT">0</div>
+        <div class="stat-label">CT</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalHT">0</div>
+        <div class="stat-label">HT</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalIT">0</div>
+        <div class="stat-label">IT</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalSUPER">0</div>
+        <div class="stat-label">SUPER</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL USERS (excluding current SUPER user) -->
+  <div class="glass-card">
+    <h3><i class="fas fa-users" style="color: #8b5cf6;"></i> All Users</h3>
+    <div class="info-note">
+      <i class="fas fa-info-circle"></i>
+      Click "View" next to any user to see their dashboard. You'll remain logged in as SUPER.
+    </div>
+    <div id="usersContainer" class="user-cards"></div>
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="glass-card">
+    <h3><i class="fas fa-history" style="color: #8b5cf6;"></i> Recent Activity</h3>
+    <div id="recentActivity" class="activity-list">
+      <div class="empty-state">Loading activity...</div>
+    </div>
+  </div>
+  
+  <!-- BOTTOM LOGOUT -->
+  <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+    <button id="logoutBtnBottom" class="btn-outline-super">Logout</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc,
+  query, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
+  authDomain: "teacher-on-duty-system.firebaseapp.com",
+  projectId: "teacher-on-duty-system",
+  storageBucket: "teacher-on-duty-system.firebasestorage.app",
+  messagingSenderId: "723640168531",
+  appId: "1:723640168531:web:a52f5dac1f5502460016a6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+let currentUserData = null;
+let allUsers = [];
+
+// Check authentication and SUPER role
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+  
+  currentUser = user;
+  
+  // Verify user has SUPER role
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  if (!userDoc.exists() || (userDoc.data().role !== "SUPER" && userDoc.data().role !== "IT")) {
+    alert("Access Denied: SUPER users only");
+    window.location.href = "dashboard.html";
+    return;
+  }
+  
+  currentUserData = userDoc.data();
+  
+  document.getElementById("userEmail").innerText = user.email;
+  document.getElementById("roleText").innerText = userDoc.data().role;
+  
+  // Show "You are here" card
+  document.getElementById("youCard").style.display = "flex";
+  document.getElementById("youName").innerText = currentUserData.name || user.email;
+  document.getElementById("youRole").innerText = currentUserData.role;
+  
+  // Load all data
+  await loadUsers();
+  await loadStats();
+  await loadRecentActivity();
+});
+
+// Load all users (excluding current SUPER user)
+async function loadUsers() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  allUsers = [];
+  
+  usersSnap.forEach(doc => {
+    const userData = { id: doc.id, ...doc.data() };
+    // Don't add the current SUPER user to the list
+    if (doc.id !== currentUser.uid) {
+      allUsers.push(userData);
+    }
+  });
+  
+  // Update user selector (excluding current user)
+  const selector = document.getElementById("userSelector");
+  selector.innerHTML = '<option value="">Select a user to view...</option>';
+  
+  allUsers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  
+  allUsers.forEach(user => {
+    if (user.role !== 'IT') { // Don't show IT users in selector (they have their own)
+      const option = document.createElement("option");
+      option.value = user.id;
+      option.textContent = `${user.name || 'Unknown'} (${user.role}) - ${user.email}`;
+      selector.appendChild(option);
+    }
+  });
+  
+  // Display user cards (excluding current user)
+  const container = document.getElementById("usersContainer");
+  container.innerHTML = '';
+  
+  if (allUsers.length === 0) {
+    container.innerHTML = '<div class="empty-state">No other users found</div>';
+    return;
+  }
+  
+  allUsers.forEach(user => {
+    const roleClass = user.role?.toLowerCase() || 'unknown';
+    const card = document.createElement("div");
+    card.className = `user-card ${roleClass}`;
+    
+    let classesHtml = '';
+    if (user.assignedClasses && user.assignedClasses.length > 0) {
+      classesHtml = user.assignedClasses.map(cls => 
+        `<span class="class-tag">${cls}</span>`
+      ).join('');
+    }
+    
+    card.innerHTML = `
+      <div class="user-header">
+        <span class="user-name">${user.name || 'Unknown'}</span>
+        <span class="user-role ${roleClass}">${user.role || 'Unknown'}</span>
+      </div>
+      <div class="user-email">${user.email || 'No email'}</div>
+      ${classesHtml ? `<div class="user-classes">${classesHtml}</div>` : ''}
+      ${user.isAlsoCT ? '<div><span class="badge">Also CT</span></div>' : ''}
+      <div class="user-actions">
+        <button class="btn-small btn-super" onclick="viewUserDashboard('${user.id}')">
+          <i class="fas fa-eye"></i> View Dashboard
+        </button>
+        ${user.role === 'IT' ? '' : `
+        <button class="btn-small btn-outline-super" onclick="copyUserLink('${user.id}')">
+          <i class="fas fa-link"></i> Copy Link
+        </button>
+        `}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// View selected user from dropdown
+window.viewSelectedUser = function() {
+  const selector = document.getElementById("userSelector");
+  const userId = selector.value;
+  if (!userId) {
+    alert("Please select a user");
+    return;
+  }
+  viewUserDashboard(userId);
+};
+
+// View user dashboard (opens in new window)
+window.viewUserDashboard = function(userId) {
+  const user = allUsers.find(u => u.id === userId);
+  if (!user) return;
+  
+  let dashboardPage = "";
+  switch(user.role) {
+    case "TOD":
+      dashboardPage = "tod.html";
+      break;
+    case "CT":
+      dashboardPage = "tod.html";
+      break;
+    case "HT":
+      dashboardPage = "ht.html";
+      break;
+    case "IT":
+      dashboardPage = "it.html";
+      break;
+    case "SUPER":
+      dashboardPage = "super.html";
+      break;
+    default:
+      dashboardPage = "dashboard.html";
+  }
+  
+  // Open with super access parameters
+  const url = `${dashboardPage}?superId=${userId}&superToken=${currentUser.uid}`;
+  window.open(url, '_blank');
+};
+
+// Copy direct link to clipboard
+window.copyUserLink = function(userId) {
+  const user = allUsers.find(u => u.id === userId);
+  if (!user) return;
+  
+  let dashboardPage = "";
+  switch(user.role) {
+    case "TOD": dashboardPage = "tod.html"; break;
+    case "CT": dashboardPage = "tod.html"; break;
+    case "HT": dashboardPage = "ht.html"; break;
+    case "IT": dashboardPage = "it.html"; break;
+    case "SUPER": dashboardPage = "super.html"; break;
+    default: dashboardPage = "dashboard.html";
+  }
+  
+  const url = `${window.location.origin}/${dashboardPage}?superId=${userId}&superToken=${currentUser.uid}`;
+  navigator.clipboard.writeText(url).then(() => {
+    alert("✅ Link copied to clipboard!");
+  }).catch(() => {
+    prompt("Copy this link:", url);
+  });
+};
+
+// Load system statistics
+async function loadStats() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  let stats = { total: 0, TOD: 0, CT: 0, HT: 0, IT: 0, SUPER: 0 };
+  
+  usersSnap.forEach(doc => {
+    const role = doc.data().role;
+    stats.total++;
+    if (role === 'TOD') stats.TOD++;
+    else if (role === 'CT') stats.CT++;
+    else if (role === 'HT') stats.HT++;
+    else if (role === 'IT') stats.IT++;
+    else if (role === 'SUPER') stats.SUPER++;
+  });
+  
+  document.getElementById("totalUsers").innerText = stats.total;
+  document.getElementById("totalTOD").innerText = stats.TOD;
+  document.getElementById("totalCT").innerText = stats.CT;
+  document.getElementById("totalHT").innerText = stats.HT;
+  document.getElementById("totalIT").innerText = stats.IT;
+  document.getElementById("totalSUPER").innerText = stats.SUPER;
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+  const activityDiv = document.getElementById("recentActivity");
+  
+  try {
+    const attendanceSnap = await getDocs(query(
+      collection(db, "attendance"),
+      orderBy("date", "desc"),
+      limit(10)
+    ));
+    
+    if (attendanceSnap.empty) {
+      activityDiv.innerHTML = '<div class="empty-state">No recent activity</div>';
+      return;
+    }
+    
+    let html = '';
+    attendanceSnap.forEach(doc => {
+      const data = doc.data();
+      const date = new Date(data.date);
+      const timeAgo = getTimeAgo(date);
+      
+      html += `
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="activity-details">
+            <div><strong>${data.day || 'Unknown'}</strong> - ${data.date}</div>
+            <div>TOD: ${data.todName || 'Unknown'}</div>
+            <div class="activity-time">${timeAgo}</div>
+          </div>
+          <button class="btn-small btn-outline-super" onclick="viewAttendanceDay('${doc.id}')">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      `;
+    });
+    
+    activityDiv.innerHTML = html;
+  } catch (error) {
+    activityDiv.innerHTML = '<div class="empty-state">Error loading activity</div>';
+  }
+}
+
+// View specific attendance day
+window.viewAttendanceDay = function(date) {
+  // Find which TOD submitted this day
+  // For simplicity, open HT dashboard as it can view all
+  const url = `ht.html?superId=${currentUser.uid}&superToken=${currentUser.uid}&date=${date}`;
+  window.open(url, '_blank');
+};
+
+// Helper: time ago
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+// Logout function
+async function logout() {
+  try {
+    await signOut(auth);
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
+  }
+}
+
+document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("logoutBtnBottom").addEventListener("click", logout);
+
+// Make functions global
+window.loadUsers = loadUsers;
+window.viewUserDashboard = viewUserDashboard;
+window.copyUserLink = copyUserLink;
+window.viewSelectedUser = viewSelectedUser;
+window.logout = logout;
+</script>
+
+</body>
+</html>
