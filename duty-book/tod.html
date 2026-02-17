@@ -1173,16 +1173,6 @@ function getCurrentYear() {
   return new Date().getFullYear();
 }
 
-// Test the dates with current year
-
-console.log("✅ TOD PAGE DATES FOR", currentYear);
-console.log(`First Monday of ${currentYear}:`, getFirstMondayOfYear(currentYear).toDateString());
-console.log("Current Week:", getCurrentWeekNumber());
-
-// Test specific date
-const testDate = new Date(); // Today's date
-console.log(`Today (${testDate.toDateString()}) is Week:`, getWeekNumber(testDate));
-
 // ---------- GLOBAL VARIABLES ----------
 let isActiveWeek = false;
 let canEditToday = false;
@@ -1198,6 +1188,15 @@ let assignedClasses = [];
 let isAlsoCT = false;
 let selectedDayData = null;
 let autoSaveTimeout = null;
+
+// Test the dates with current year (NOW AFTER currentYear IS DECLARED)
+console.log("✅ TOD PAGE DATES FOR", currentYear);
+console.log(`First Monday of ${currentYear}:`, getFirstMondayOfYear(currentYear).toDateString());
+console.log("Current Week:", getCurrentWeekNumber());
+
+// Test specific date
+const testDate = new Date(); // Today's date
+console.log(`Today (${testDate.toDateString()}) is Week:`, getWeekNumber(testDate));
 
 // ---------- SUPER VIEW SUPPORT ----------
 let isSuperView = false;
