@@ -2022,36 +2022,25 @@ window.calculateGrandTotals = function() {
   }
 };
 
-// ---------- LOAD SAVED ATTENDANCE - UPDATED to only show current day ----------
+// ---------- LOAD SAVED ATTENDANCE - CLEAN FOR NEW DAY ----------
 async function loadSavedAttendance() {
   const snap = await getDoc(doc(db, "attendance", todayISO));
   
-  // Always load registration numbers first
+  // Always load registration numbers first (these stay forever)
   await loadRegistrationData();
   
-  // Clear all attendance fields first (start fresh)
-  classes.forEach(cls => {
-    setValue(`preB_${cls}`, 0);
-    setValue(`preG_${cls}`, 0);
-    setValue(`absB_${cls}`, 0);
-    setValue(`absG_${cls}`, 0);
-    setValue(`sickB_${cls}`, 0);
-    setValue(`sickG_${cls}`, 0);
-    setValue(`perB_${cls}`, 0);
-    setValue(`perG_${cls}`, 0);
-    calcRow(cls);
-  });
-  
-  // Only load today's data if it exists
+  // Check if today's data exists
   if (snap.exists()) {
     const data = snap.data().data;
     const todAnswer = snap.data().todAnswer || "";
     
+    // Load today's TOD answer if it exists
     const answerTextarea = document.getElementById("todAnswer");
     if (answerTextarea && todAnswer) {
       answerTextarea.value = todAnswer;
     }
     
+    // Load today's attendance data
     if (data && data.length) {
       data.forEach(item => {
         const preB = document.getElementById(`preB_${item.class}`);
@@ -2076,13 +2065,25 @@ async function loadSavedAttendance() {
       });
     }
   } else {
-    // Clear the answer field if no data for today
+    // NEW DAY - Clear everything except registration numbers
+    classes.forEach(cls => {
+      setValue(`preB_${cls}`, 0);
+      setValue(`preG_${cls}`, 0);
+      setValue(`absB_${cls}`, 0);
+      setValue(`absG_${cls}`, 0);
+      setValue(`sickB_${cls}`, 0);
+      setValue(`sickG_${cls}`, 0);
+      setValue(`perB_${cls}`, 0);
+      setValue(`perG_${cls}`, 0);
+      calcRow(cls);
+    });
+    
+    // Clear TOD answer field for new day
     document.getElementById("todAnswer").value = "";
   }
   
   calculateGrandTotals();
 }
-
 // ---------- SAVE ATTENDANCE ----------
 window.saveAttendance = async () => {
   if (!canEditToday) {
