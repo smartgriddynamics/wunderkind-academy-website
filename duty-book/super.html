@@ -882,19 +882,28 @@ window.copyUserLink = function(userId) {
   });
 };
 
-// Load system statistics (FIXED - counts CT correctly)
+// Load system statistics (FIXED - counts CT correctly including TODs with isAlsoCT)
 async function loadStats() {
   const usersSnap = await getDocs(collection(db, "users"));
   let stats = { total: 0, TOD: 0, CT: 0, HT: 0, IT: 0, SUPER: 0 };
   
   usersSnap.forEach(doc => {
-    const role = doc.data().role;
+    const userData = doc.data();
+    const role = userData.role;
     stats.total++;
+    
+    // Count by primary role
     if (role === 'TOD') stats.TOD++;
-    else if (role === 'CT') stats.CT++;
     else if (role === 'HT') stats.HT++;
     else if (role === 'IT') stats.IT++;
     else if (role === 'SUPER') stats.SUPER++;
+    
+    // Count CTs (either pure CT or TODs with isAlsoCT)
+    if (role === 'CT') {
+      stats.CT++;
+    } else if (role === 'TOD' && userData.isAlsoCT === true) {
+      stats.CT++;
+    }
   });
   
   document.getElementById("totalUsers").innerText = stats.total;
