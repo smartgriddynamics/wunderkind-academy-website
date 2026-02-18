@@ -318,46 +318,99 @@
     margin-bottom: 0.5rem;
   }
   
-  /* Improved dropdown styling */
-  .styled-select {
-    padding: 0.8rem 1.2rem;
-    border-radius: 40px;
-    border: 2px solid #8b5cf6;
-    background: white;
-    font-size: 0.95rem;
-    color: #2d3748;
-    cursor: pointer;
-    outline: none;
-    min-width: 300px;
-    flex: 1;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 16px;
-    padding-right: 2.5rem;
-  }
-  
-  .styled-select:hover {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
-  }
-  
-  .styled-select:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.2);
-  }
-  
-  .styled-select option {
-    padding: 0.5rem;
-  }
+ /* ---------- IMPROVED DROPDOWN STYLING (matches glass morphism) ---------- */
+.styled-select {
+  padding: 0.8rem 1.2rem;
+  border-radius: 40px;
+  border: 2px solid rgba(139,92,246,0.3);
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 0.95rem;
+  color: #2d3748;
+  cursor: pointer;
+  outline: none;
+  min-width: 300px;
+  flex: 1;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
 
-  /* Button group for selector */
-  .selector-buttons {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
+.styled-select:hover {
+  border-color: #8b5cf6;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 8px 20px rgba(139,92,246,0.15);
+  transform: translateY(-1px);
+}
+
+.styled-select:focus {
+  border-color: #7c3aed;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.2), 0 8px 20px rgba(139,92,246,0.15);
+}
+
+.styled-select option {
+  background: white;
+  color: #2d3748;
+  padding: 12px;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(139,92,246,0.1);
+}
+
+.styled-select optgroup {
+  background: rgba(139,92,246,0.05);
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+/* Custom scrollbar for dropdown */
+.styled-select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.styled-select::-webkit-scrollbar-track {
+  background: rgba(139,92,246,0.05);
+  border-radius: 10px;
+}
+
+.styled-select::-webkit-scrollbar-thumb {
+  background: rgba(139,92,246,0.3);
+  border-radius: 10px;
+}
+
+.styled-select::-webkit-scrollbar-thumb:hover {
+  background: rgba(139,92,246,0.5);
+}
+
+/* Glass card for dropdown container */
+.dashboard-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: rgba(139,92,246,0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 2px dashed rgba(139,92,246,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+}
+
+.selector-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #7c3aed;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(139,92,246,0.1);
+}
 
   /* ---------- STATS CARDS ---------- */
   .stats-grid {
