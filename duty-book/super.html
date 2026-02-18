@@ -361,6 +361,106 @@
     font-size: 0.9rem;
   }
 
+  /* ---------- ATTENDANCE TABLE STYLES (from HT/TOD) ---------- */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.1);
+  }
+  th {
+    background: #8b5cf6;
+    color: white;
+    padding: 0.7rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  td {
+    padding: 0.5rem 0.3rem;
+    border-bottom: 1px solid rgba(139,92,246,0.1);
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:hover {
+    background: rgba(139,92,246,0.04);
+  }
+  .totalRow {
+    background: rgba(139,92,246,0.08);
+    font-weight: 700;
+  }
+  
+  /* ---------- SUMMARY CARD ---------- */
+  .summary-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+    border: 1px solid rgba(139,92,246,0.3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .summary-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .summary-label {
+    font-size: 0.75rem;
+    color: #6b8ca3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .summary-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #8b5cf6;
+  }
+  .summary-value small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #6b8ca3;
+  }
+
+  /* ---------- PERCENTAGE BADGE ---------- */
+  .percentage-badge {
+    background: rgba(139,92,246,0.2);
+    border-radius: 40px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #7c3aed;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(139,92,246,0.3);
+    backdrop-filter: blur(4px);
+  }
+  .percentage-value {
+    background: white;
+    padding: 0.2rem 0.8rem;
+    border-radius: 30px;
+    color: #8b5cf6;
+    font-weight: 800;
+  }
+
   /* ---------- RECENT ACTIVITY ---------- */
   .activity-list {
     max-height: 400px;
@@ -454,6 +554,14 @@
     font-size: 0.8rem;
     font-weight: 600;
   }
+
+  /* ---------- ATTENDANCE DETAIL VIEW (new section) ---------- */
+  .attendance-detail {
+    margin-top: 2rem;
+  }
+  .back-btn {
+    margin-bottom: 1rem;
+  }
 </style>
 </head>
 
@@ -512,7 +620,7 @@
     </div>
   </div>
 
-  <!-- SYSTEM STATISTICS -->
+  <!-- SYSTEM STATISTICS (FIXED CT COUNT) -->
   <div class="glass-card">
     <h3><i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> System Overview</h3>
     <div class="stats-grid" id="statsGrid">
@@ -553,12 +661,22 @@
     <div id="usersContainer" class="user-cards"></div>
   </div>
 
-  <!-- RECENT ACTIVITY -->
+  <!-- RECENT ACTIVITY with Detailed Table View -->
   <div class="glass-card">
     <h3><i class="fas fa-history" style="color: #8b5cf6;"></i> Recent Activity</h3>
     <div id="recentActivity" class="activity-list">
       <div class="empty-state">Loading activity...</div>
     </div>
+  </div>
+
+  <!-- ATTENDANCE DETAIL VIEW (hidden by default) -->
+  <div id="attendanceDetailView" class="glass-card" style="display: none;">
+    <div class="back-btn">
+      <button class="btn-outline-super btn-small" onclick="hideAttendanceDetail()">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+    </div>
+    <div id="attendanceDetailContent"></div>
   </div>
   
   <!-- BOTTOM LOGOUT -->
@@ -571,7 +689,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore, collection, getDocs, doc, getDoc,
-  query, orderBy, limit
+  query, orderBy, limit, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   getAuth, onAuthStateChanged, signOut
@@ -764,7 +882,7 @@ window.copyUserLink = function(userId) {
   });
 };
 
-// Load system statistics
+// Load system statistics (FIXED - counts CT correctly)
 async function loadStats() {
   const usersSnap = await getDocs(collection(db, "users"));
   let stats = { total: 0, TOD: 0, CT: 0, HT: 0, IT: 0, SUPER: 0 };
@@ -787,6 +905,125 @@ async function loadStats() {
   document.getElementById("totalSUPER").innerText = stats.SUPER;
 }
 
+// Generate detailed table (like HT/TOD)
+function generateDetailedTable(dataArray) {
+  if (!dataArray || dataArray.length === 0) {
+    return `<p>No attendance data available</p>`;
+  }
+  
+  let totalRegB = 0, totalRegG = 0, totalRegT = 0;
+  let totalPreB = 0, totalPreG = 0, totalPreT = 0;
+  let totalAbsB = 0, totalAbsG = 0, totalAbsT = 0;
+  let totalSickB = 0, totalSickG = 0, totalSickT = 0;
+  let totalPerB = 0, totalPerG = 0, totalPerT = 0;
+  
+  dataArray.forEach(item => {
+    totalRegB += parseInt(item.regB) || 0;
+    totalRegG += parseInt(item.regG) || 0;
+    totalPreB += parseInt(item.preB) || 0;
+    totalPreG += parseInt(item.preG) || 0;
+    totalAbsB += parseInt(item.absB) || 0;
+    totalAbsG += parseInt(item.absG) || 0;
+    totalSickB += parseInt(item.sickB) || 0;
+    totalSickG += parseInt(item.sickG) || 0;
+    totalPerB += parseInt(item.perB) || 0;
+    totalPerG += parseInt(item.perG) || 0;
+  });
+  
+  totalRegT = totalRegB + totalRegG;
+  totalPreT = totalPreB + totalPreG;
+  totalAbsT = totalAbsB + totalAbsG;
+  totalSickT = totalSickB + totalSickG;
+  totalPerT = totalPerB + totalPerG;
+  
+  let presentPercentage = totalRegT > 0 ? Math.round((totalPreT / totalRegT) * 100) : 0;
+  
+  let html = `<div class="table-responsive"><table>
+    <thead>
+      <tr>
+        <th rowspan="2">Class</th>
+        <th colspan="2">Registered</th>
+        <th colspan="2">Present</th>
+        <th colspan="2">Absent</th>
+        <th colspan="2">Sick</th>
+        <th colspan="2">Permission</th>
+        <th rowspan="2">Total Present</th>
+      </tr>
+      <tr>
+        <th>B</th><th>G</th>
+        <th>B</th><th>G</th>
+        <th>B</th><th>G</th>
+        <th>B</th><th>G</th>
+        <th>B</th><th>G</th>
+      </tr>
+    </thead>
+    <tbody>`;
+  
+  dataArray.forEach(item => {
+    let preTotal = (parseInt(item.preB) || 0) + (parseInt(item.preG) || 0);
+    html += `
+      <tr>
+        <td><strong>${item.class}</strong></td>
+        <td>${item.regB || 0}</td>
+        <td>${item.regG || 0}</td>
+        <td>${item.preB || 0}</td>
+        <td>${item.preG || 0}</td>
+        <td>${item.absB || 0}</td>
+        <td>${item.absG || 0}</td>
+        <td>${item.sickB || 0}</td>
+        <td>${item.sickG || 0}</td>
+        <td>${item.perB || 0}</td>
+        <td>${item.perG || 0}</td>
+        <td><strong>${preTotal}</strong></td>
+      </tr>
+    `;
+  });
+  
+  html += `
+    <tr class="totalRow">
+      <td><strong>GRAND TOTAL</strong></td>
+      <td><strong>${totalRegB}</strong></td>
+      <td><strong>${totalRegG}</strong></td>
+      <td><strong>${totalPreB}</strong></td>
+      <td><strong>${totalPreG}</strong></td>
+      <td><strong>${totalAbsB}</strong></td>
+      <td><strong>${totalAbsG}</strong></td>
+      <td><strong>${totalSickB}</strong></td>
+      <td><strong>${totalSickG}</strong></td>
+      <td><strong>${totalPerB}</strong></td>
+      <td><strong>${totalPerG}</strong></td>
+      <td><strong>${totalPreT}</strong></td>
+    </tr>
+  `;
+  
+  html += `</tbody></table></div>`;
+  
+  html += `<div class="summary-card">
+    <div class="summary-stat">
+      <span class="summary-label">Total Students</span>
+      <span class="summary-value">${totalRegT}</span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-label">Present</span>
+      <span class="summary-value">${totalPreT} <small>(${presentPercentage}%)</small></span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-label">Absent</span>
+      <span class="summary-value">${totalAbsT}</span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-label">Sick</span>
+      <span class="summary-value">${totalSickT}</span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-label">Permission</span>
+      <span class="summary-value">${totalPerT}</span>
+    </div>
+  </div>`;
+  
+  return html;
+}
+
 // Load recent activity
 async function loadRecentActivity() {
   const activityDiv = document.getElementById("recentActivity");
@@ -806,8 +1043,18 @@ async function loadRecentActivity() {
     let html = '';
     attendanceSnap.forEach(doc => {
       const data = doc.data();
-      const date = new Date(data.date);
+      const date = new Date(data.date + 'T00:00:00'); // Parse date correctly
       const timeAgo = getTimeAgo(date);
+      
+      // Calculate summary stats for display
+      let totalReg = 0, totalPre = 0;
+      if (data.data) {
+        data.data.forEach(cls => {
+          totalReg += (parseInt(cls.regB) || 0) + (parseInt(cls.regG) || 0);
+          totalPre += (parseInt(cls.preB) || 0) + (parseInt(cls.preG) || 0);
+        });
+      }
+      const percentage = totalReg > 0 ? Math.round((totalPre / totalReg) * 100) : 0;
       
       html += `
         <div class="activity-item">
@@ -816,11 +1063,11 @@ async function loadRecentActivity() {
           </div>
           <div class="activity-details">
             <div><strong>${data.day || 'Unknown'}</strong> - ${data.date}</div>
-            <div>TOD: ${data.todName || 'Unknown'}</div>
+            <div>TOD: ${data.todName || 'Unknown'} · Present: ${totalPre}/${totalReg} (${percentage}%)</div>
             <div class="activity-time">${timeAgo}</div>
           </div>
-          <button class="btn-small btn-outline-super" onclick="viewAttendanceDay('${doc.id}')">
-            <i class="fas fa-eye"></i>
+          <button class="btn-small btn-outline-super" onclick="viewAttendanceDetail('${doc.id}')">
+            <i class="fas fa-eye"></i> View
           </button>
         </div>
       `;
@@ -828,16 +1075,81 @@ async function loadRecentActivity() {
     
     activityDiv.innerHTML = html;
   } catch (error) {
+    console.error("Error loading activity:", error);
     activityDiv.innerHTML = '<div class="empty-state">Error loading activity</div>';
   }
 }
 
-// View specific attendance day
-window.viewAttendanceDay = function(date) {
-  // Find which TOD submitted this day
-  // For simplicity, open HT dashboard as it can view all
-  const url = `ht.html?superId=${currentUser.uid}&superToken=${currentUser.uid}&date=${date}`;
-  window.open(url, '_blank');
+// View attendance detail with full table
+window.viewAttendanceDetail = async function(date) {
+  const snap = await getDoc(doc(db, "attendance", date));
+  if (!snap.exists()) {
+    alert("Attendance record not found");
+    return;
+  }
+  
+  const data = snap.data();
+  
+  // Hide main content, show detail view
+  document.querySelectorAll('.glass-card:not(#attendanceDetailView)').forEach(el => {
+    if (el.id !== 'attendanceDetailView') {
+      el.style.display = 'none';
+    }
+  });
+  document.getElementById('attendanceDetailView').style.display = 'block';
+  
+  // Generate the detailed table
+  let tableHTML = data.data ? generateDetailedTable(data.data) : "<p>No attendance data available</p>";
+  
+  let html = `
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <h3 style="margin-bottom: 0;">
+        <i class="fas fa-calendar-day" style="color: #8b5cf6;"></i>
+        ${data.day || 'Unknown'} - ${data.date}
+      </h3>
+      <span class="badge" style="background: rgba(139,92,246,0.15); color: #7c3aed;">
+        <i class="fas fa-user"></i> ${data.todName || data.todDisplayName || 'TOD'}
+      </span>
+    </div>
+    
+    ${tableHTML}
+  `;
+  
+  if (data.todAnswer) {
+    html += `
+      <h4 style="margin-top: 1.5rem; color: #7c3aed;">
+        <i class="fas fa-comment-dots"></i> TOD Answer:
+      </h4>
+      <div style="background: rgba(139,92,246,0.05); border-radius: 20px; padding: 1rem; border-left: 6px solid #8b5cf6;">
+        <i class="fas fa-quote-left" style="color: #8b5cf6; opacity: 0.5; margin-right: 0.5rem;"></i>
+        ${data.todAnswer}
+      </div>
+    `;
+  }
+  
+  if (data.htAnswer) {
+    html += `
+      <h4 style="margin-top: 1.5rem; color: #0a66c2;">
+        <i class="fas fa-reply"></i> HT Response:
+      </h4>
+      <div style="background: rgba(10,102,194,0.05); border-radius: 20px; padding: 1rem; border-left: 6px solid #0a66c2;">
+        <i class="fas fa-quote-left" style="color: #0a66c2; opacity: 0.5; margin-right: 0.5rem;"></i>
+        ${data.htAnswer}
+      </div>
+    `;
+  }
+  
+  document.getElementById("attendanceDetailContent").innerHTML = html;
+};
+
+// Hide attendance detail and show main content
+window.hideAttendanceDetail = function() {
+  document.querySelectorAll('.glass-card').forEach(el => {
+    if (el.id !== 'attendanceDetailView') {
+      el.style.display = 'block';
+    }
+  });
+  document.getElementById('attendanceDetailView').style.display = 'none';
 };
 
 // Helper: time ago
@@ -851,6 +1163,11 @@ function getTimeAgo(date) {
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
+
+// View specific attendance day (legacy function)
+window.viewAttendanceDay = function(date) {
+  viewAttendanceDetail(date);
+};
 
 // Logout function
 async function logout() {
@@ -871,6 +1188,8 @@ window.viewUserDashboard = viewUserDashboard;
 window.copyUserLink = copyUserLink;
 window.viewSelectedUser = viewSelectedUser;
 window.logout = logout;
+window.viewAttendanceDetail = viewAttendanceDetail;
+window.hideAttendanceDetail = hideAttendanceDetail;
 </script>
 
 </body>
