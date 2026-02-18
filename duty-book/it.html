@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<title>IT Dashboard · Student Registration & User Management</title>
+<title>IT Dashboard · Multi-School Management</title>
 
 <!-- Font Awesome 6 (free) for icons & brand -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -155,6 +155,41 @@
     gap: 0.5rem;
   }
 
+  /* ---------- SCHOOL SELECTOR ---------- */
+  .school-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.5);
+    border-radius: 40px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(10,102,194,0.2);
+    flex-wrap: wrap;
+  }
+  
+  .school-selector select {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    border: 2px solid #0a66c2;
+    background: white;
+    font-size: 0.95rem;
+    min-width: 250px;
+    cursor: pointer;
+  }
+  
+  .current-school-badge {
+    background: #0a66c2;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
   /* ---------- FORM INPUTS WITH ICONS ---------- */
   .input-icon-wrapper {
     position: relative;
@@ -260,24 +295,15 @@
     color: white;
     scale: 1.02;
   }
-  .btn-warning {
-    background: #f59e0b;
-    color: white;
-  }
-  .btn-warning:hover {
-    background: #d97706;
-    scale: 1.02;
-  }
   .btn-small {
     padding: 0.4rem 1rem;
     font-size: 0.8rem;
   }
-  .btn-super {
+  .btn-school {
     background: #8b5cf6;
     color: white;
-    box-shadow: 0 8px 16px -6px rgba(139,92,246,0.25);
   }
-  .btn-super:hover {
+  .btn-school:hover {
     background: #7c3aed;
     scale: 1.02;
   }
@@ -345,8 +371,6 @@
     border-top: 2px solid rgba(255,255,255,0.3);
     background: #0a66c2;
     color: white;
-    padding: 1rem 0.5rem;
-    font-size: 1rem;
   }
 
   /* ---------- INPUT STYLES INSIDE TABLE ---------- */
@@ -368,7 +392,6 @@
     background: white;
   }
   
-  /* Style for readonly inputs (attendance fields) */
   td input[readonly] {
     background: rgba(230, 240, 250, 0.5);
     color: #2c5a73;
@@ -376,9 +399,202 @@
     border-color: rgba(10,102,194,0.2);
     cursor: not-allowed;
   }
+
+  /* ---------- SCHOOL CARDS ---------- */
+  .school-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .school-card {
+    background: white;
+    border-radius: 24px;
+    padding: 1.5rem;
+    border-left: 6px solid #0a66c2;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .school-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(10,102,194,0.15);
+  }
+  .school-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, transparent 50%, rgba(10,102,194,0.03) 50%);
+    border-radius: 0 0 0 100px;
+  }
+  .school-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .school-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .school-code {
+    background: rgba(10,102,194,0.1);
+    color: #0a66c2;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .school-location {
+    color: #6b8ca3;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .school-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .stat-pill {
+    background: rgba(10,102,194,0.08);
+    color: #0a66c2;
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .school-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    border-top: 1px solid rgba(10,102,194,0.1);
+    padding-top: 1.2rem;
+  }
+
+  /* ---------- BADGES & INFO ---------- */
+  .badge {
+    background: rgba(10,102,194,0.1);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: #0a4e7a;
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .badge-success {
+    background: rgba(16,185,129,0.15);
+    color: #059669;
+  }
+  .badge-warning {
+    background: rgba(245,158,11,0.15);
+    color: #d97706;
+  }
+  .badge-purple {
+    background: rgba(139,92,246,0.15);
+    color: #7c3aed;
+  }
+  .info-note {
+    background: rgba(10,102,194,0.04);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(10,102,194,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #2c5a73;
+    margin: 1.2rem 0;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b8ca3;
+    background: rgba(255,255,255,0.5);
+    border-radius: 24px;
+    font-style: italic;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeSlide {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+  }
+  #logoutBtn i { transition: transform 0.2s; }
+  #logoutBtn:hover i { transform: translateX(3px); }
+
+  /* ---------- CUSTOM DATE DISPLAY ---------- */
+  #todayDate {
+    font-weight: 600;
+    color: #1e4c6b;
+    background: rgba(255,255,255,0.4);
+    padding: 0.3rem 1.2rem;
+    border-radius: 40px;
+    display: inline-block;
+    backdrop-filter: blur(4px);
+  }
+
+  hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid rgba(10,102,194,0.2);
+  }
+
+  /* ---------- QUESTION TEXTAREAS ---------- */
+  .question-section {
+    margin-bottom: 1.5rem;
+  }
   
-  td:not(:first-child) {
-    font-weight: 500;
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .question-header i {
+    color: #0a66c2;
+    font-size: 1.2rem;
+  }
+  
+  .question-header span {
+    font-weight: 600;
+    color: #1e4c6b;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+  }
+  textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+    outline: none;
   }
 
   /* ---------- CLASS CHECKBOX GROUP ---------- */
@@ -442,128 +658,18 @@
     opacity: 1;
   }
 
-  /* ---------- ROLE BADGE VARIANTS ---------- */
-  .badge-success {
-    background: rgba(16,185,129,0.15);
-    color: #059669;
-    border: 1px solid rgba(16,185,129,0.3);
-  }
-  .badge-warning {
-    background: rgba(245,158,11,0.15);
-    color: #d97706;
-    border: 1px solid rgba(245,158,11,0.3);
-  }
-  .badge-info {
-    background: rgba(142,68,173,0.15);
-    color: #8e44ad;
-    border: 1px solid rgba(142,68,173,0.3);
-  }
-  .badge-super {
-    background: rgba(139,92,246,0.15);
-    color: #7c3aed;
-    border: 1px solid rgba(139,92,246,0.3);
-  }
-
-  /* ---------- BADGES & INFO ---------- */
-  .badge {
-    background: rgba(10,102,194,0.1);
-    border-radius: 30px;
-    padding: 0.3rem 1rem;
-    font-size: 0.8rem;
-    color: #0a4e7a;
-    display: inline-block;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-  .info-note {
-    background: rgba(10,102,194,0.04);
-    border-radius: 16px;
-    padding: 1rem;
-    border: 1px dashed rgba(10,102,194,0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    color: #2c5a73;
-    margin: 1.2rem 0;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: #6b8ca3;
-    background: rgba(255,255,255,0.5);
-    border-radius: 24px;
-    font-style: italic;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-
-  /* ---------- ANIMATIONS ---------- */
-  @keyframes fadeSlide {
-    0% { opacity: 0; transform: translateY(12px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  
-  #logoutBtn i { transition: transform 0.2s; }
-  #logoutBtn:hover i { transform: translateX(3px); }
-
-  /* ---------- CUSTOM DATE DISPLAY ---------- */
-  #todayDate {
-    font-weight: 600;
-    color: #1e4c6b;
-    background: rgba(255,255,255,0.4);
-    padding: 0.3rem 1.2rem;
+  /* ---------- EDIT MODE INDICATOR ---------- */
+  .edit-mode-indicator {
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
     border-radius: 40px;
-    display: inline-block;
-    backdrop-filter: blur(4px);
-  }
-
-  hr {
-    margin: 2rem 0;
-    border: none;
-    border-top: 1px solid rgba(10,102,194,0.2);
-  }
-
-  /* ---------- QUESTION TEXTAREAS ---------- */
-  .question-section {
-    margin-bottom: 1.5rem;
-  }
-  
-  .question-header {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .question-header i {
-    color: #0a66c2;
-    font-size: 1.2rem;
-  }
-  
-  .question-header span {
-    font-weight: 600;
-    color: #1e4c6b;
-  }
-  
-  textarea {
-    width: 100%;
-    padding: 1rem;
-    border-radius: 20px;
-    border: 1.5px solid rgba(200,215,225,0.7);
-    background: rgba(255,255,255,0.8);
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    margin-bottom: 1rem;
-    font-family: 'Inter', sans-serif;
-  }
-  textarea:focus {
-    border-color: #0a66c2;
-    background: white;
-    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
-    outline: none;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 1rem;
+    animation: pulse 2s infinite;
   }
 
   /* ---------- INFO MESSAGE ---------- */
@@ -581,37 +687,21 @@
     border-left: 4px solid #0a66c2;
   }
 
-  /* ---------- EDIT MODE INDICATOR ---------- */
-  .edit-mode-indicator {
-    background: #f59e0b;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 40px;
-    display: inline-flex;
+  /* ---------- MIGRATION SECTION ---------- */
+  .migration-section {
+    background: rgba(245,158,11,0.1);
+    border: 2px solid rgba(245,158,11,0.3);
+    border-radius: 24px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .migration-title {
+    color: #d97706;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.9rem;
-    margin-left: 1rem;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.8; }
-    100% { opacity: 1; }
-  }
-
-  /* ---------- SUPER USER ACCESS CARD ---------- */
-  .super-access-card {
-    background: linear-gradient(145deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05));
-    border: 2px solid rgba(139,92,246,0.3);
-  }
-  .user-select-dropdown {
-    padding: 0.8rem;
-    border-radius: 20px;
-    border: 1.5px solid rgba(139,92,246,0.3);
-    background: white;
-    font-size: 1rem;
-    min-width: 250px;
   }
 </style>
 </head>
@@ -630,7 +720,7 @@
     </div>
     <div class="role-badge">
       <i class="fas fa-user-shield"></i> IT Admin
-      <span class="badge" style="margin-left: 0.5rem;">System Control</span>
+      <span class="badge" style="margin-left: 0.5rem;">Multi-School Manager</span>
     </div>
   </div>
 
@@ -640,38 +730,45 @@
     System Configuration - <span id="todayDate"></span>
   </h2>
 
-  <!-- ================= CLASS REGISTRATION TABLE (FIXED WITH ALL TOTALS) ================= -->
+  <!-- SCHOOL SELECTOR (for managing multiple schools) -->
+  <div class="glass-card">
+    <div class="school-selector">
+      <i class="fas fa-school" style="color: #0a66c2; font-size: 1.2rem;"></i>
+      <span style="font-weight: 600;">Current School:</span>
+      <select id="schoolSelector" onchange="switchSchool()">
+        <option value="">Loading schools...</option>
+      </select>
+      <span id="currentSchoolBadge" class="current-school-badge">
+        <i class="fas fa-check-circle"></i> Select a school to begin
+      </span>
+    </div>
+  </div>
+
+  <!-- ================= CLASS REGISTRATION TABLE ================= -->
   <div class="glass-card">
     <h3><span class="section-icon"><i class="fas fa-chalkboard-teacher"></i></span> Class Registration (Prep 1 - Class 7)</h3>
     
     <div class="info-message">
       <i class="fas fa-info-circle"></i>
-      <span><strong>Only Reg B and Reg G are editable.</strong> All totals are calculated automatically.</span>
+      <span><strong>School-specific:</strong> These registration numbers apply only to the currently selected school.</span>
     </div>
     
     <div class="table-responsive">
       <table id="attendanceTable">
         <thead>
           <tr>
-            <th rowspan="2">Class</th>
-            <th colspan="3">Registered</th>
-            <th colspan="3">Present</th>
-            <th colspan="3">Absent</th>
-            <th colspan="2">Permission</th>
-            <th colspan="2">Sick</th>
-          </tr>
-          <tr>
-            <th>B</th><th>G</th><th>T</th>
-            <th>B</th><th>G</th><th>T</th>
-            <th>B</th><th>G</th><th>T</th>
-            <th>B</th><th>G</th>
-            <th>B</th><th>G</th>
+            <th>Class</th>
+            <th>Reg B</th><th>Reg G</th><th>Reg T</th>
+            <th>Pre B</th><th>Pre G</th><th>Pre T</th>
+            <th>Abs B</th><th>Abs G</th><th>Abs T</th>
+            <th>Perm</th>
+            <th>Sick</th>
           </tr>
         </thead>
         <tbody id="attendanceBody"></tbody>
         <tfoot>
           <tr>
-            <td><strong>GRAND TOTAL</strong></td>
+            <td>GRAND TOTAL</td>
             <td id="gRegB">0</td>
             <td id="gRegG">0</td>
             <td id="gRegT">0</td>
@@ -681,10 +778,8 @@
             <td id="gAbsB">0</td>
             <td id="gAbsG">0</td>
             <td id="gAbsT">0</td>
-            <td id="gPermB">0</td>
-            <td id="gPermG">0</td>
-            <td id="gSickB">0</td>
-            <td id="gSickG">0</td>
+            <td id="gPerm">0</td>
+            <td id="gSick">0</td>
           </tr>
         </tfoot>
       </table>
@@ -700,33 +795,62 @@
     </div>
   </div>
 
-  <!-- ================= SUPER USER ACCESS CARD (NEW) ================= -->
-  <div class="glass-card super-access-card">
-    <h3><span class="section-icon"><i class="fas fa-crown" style="color: #8b5cf6;"></i></span> Super User Access</h3>
+  <!-- ================= SCHOOL MANAGEMENT ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-school"></i></span> School Management</h3>
     
-    <div class="info-message" style="border-left-color: #8b5cf6;">
-      <i class="fas fa-info-circle" style="color: #8b5cf6;"></i>
-      <span><strong>Super Users</strong> can view any user's dashboard without logging into their account.</span>
+    <div class="grid-auto">
+      <div class="input-icon-wrapper">
+        <i class="fas fa-school"></i>
+        <input type="text" id="newSchoolName" placeholder="School Name">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-map-marker-alt"></i>
+        <input type="text" id="newSchoolLocation" placeholder="Location (e.g., City, Country)">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-globe"></i>
+        <input type="text" id="newSchoolCode" placeholder="School Code (optional)">
+      </div>
     </div>
     
-    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-      <select id="superUserSelect" class="user-select-dropdown" onchange="viewAsUser()">
-        <option value="">Select a user to view as...</option>
-      </select>
-      <button class="btn-super" onclick="openSuperView()">
-        <i class="fas fa-eye"></i> View Dashboard
+    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+      <button class="btn-school" onclick="createSchool()">
+        <i class="fas fa-plus-circle"></i> Create New School
       </button>
-      <button class="btn-outline" onclick="refreshUserList()" style="border-color: #8b5cf6; color: #8b5cf6;">
-        <i class="fas fa-sync-alt"></i> Refresh List
+      <button class="btn-outline" onclick="loadSchools()">
+        <i class="fas fa-sync-alt"></i> Refresh Schools
       </button>
     </div>
-    
-    <div id="superUserInfo" style="margin-top: 1rem; font-size: 0.9rem; color: #6b8ca3;">
-      <i class="fas fa-shield-alt"></i> You can access any user's dashboard while maintaining your IT privileges
-    </div>
+
+    <!-- Schools Grid -->
+    <div id="schoolsContainer" class="school-cards"></div>
   </div>
 
-  <!-- ================= USER MANAGEMENT WITH CLASS ASSIGNMENT ================= -->
+  <!-- ================= MIGRATION SECTION (for existing data) ================= -->
+  <div class="migration-section">
+    <div class="migration-title">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Data Migration Tool</span>
+    </div>
+    <p style="margin-bottom: 1rem; color: #92400e;">
+      If you had existing data before multi-school support, use this tool to assign it to a school.
+    </p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+      <select id="migrationSchoolSelect" style="padding: 0.5rem; border-radius: 20px; border: 2px solid #d97706; min-width: 250px;">
+        <option value="">Select target school...</option>
+      </select>
+      <button class="btn-warning" onclick="migrateExistingData()">
+        <i class="fas fa-database"></i> Migrate All Data to Selected School
+      </button>
+      <button class="btn-outline" onclick="checkUnassignedData()">
+        <i class="fas fa-search"></i> Check for Unassigned Data
+      </button>
+    </div>
+    <div id="migrationStatus" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+  </div>
+
+  <!-- ================= USER MANAGEMENT WITH SCHOOL ASSIGNMENT ================= -->
   <div class="glass-card">
     <h3><span class="section-icon"><i class="fas fa-user-plus"></i></span> Create / Edit User</h3>
     
@@ -754,6 +878,14 @@
           <option value="IT">IT</option>
         </select>
       </div>
+    </div>
+
+    <!-- School Selection for User -->
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+      <label style="font-weight: 600; color: #0a4e7a;">Assign to School:</label>
+      <select id="userSchoolSelect" style="width: 100%; padding: 0.85rem; border-radius: 20px; border: 1.5px solid rgba(200,215,225,0.7); margin-top: 0.5rem;">
+        <option value="">Select a school...</option>
+      </select>
     </div>
 
     <!-- Class Selection for CT and TOD -->
@@ -793,6 +925,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>School</th>
             <th>Classes</th>
             <th>Action</th>
           </tr>
@@ -842,7 +975,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore, doc, setDoc, getDoc, getDocs,
-  collection, deleteDoc, updateDoc, query, where
+  collection, deleteDoc, updateDoc, query, where,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   getAuth, onAuthStateChanged,
@@ -876,10 +1010,9 @@ document.getElementById("todayDate").innerText =
 /* ---------- GLOBAL VARIABLES ---------- */
 let currentUserId = null;
 let editingUserId = null;
-let allUsers = [];
-
-/* ---------- CLASS LIST ---------- */
-const classes = [
+let currentSchoolId = null;
+let allSchools = [];
+let classes = [
   "Prep 1", "Prep 2",
   "Class 1", "Class 2", "Class 3",
   "Class 4", "Class 5", "Class 6", "Class 7"
@@ -899,12 +1032,326 @@ onAuthStateChanged(auth, async (user) => {
     alert("Access Denied: IT admin only");
     window.location = "index.html";
   }
+  
+  // Load schools first
+  await loadSchools();
   await loadUsers();
-  loadRegistration();
-  loadQuestions();
+  await loadRegistration();
+  await loadQuestions();
   initClassCheckboxes();
-  await loadSuperUserList();
+  
+  // If there are schools, select the first one by default
+  if (allSchools.length > 0) {
+    currentSchoolId = allSchools[0].id;
+    document.getElementById('schoolSelector').value = currentSchoolId;
+    updateCurrentSchoolBadge();
+    await loadSchoolSpecificData();
+  }
 });
+
+/* ---------- SCHOOL MANAGEMENT ---------- */
+async function loadSchools() {
+  const schoolsSnap = await getDocs(collection(db, "schools"));
+  allSchools = [];
+  
+  schoolsSnap.forEach(doc => {
+    allSchools.push({ id: doc.id, ...doc.data() });
+  });
+  
+  // Update school selector
+  const selector = document.getElementById('schoolSelector');
+  const userSchoolSelect = document.getElementById('userSchoolSelect');
+  const migrationSelect = document.getElementById('migrationSchoolSelect');
+  
+  selector.innerHTML = '<option value="">Select a school...</option>';
+  userSchoolSelect.innerHTML = '<option value="">Select a school...</option>';
+  migrationSelect.innerHTML = '<option value="">Select target school...</option>';
+  
+  allSchools.forEach(school => {
+    const option = document.createElement('option');
+    option.value = school.id;
+    option.textContent = school.name;
+    selector.appendChild(option.cloneNode(true));
+    userSchoolSelect.appendChild(option.cloneNode(true));
+    migrationSelect.appendChild(option.cloneNode(true));
+  });
+  
+  // Render school cards
+  renderSchoolCards();
+}
+
+async function renderSchoolCards() {
+  const container = document.getElementById('schoolsContainer');
+  container.innerHTML = '';
+  
+  if (allSchools.length === 0) {
+    container.innerHTML = '<div class="empty-state">No schools created yet. Create your first school above.</div>';
+    return;
+  }
+  
+  for (const school of allSchools) {
+    // Get stats for this school
+    const usersQuery = query(collection(db, "users"), where("schoolId", "==", school.id));
+    const usersSnap = await getDocs(usersQuery);
+    
+    const todCount = usersSnap.docs.filter(d => d.data().role === 'TOD').length;
+    const ctCount = usersSnap.docs.filter(d => d.data().role === 'CT' || d.data().isAlsoCT).length;
+    const htCount = usersSnap.docs.filter(d => d.data().role === 'HT').length;
+    const superCount = usersSnap.docs.filter(d => d.data().role === 'SUPER').length;
+    
+    const card = document.createElement('div');
+    card.className = 'school-card';
+    card.innerHTML = `
+      <div class="school-header">
+        <span class="school-name">${school.name}</span>
+        ${school.code ? `<span class="school-code">${school.code}</span>` : ''}
+      </div>
+      <div class="school-location">
+        <i class="fas fa-map-marker-alt"></i> ${school.location || 'No location set'}
+      </div>
+      <div class="school-stats">
+        <span class="stat-pill"><i class="fas fa-users"></i> ${usersSnap.size} Users</span>
+        <span class="stat-pill"><i class="fas fa-user-tie"></i> ${todCount} TOD</span>
+        <span class="stat-pill"><i class="fas fa-chalkboard-teacher"></i> ${ctCount} CT</span>
+        <span class="stat-pill"><i class="fas fa-user-shield"></i> ${htCount} HT</span>
+        ${superCount > 0 ? `<span class="stat-pill"><i class="fas fa-crown"></i> ${superCount} SUPER</span>` : ''}
+      </div>
+      <div class="school-actions">
+        <button class="btn-small btn-primary" onclick="selectSchool('${school.id}')">
+          <i class="fas fa-check"></i> Select
+        </button>
+        <button class="btn-small btn-outline" onclick="editSchool('${school.id}')">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn-small btn-danger" onclick="deleteSchool('${school.id}')">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+window.createSchool = async function() {
+  const name = document.getElementById('newSchoolName').value.trim();
+  const location = document.getElementById('newSchoolLocation').value.trim();
+  const code = document.getElementById('newSchoolCode').value.trim();
+  
+  if (!name) { alert("School name is required"); return; }
+  
+  try {
+    const schoolRef = doc(collection(db, "schools"));
+    await setDoc(schoolRef, {
+      name,
+      location: location || '',
+      code: code || '',
+      createdAt: new Date(),
+      createdBy: auth.currentUser?.email
+    });
+    
+    alert("✅ School created successfully!");
+    document.getElementById('newSchoolName').value = '';
+    document.getElementById('newSchoolLocation').value = '';
+    document.getElementById('newSchoolCode').value = '';
+    
+    await loadSchools();
+  } catch (error) {
+    alert("Error creating school: " + error.message);
+  }
+};
+
+window.editSchool = async function(schoolId) {
+  const school = allSchools.find(s => s.id === schoolId);
+  if (!school) return;
+  
+  const newName = prompt("Edit School Name:", school.name);
+  if (newName === null) return;
+  
+  const newLocation = prompt("Edit Location:", school.location || '');
+  if (newLocation === null) return;
+  
+  const newCode = prompt("Edit School Code:", school.code || '');
+  if (newCode === null) return;
+  
+  try {
+    await updateDoc(doc(db, "schools", schoolId), {
+      name: newName,
+      location: newLocation,
+      code: newCode,
+      updatedAt: new Date(),
+      updatedBy: auth.currentUser?.email
+    });
+    
+    alert("✅ School updated successfully!");
+    await loadSchools();
+  } catch (error) {
+    alert("Error updating school: " + error.message);
+  }
+};
+
+window.deleteSchool = async function(schoolId) {
+  // First check if there are users in this school
+  const usersQuery = query(collection(db, "users"), where("schoolId", "==", schoolId));
+  const usersSnap = await getDocs(usersQuery);
+  
+  if (usersSnap.size > 0) {
+    alert(`❌ Cannot delete school with ${usersSnap.size} users. Please reassign or delete users first.`);
+    return;
+  }
+  
+  // Check if there are attendance records
+  const attendanceQuery = query(collection(db, "attendance"), where("schoolId", "==", schoolId));
+  const attendanceSnap = await getDocs(attendanceQuery);
+  
+  if (attendanceSnap.size > 0) {
+    alert(`❌ Cannot delete school with ${attendanceSnap.size} attendance records. Please migrate data first.`);
+    return;
+  }
+  
+  // Check if there are students
+  const studentsQuery = query(collection(db, "students"), where("schoolId", "==", schoolId));
+  const studentsSnap = await getDocs(studentsQuery);
+  
+  if (studentsSnap.size > 0) {
+    alert(`❌ Cannot delete school with ${studentsSnap.size} students. Please reassign or delete students first.`);
+    return;
+  }
+  
+  const school = allSchools.find(s => s.id === schoolId);
+  if (!confirm(`Are you sure you want to delete school "${school.name}"? This cannot be undone.`)) return;
+  
+  try {
+    await deleteDoc(doc(db, "schools", schoolId));
+    alert("✅ School deleted successfully!");
+    await loadSchools();
+    
+    // If this was the current school, clear selection
+    if (currentSchoolId === schoolId) {
+      currentSchoolId = null;
+      document.getElementById('schoolSelector').value = '';
+      updateCurrentSchoolBadge();
+    }
+  } catch (error) {
+    alert("Error deleting school: " + error.message);
+  }
+};
+
+window.selectSchool = function(schoolId) {
+  currentSchoolId = schoolId;
+  document.getElementById('schoolSelector').value = schoolId;
+  updateCurrentSchoolBadge();
+  loadSchoolSpecificData();
+};
+
+window.switchSchool = function() {
+  const selector = document.getElementById('schoolSelector');
+  currentSchoolId = selector.value;
+  if (currentSchoolId) {
+    updateCurrentSchoolBadge();
+    loadSchoolSpecificData();
+  } else {
+    updateCurrentSchoolBadge();
+  }
+};
+
+function updateCurrentSchoolBadge() {
+  const school = allSchools.find(s => s.id === currentSchoolId);
+  const badge = document.getElementById('currentSchoolBadge');
+  if (school) {
+    badge.innerHTML = `<i class="fas fa-check-circle"></i> Working on: <strong>${school.name}</strong>`;
+  } else {
+    badge.innerHTML = `<i class="fas fa-exclamation-circle"></i> No school selected`;
+  }
+}
+
+async function loadSchoolSpecificData() {
+  if (!currentSchoolId) return;
+  await loadRegistration();
+  await loadUsers();
+}
+
+/* ---------- MIGRATION TOOLS ---------- */
+window.checkUnassignedData = async function() {
+  const statusDiv = document.getElementById('migrationStatus');
+  statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+  
+  // Check users without schoolId
+  const usersQuery = query(collection(db, "users"), where("schoolId", "==", null));
+  const usersSnap = await getDocs(usersQuery);
+  
+  // Check attendance without schoolId
+  const attendanceQuery = query(collection(db, "attendance"), where("schoolId", "==", null));
+  const attendanceSnap = await getDocs(attendanceQuery);
+  
+  // Check students without schoolId
+  const studentsQuery = query(collection(db, "students"), where("schoolId", "==", null));
+  const studentsSnap = await getDocs(studentsQuery);
+  
+  statusDiv.innerHTML = `
+    <div style="background: white; padding: 1rem; border-radius: 16px;">
+      <p><strong>Unassigned Data Found:</strong></p>
+      <ul style="margin-left: 2rem;">
+        <li>Users without school: ${usersSnap.size}</li>
+        <li>Attendance records without school: ${attendanceSnap.size}</li>
+        <li>Students without school: ${studentsSnap.size}</li>
+      </ul>
+    </div>
+  `;
+};
+
+window.migrateExistingData = async function() {
+  const targetSchoolId = document.getElementById('migrationSchoolSelect').value;
+  if (!targetSchoolId) {
+    alert("Please select a target school");
+    return;
+  }
+  
+  if (!confirm("This will migrate ALL unassigned data to the selected school. Continue?")) return;
+  
+  const statusDiv = document.getElementById('migrationStatus');
+  statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Migrating data...';
+  
+  try {
+    const batch = writeBatch(db);
+    let count = 0;
+    
+    // Migrate users
+    const usersQuery = query(collection(db, "users"), where("schoolId", "==", null));
+    const usersSnap = await getDocs(usersQuery);
+    usersSnap.forEach(doc => {
+      batch.update(doc.ref, { schoolId: targetSchoolId });
+      count++;
+    });
+    
+    // Migrate attendance
+    const attendanceQuery = query(collection(db, "attendance"), where("schoolId", "==", null));
+    const attendanceSnap = await getDocs(attendanceQuery);
+    attendanceSnap.forEach(doc => {
+      batch.update(doc.ref, { schoolId: targetSchoolId });
+      count++;
+    });
+    
+    // Migrate students
+    const studentsQuery = query(collection(db, "students"), where("schoolId", "==", null));
+    const studentsSnap = await getDocs(studentsQuery);
+    studentsSnap.forEach(doc => {
+      batch.update(doc.ref, { schoolId: targetSchoolId });
+      count++;
+    });
+    
+    await batch.commit();
+    
+    statusDiv.innerHTML = `<div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 16px;">
+      ✅ Migration complete! Updated ${count} records.
+    </div>`;
+    
+    await loadUsers();
+  } catch (error) {
+    statusDiv.innerHTML = `<div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 16px;">
+      ❌ Error: ${error.message}
+    </div>`;
+  }
+};
 
 /* ---------- INIT CLASS CHECKBOXES ---------- */
 function initClassCheckboxes() {
@@ -970,7 +1417,7 @@ window.removeClass = function(cls) {
   }
 };
 
-/* ---------- CREATE TABLE WITH FIXED TOTALS ---------- */
+/* ---------- CREATE REGISTRATION TABLE ---------- */
 const tbody = document.getElementById("attendanceBody");
 
 function createTable() {
@@ -978,81 +1425,23 @@ function createTable() {
   
   classes.forEach(c => {
     const tr = document.createElement("tr");
-    
-    // Class name cell
-    const tdClass = document.createElement("td");
-    tdClass.innerHTML = `<strong>${c}</strong>`;
-    tr.appendChild(tdClass);
-    
-    // Reg B (EDITABLE)
-    const tdRegB = document.createElement("td");
-    tdRegB.innerHTML = `<input type="number" class="regB" value="0" min="0">`;
-    tr.appendChild(tdRegB);
-    
-    // Reg G (EDITABLE)
-    const tdRegG = document.createElement("td");
-    tdRegG.innerHTML = `<input type="number" class="regG" value="0" min="0">`;
-    tr.appendChild(tdRegG);
-    
-    // Reg T (READONLY - calculated)
-    const tdRegT = document.createElement("td");
-    tdRegT.innerHTML = `<input type="number" class="regT" value="0" readonly>`;
-    tr.appendChild(tdRegT);
-    
-    // Pre B (READONLY)
-    const tdPreB = document.createElement("td");
-    tdPreB.innerHTML = `<input type="number" class="preB" value="0" readonly>`;
-    tr.appendChild(tdPreB);
-    
-    // Pre G (READONLY)
-    const tdPreG = document.createElement("td");
-    tdPreG.innerHTML = `<input type="number" class="preG" value="0" readonly>`;
-    tr.appendChild(tdPreG);
-    
-    // Pre T (READONLY)
-    const tdPreT = document.createElement("td");
-    tdPreT.innerHTML = `<input type="number" class="preT" value="0" readonly>`;
-    tr.appendChild(tdPreT);
-    
-    // Abs B (READONLY)
-    const tdAbsB = document.createElement("td");
-    tdAbsB.innerHTML = `<input type="number" class="absB" value="0" readonly>`;
-    tr.appendChild(tdAbsB);
-    
-    // Abs G (READONLY)
-    const tdAbsG = document.createElement("td");
-    tdAbsG.innerHTML = `<input type="number" class="absG" value="0" readonly>`;
-    tr.appendChild(tdAbsG);
-    
-    // Abs T (READONLY)
-    const tdAbsT = document.createElement("td");
-    tdAbsT.innerHTML = `<input type="number" class="absT" value="0" readonly>`;
-    tr.appendChild(tdAbsT);
-    
-    // Perm B (READONLY)
-    const tdPermB = document.createElement("td");
-    tdPermB.innerHTML = `<input type="number" class="permB" value="0" readonly>`;
-    tr.appendChild(tdPermB);
-    
-    // Perm G (READONLY)
-    const tdPermG = document.createElement("td");
-    tdPermG.innerHTML = `<input type="number" class="permG" value="0" readonly>`;
-    tr.appendChild(tdPermG);
-    
-    // Sick B (READONLY)
-    const tdSickB = document.createElement("td");
-    tdSickB.innerHTML = `<input type="number" class="sickB" value="0" readonly>`;
-    tr.appendChild(tdSickB);
-    
-    // Sick G (READONLY)
-    const tdSickG = document.createElement("td");
-    tdSickG.innerHTML = `<input type="number" class="sickG" value="0" readonly>`;
-    tr.appendChild(tdSickG);
-    
+    tr.innerHTML = `
+      <td><strong>${c}</strong></td>
+      <td><input type="number" class="regB" value="0" min="0" style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="regG" value="0" min="0" style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="regT" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center; background:rgba(200,215,225,0.2);"></td>
+      <td><input type="number" class="preB" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="preG" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="preT" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="absB" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="absG" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="absT" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="perm" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+      <td><input type="number" class="sick" value="0" readonly style="width:60px; padding:0.5rem; border-radius:12px; text-align:center;"></td>
+    `;
     tbody.appendChild(tr);
   });
   
-  // Add event listeners to Reg B and Reg G to update Reg T
   document.querySelectorAll('.regB, .regG').forEach(input => {
     input.addEventListener('input', function() {
       const row = this.closest('tr');
@@ -1066,13 +1455,12 @@ function createTable() {
 
 createTable();
 
-/* ---------- CALCULATE ALL TOTALS (FIXED) ---------- */
+/* ---------- CALCULATE TOTALS ---------- */
 function calculateTotals() {
   let gRegB = 0, gRegG = 0, gRegT = 0;
   let gPreB = 0, gPreG = 0, gPreT = 0;
   let gAbsB = 0, gAbsG = 0, gAbsT = 0;
-  let gPermB = 0, gPermG = 0;
-  let gSickB = 0, gSickG = 0;
+  let gPerm = 0, gSick = 0;
 
   [...tbody.rows].forEach(r => {
     const regB = +r.querySelector(".regB").value || 0;
@@ -1081,30 +1469,21 @@ function calculateTotals() {
     const preG = +r.querySelector(".preG").value || 0;
     const absB = +r.querySelector(".absB").value || 0;
     const absG = +r.querySelector(".absG").value || 0;
-    const permB = +r.querySelector(".permB").value || 0;
-    const permG = +r.querySelector(".permG").value || 0;
-    const sickB = +r.querySelector(".sickB").value || 0;
-    const sickG = +r.querySelector(".sickG").value || 0;
+    const perm = +r.querySelector(".perm").value || 0;
+    const sick = +r.querySelector(".sick").value || 0;
 
-    // Update Reg T
     r.querySelector(".regT").value = regB + regG;
-    // Update Pre T
-    r.querySelector(".preT").value = preB + preG;
-    // Update Abs T
-    r.querySelector(".absT").value = absB + absG;
 
     gRegB += regB; gRegG += regG;
     gPreB += preB; gPreG += preG;
     gAbsB += absB; gAbsG += absG;
-    gPermB += permB; gPermG += permG;
-    gSickB += sickB; gSickG += sickG;
+    gPerm += perm; gSick += sick;
   });
 
   gRegT = gRegB + gRegG;
   gPreT = gPreB + gPreG;
   gAbsT = gAbsB + gAbsG;
 
-  // Update footer with all totals
   document.getElementById("gRegB").innerText = gRegB;
   document.getElementById("gRegG").innerText = gRegG;
   document.getElementById("gRegT").innerText = gRegT;
@@ -1114,14 +1493,17 @@ function calculateTotals() {
   document.getElementById("gAbsB").innerText = gAbsB;
   document.getElementById("gAbsG").innerText = gAbsG;
   document.getElementById("gAbsT").innerText = gAbsT;
-  document.getElementById("gPermB").innerText = gPermB;
-  document.getElementById("gPermG").innerText = gPermG;
-  document.getElementById("gSickB").innerText = gSickB;
-  document.getElementById("gSickG").innerText = gSickG;
+  document.getElementById("gPerm").innerText = gPerm;
+  document.getElementById("gSick").innerText = gSick;
 }
 
-/* ---------- SAVE REGISTRATION ---------- */
+/* ---------- SAVE REGISTRATION (school-specific) ---------- */
 window.saveRegistration = async () => {
+  if (!currentSchoolId) {
+    alert("Please select a school first");
+    return;
+  }
+  
   const registrationData = [];
   [...tbody.rows].forEach(r => {
     registrationData.push({
@@ -1131,18 +1513,20 @@ window.saveRegistration = async () => {
     });
   });
   
-  await setDoc(doc(db, "system", "classRegistration"), { 
+  await setDoc(doc(db, "schools", currentSchoolId, "config", "classRegistration"), { 
     classes: registrationData,
     lastUpdated: new Date(),
     updatedBy: auth.currentUser?.email || 'IT Admin'
   });
   
-  alert("✅ Registration numbers saved!");
+  alert("✅ Registration numbers saved for this school!");
 };
 
-/* ---------- LOAD REGISTRATION ---------- */
+/* ---------- LOAD REGISTRATION (school-specific) ---------- */
 window.loadRegistration = async () => {
-  const snap = await getDoc(doc(db, "system", "classRegistration"));
+  if (!currentSchoolId) return;
+  
+  const snap = await getDoc(doc(db, "schools", currentSchoolId, "config", "classRegistration"));
   if (snap.exists()) {
     const data = snap.data().classes;
     if (data && data.length) {
@@ -1156,9 +1540,11 @@ window.loadRegistration = async () => {
     }
   }
   
-  // Also load attendance data for today to display other fields
+  // Also load today's attendance for display
   const today = new Date().toISOString().split('T')[0];
-  const attendanceSnap = await getDoc(doc(db, "attendance", today));
+  const attendanceDocId = `${today}_${currentSchoolId}`;
+  const attendanceSnap = await getDoc(doc(db, "attendance", attendanceDocId));
+  
   if (attendanceSnap.exists()) {
     const data = attendanceSnap.data().data;
     if (data && data.length) {
@@ -1168,108 +1554,12 @@ window.loadRegistration = async () => {
           r.querySelector(".preG").value = data[index].preG || 0;
           r.querySelector(".absB").value = data[index].absB || 0;
           r.querySelector(".absG").value = data[index].absG || 0;
-          r.querySelector(".permB").value = data[index].perB || 0;
-          r.querySelector(".permG").value = data[index].perG || 0;
-          r.querySelector(".sickB").value = data[index].sickB || 0;
-          r.querySelector(".sickG").value = data[index].sickG || 0;
+          r.querySelector(".perm").value = data[index].perm || 0;
+          r.querySelector(".sick").value = data[index].sick || 0;
         }
       });
       calculateTotals();
     }
-  }
-};
-
-/* ---------- LOAD SUPER USER LIST ---------- */
-async function loadSuperUserList() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  const select = document.getElementById("superUserSelect");
-  select.innerHTML = '<option value="">Select a user to view as...</option>';
-  
-  allUsers = [];
-  usersSnap.forEach(doc => {
-    const user = { id: doc.id, ...doc.data() };
-    allUsers.push(user);
-    
-    // Don't show IT users in the list (they already have access)
-    if (user.role !== 'IT') {
-      const option = document.createElement("option");
-      option.value = user.id;
-      option.textContent = `${user.name || 'Unknown'} (${user.role}) - ${user.email}`;
-      select.appendChild(option);
-    }
-  });
-}
-
-/* ---------- REFRESH USER LIST ---------- */
-window.refreshUserList = async function() {
-  await loadSuperUserList();
-  alert("✅ User list refreshed");
-};
-
-/* ---------- VIEW AS SELECTED USER (SUPER USER FEATURE) ---------- */
-window.viewAsUser = function() {
-  const select = document.getElementById("superUserSelect");
-  const userId = select.value;
-  
-  if (!userId) {
-    document.getElementById("superUserInfo").innerHTML = `
-      <i class="fas fa-shield-alt"></i> Select a user to view their dashboard
-    `;
-    return;
-  }
-  
-  const user = allUsers.find(u => u.id === userId);
-  if (user) {
-    document.getElementById("superUserInfo").innerHTML = `
-      <i class="fas fa-check-circle" style="color: #10b981;"></i> 
-      Ready to view <strong>${user.name || 'Unknown'}</strong> (${user.role}) dashboard
-    `;
-  }
-};
-
-/* ---------- OPEN SUPER VIEW (NEW WINDOW WITH USER IMPERSONATION) ---------- */
-window.openSuperView = function() {
-  const select = document.getElementById("superUserSelect");
-  const userId = select.value;
-  
-  if (!userId) {
-    alert("Please select a user first");
-    return;
-  }
-  
-  const user = allUsers.find(u => u.id === userId);
-  if (!user) return;
-  
-  // Determine which dashboard to open based on role
-  let dashboardPage = "";
-  switch(user.role) {
-    case "TOD":
-      dashboardPage = "tod.html";
-      break;
-    case "CT":
-      dashboardPage = "tod.html"; // CT uses same dashboard
-      break;
-    case "HT":
-      dashboardPage = "ht.html";
-      break;
-    case "SUPER":
-      dashboardPage = "super.html"; // You can create a super dashboard
-      break;
-    default:
-      dashboardPage = "dashboard.html";
-  }
-  
-  // Open in new window with super access parameter
-  const superWindow = window.open(`${dashboardPage}?superId=${userId}&superToken=${currentUserId}`, '_blank');
-  
-  if (superWindow) {
-    superWindow.focus();
-    document.getElementById("superUserInfo").innerHTML = `
-      <i class="fas fa-check-circle" style="color: #10b981;"></i> 
-      Dashboard opened for <strong>${user.name || 'Unknown'}</strong>
-    `;
-  } else {
-    alert("Please allow pop-ups to open the dashboard");
   }
 };
 
@@ -1297,17 +1587,30 @@ async function loadQuestions() {
   }
 }
 
-/* ---------- LOAD USERS ---------- */
+/* ---------- LOAD USERS (school-specific) ---------- */
 async function loadUsers() {
-  const snap = await getDocs(collection(db, "users"));
+  let q;
+  if (currentSchoolId) {
+    q = query(collection(db, "users"), where("schoolId", "==", currentSchoolId));
+  } else {
+    q = collection(db, "users");
+  }
+  
+  const snap = await getDocs(q);
   const body = document.getElementById("usersBody");
   body.innerHTML = "";
+  
+  // Also load all schools for reference
+  const schoolsSnap = await getDocs(collection(db, "schools"));
+  const schools = {};
+  schoolsSnap.forEach(doc => {
+    schools[doc.id] = doc.data().name;
+  });
   
   for (const docu of snap.docs) {
     const u = docu.data();
     const isCurrentUser = (docu.id === currentUserId);
     
-    // Get assigned classes for display
     let classesHtml = '';
     if (u.assignedClasses && u.assignedClasses.length > 0) {
       classesHtml = u.assignedClasses.map(cls => 
@@ -1317,18 +1620,20 @@ async function loadUsers() {
       classesHtml = '<span class="badge" style="opacity: 0.5;">None</span>';
     }
     
-    // Role badge color
     let roleBadgeClass = '';
     if (u.role === 'CT') roleBadgeClass = 'badge-success';
     else if (u.role === 'TOD') roleBadgeClass = 'badge-warning';
     else if (u.role === 'HT') roleBadgeClass = 'badge-info';
-    else if (u.role === 'SUPER') roleBadgeClass = 'badge-super';
+    else if (u.role === 'SUPER') roleBadgeClass = 'badge-purple';
+    
+    const schoolName = u.schoolId ? (schools[u.schoolId] || 'Unknown') : 'Not assigned';
     
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><strong>${u.name || ''}</strong> ${isCurrentUser ? '<span class="badge" style="background: #0a66c2; color: white;">You</span>' : ''}</td>
       <td>${u.email || ''}</td>
       <td><span class="badge ${roleBadgeClass}">${u.role || ''}</span> ${u.isAlsoCT ? '<span class="badge badge-success" style="margin-left: 2px;">Also CT</span>' : ''}</td>
+      <td><span class="badge" style="background: #8b5cf6; color: white;">${schoolName}</span></td>
       <td>${classesHtml}</td>
       <td>
         <button class="btn-small btn-primary" style="margin: 0 2px;" onclick="editUser('${docu.id}')">
@@ -1337,24 +1642,11 @@ async function loadUsers() {
         <button class="btn-small btn-danger" style="margin: 0 2px;" onclick="deleteUser('${docu.id}', ${isCurrentUser})">
           <i class="fas fa-trash"></i> Delete
         </button>
-        ${u.role !== 'IT' ? `
-        <button class="btn-small btn-super" style="margin: 0 2px;" onclick="quickViewAsUser('${docu.id}')">
-          <i class="fas fa-eye"></i> Quick View
-        </button>
-        ` : ''}
       </td>
     `;
     body.appendChild(tr);
   }
 }
-
-/* ---------- QUICK VIEW AS USER ---------- */
-window.quickViewAsUser = function(userId) {
-  const select = document.getElementById("superUserSelect");
-  select.value = userId;
-  viewAsUser();
-  openSuperView();
-};
 
 /* ---------- CLEAR USER FORM ---------- */
 window.clearUserForm = function() {
@@ -1363,6 +1655,7 @@ window.clearUserForm = function() {
   document.getElementById("newEmail").value = "";
   document.getElementById("newPass").value = "";
   document.getElementById("newRole").value = "TOD";
+  document.getElementById("userSchoolSelect").value = currentSchoolId || "";
   document.getElementById("editModeIndicator").style.display = "none";
   clearClassSelections();
   toggleClassSelection();
@@ -1378,14 +1671,13 @@ window.editUser = async (id) => {
   
   document.getElementById("newName").value = userData.name || '';
   document.getElementById("newEmail").value = userData.email || '';
-  document.getElementById("newPass").value = ''; // Don't show password
+  document.getElementById("newPass").value = '';
   document.getElementById("newRole").value = userData.role || 'TOD';
+  document.getElementById("userSchoolSelect").value = userData.schoolId || '';
   document.getElementById("editModeIndicator").style.display = "inline-flex";
   
-  // Show class selection if CT or TOD
   toggleClassSelection();
   
-  // Clear and set checkboxes
   clearClassSelections();
   if (userData.assignedClasses && userData.assignedClasses.length > 0) {
     userData.assignedClasses.forEach(cls => {
@@ -1402,8 +1694,13 @@ window.createUser = async () => {
   const email = document.getElementById("newEmail").value.trim();
   const pass = document.getElementById("newPass").value;
   const role = document.getElementById("newRole").value;
+  const schoolId = document.getElementById("userSchoolSelect").value;
   
-  // Get selected classes
+  if (!schoolId) {
+    alert("Please select a school for this user");
+    return;
+  }
+  
   const assignedClasses = [];
   document.querySelectorAll('#classCheckboxes input[type="checkbox"]:checked').forEach(cb => {
     assignedClasses.push(cb.value);
@@ -1416,16 +1713,15 @@ window.createUser = async () => {
   
   try {
     if (editingUserId) {
-      // Update existing user
       const userData = {
         name,
         email,
         role,
+        schoolId,
         updatedAt: new Date(),
         updatedBy: adminEmail
       };
       
-      // Add classes if CT or TOD
       if (role === "CT" || role === "TOD") {
         userData.assignedClasses = assignedClasses;
         userData.isAlsoCT = (role === "TOD" && assignedClasses.length > 0);
@@ -1437,7 +1733,6 @@ window.createUser = async () => {
       await updateDoc(doc(db, "users", editingUserId), userData);
       alert("✅ User Updated Successfully");
     } else {
-      // Create new user
       if (!pass) return alert("Password required for new users");
       
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
@@ -1446,11 +1741,11 @@ window.createUser = async () => {
         name,
         email,
         role,
+        schoolId,
         createdAt: new Date(),
         createdBy: adminEmail
       };
       
-      // Add classes if CT or TOD
       if (role === "CT" || role === "TOD") {
         userData.assignedClasses = assignedClasses;
         userData.isAlsoCT = (role === "TOD" && assignedClasses.length > 0);
@@ -1461,7 +1756,6 @@ window.createUser = async () => {
       
       await setDoc(doc(db, "users", cred.user.uid), userData);
       
-      // Sign back in as admin
       await signOut(auth);
       const adminPass = prompt("Re-enter IT admin password to continue");
       if (!adminPass) {
@@ -1475,7 +1769,6 @@ window.createUser = async () => {
     
     clearUserForm();
     await loadUsers();
-    await loadSuperUserList();
   } catch (e) {
     alert("Error: " + e.message);
   }
@@ -1483,7 +1776,6 @@ window.createUser = async () => {
 
 /* ---------- DELETE USER ---------- */
 window.deleteUser = async (id, isCurrentUser) => {
-  // Check if trying to delete themselves
   if (isCurrentUser) {
     alert("❌ You cannot delete your own account!");
     return;
@@ -1494,7 +1786,6 @@ window.deleteUser = async (id, isCurrentUser) => {
       await deleteDoc(doc(db, "users", id));
       alert("✅ User deleted successfully");
       await loadUsers();
-      await loadSuperUserList();
     } catch (error) {
       alert("Error deleting user: " + error.message);
     }
@@ -1506,9 +1797,6 @@ document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
   window.location = "index.html";
 };
-
-// Load initial data
-loadQuestions();
 
 // Make functions globally available
 window.calculateTotals = calculateTotals;
@@ -1522,10 +1810,14 @@ window.clearUserForm = clearUserForm;
 window.toggleClassSelection = toggleClassSelection;
 window.updateSelectedClasses = updateSelectedClasses;
 window.removeClass = removeClass;
-window.viewAsUser = viewAsUser;
-window.openSuperView = openSuperView;
-window.refreshUserList = refreshUserList;
-window.quickViewAsUser = quickViewAsUser;
+window.loadSchools = loadSchools;
+window.createSchool = createSchool;
+window.editSchool = editSchool;
+window.deleteSchool = deleteSchool;
+window.selectSchool = selectSchool;
+window.switchSchool = switchSchool;
+window.checkUnassignedData = checkUnassignedData;
+window.migrateExistingData = migrateExistingData;
 </script>
 
 </body>
