@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>miniBank · Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; display: flex; }
+    .sidebar { width: 280px; background: linear-gradient(180deg, #1a1f2e 0%, #151a26 100%); color: white; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 100; }
+    .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .bank-logo { display: flex; align-items: center; gap: 12px; }
+    .bank-logo i { font-size: 32px; color: #3b82f6; }
+    .bank-logo h1 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .admin-profile { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .admin-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; }
+    .admin-info h3 { font-size: 0.95rem; font-weight: 600; }
+    .admin-info p { font-size: 0.8rem; opacity: 0.7; }
+    .nav-menu { padding: 20px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 10px; margin-bottom: 4px; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-size: 0.95rem; font-weight: 500; }
+    .nav-item i { width: 24px; font-size: 1.2rem; }
+    .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    .nav-item.active { background: #3b82f6; color: white; }
+    .nav-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 16px 0; }
+    .main-content { flex: 1; margin-left: 280px; padding: 24px; min-height: 100vh; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 16px 20px; background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+    .top-actions { display: flex; align-items: center; gap: 20px; }
+    .notification-badge { position: relative; cursor: pointer; }
+    .notification-badge i { font-size: 1.3rem; color: #6b7280; }
+    .badge-count { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .logout-btn:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3); }
+    .logout-btn i { font-size: 1rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-icon.blue { background: #dbeafe; color: #3b82f6; }
+    .stat-icon.green { background: #d1fae5; color: #10b981; }
+    .stat-icon.purple { background: #e0e7ff; color: #8b5cf6; }
+    .stat-icon.orange { background: #fed7aa; color: #f59e0b; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #1a1a1a; }
+    .stat-label { color: #6b7280; font-size: 0.9rem; margin-top: 4px; }
+    .stat-change { color: #10b981; font-size: 0.85rem; font-weight: 500; margin-top: 4px; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    .charts-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .chart-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .chart-title { font-size: 1.1rem; font-weight: 600; color: #1a1a1a; }
+    .chart-container { position: relative; height: 300px; }
+    .table-container { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow-x: auto; }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .search-box { display: flex; align-items: center; gap: 12px; background: #f3f4f6; padding: 8px 16px; border-radius: 10px; }
+    .search-box i { color: #9ca3af; }
+    .search-box input { border: none; background: none; outline: none; font-size: 0.9rem; width: 240px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px; color: #6b7280; font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid #e5e7eb; }
+    td { padding: 16px 12px; border-bottom: 1px solid #f3f4f6; }
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+    .user-info h4 { font-weight: 600; margin-bottom: 2px; }
+    .user-info p { font-size: 0.8rem; color: #6b7280; }
+    .balance { font-weight: 600; color: #10b981; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .action-buttons { display: flex; gap: 8px; }
+    .btn-icon { background: none; border: none; padding: 8px; border-radius: 8px; cursor: pointer; color: #6b7280; transition: all 0.2s; }
+    .btn-icon:hover { background: #f3f4f6; color: #3b82f6; }
+    .btn-icon.danger:hover { background: #fee2e2; color: #ef4444; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal { background: white; border-radius: 20px; padding: 32px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { font-size: 1.3rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #374151; }
+    .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; transition: border 0.2s; }
+    .form-input:focus { outline: none; border-color: #3b82f6; }
+    .form-select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: white; }
+    .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+    .btn { padding: 10px 24px; border-radius: 10px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .requests-list { display: flex; flex-direction: column; gap: 12px; }
+    .request-card { background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb; }
+    .request-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .request-user { font-weight: 600; }
+    .request-amount { font-weight: 700; color: #3b82f6; }
+    .request-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-approve { background: #10b981; color: white; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
+    .btn-reject { background: #ef4444; color: white; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
+    .interest-settings { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+    .interest-info h3 { margin-bottom: 8px; }
+    .interest-info p { color: #6b7280; }
+    .toggle-switch { position: relative; width: 60px; height: 30px; }
+    .toggle-input { opacity: 0; width: 0; height: 0; }
+    .toggle-label { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 30px; }
+    .toggle-label:before { position: absolute; content: ""; height: 24px; width: 24px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    .toggle-input:checked + .toggle-label { background: #3b82f6; }
+    .toggle-input:checked + .toggle-label:before { transform: translateX(30px); }
+    .analytics-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+    .analytics-card { background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 16px; padding: 20px; }
+    .analytics-card h4 { color: #475569; font-size: 0.9rem; margin-bottom: 8px; }
+    .analytics-card .value { font-size: 1.8rem; font-weight: 700; color: #1a1a1a; }
+    .transaction-type-stats { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+    .type-stat { flex: 1; text-align: center; padding: 15px; background: #f8fafc; border-radius: 12px; min-width: 100px; }
+    .type-stat .count { font-size: 1.5rem; font-weight: 700; }
+    .type-stat .label { color: #64748b; font-size: 0.85rem; }
+    .type-stat.deposit .count { color: #10b981; }
+    .type-stat.withdrawal .count { color: #ef4444; }
+    .type-stat.interest .count { color: #8b5cf6; }
+    .calculator-form { margin-top: 20px; }
+    .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .calc-result { background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; }
+    .calc-result-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+    .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .calc-breakdown-item { text-align: center; }
+    .calc-breakdown-label { font-size: 0.8rem; opacity: 0.8; }
+    .calc-breakdown-value { font-size: 1.1rem; font-weight: 600; }
+    .btn-calculate { width: 100%; padding: 14px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .charts-container { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .analytics-summary { grid-template-columns: 1fr; }
+      .table-container { padding: 16px; }
+      .search-box input { width: 160px; }
+      .menu-toggle { display: block; }
+      .calc-row { grid-template-columns: 1fr; }
+    }
+    .menu-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 200; background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; }
+    @media (max-width: 768px) { .menu-toggle { display: flex; align-items: center; justify-content: center; } }
+  </style>
+</head>
+<body>
+  <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="bank-logo">
+        <i class="fas fa-building-columns"></i>
+        <h1>miniBank</h1>
+      </div>
+    </div>
+    <div class="admin-profile">
+      <div class="admin-avatar" id="adminInitials">AD</div>
+      <div class="admin-info">
+        <h3 id="sidebarAdminName">Admin User</h3>
+        <p id="sidebarAdminEmail">admin@minibank.com</p>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-item active" data-section="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button>
+      <button class="nav-item" data-section="users"><i class="fas fa-users"></i><span>User Management</span></button>
+      <button class="nav-item" data-section="requests"><i class="fas fa-clock"></i><span>Requests</span><span class="badge-count" id="requestCount">0</span></button>
+      <button class="nav-item" data-section="analytics"><i class="fas fa-chart-line"></i><span>Analytics</span></button>
+      <button class="nav-item" data-section="calculator"><i class="fas fa-calculator"></i><span>Calculator</span></button>
+      <button class="nav-item" data-section="transactions"><i class="fas fa-exchange-alt"></i><span>Transactions</span></button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" data-section="settings"><i class="fas fa-cog"></i><span>Settings</span></button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="top-nav">
+      <h2 class="page-title" id="pageTitle">Dashboard</h2>
+      <div class="top-actions">
+        <div class="notification-badge" id="adminNotificationBell">
+          <i class="fas fa-bell"></i>
+          <span class="badge-count" id="notificationCount">0</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div class="content-section active" id="dashboard-section">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-header"><div class="stat-icon blue"><i class="fas fa-wallet"></i></div></div><div class="stat-value" id="totalBalance">TSh 0</div><div class="stat-label">Total Assets</div><div class="stat-change" id="balanceChange">Loading...</div></div>
+        <div class="stat-card"><div class="stat-header"><div class="stat-icon green"><i class="fas fa-users"></i></div></div><div class="stat-value" id="totalUsers">0</div><div class="stat-label">Total Users</div><div class="stat-change" id="userChange">Loading...</div></div>
+        <div class="stat-card"><div class="stat-header"><div class="stat-icon purple"><i class="fas fa-exchange-alt"></i></div></div><div class="stat-value" id="totalTransactions">0</div><div class="stat-label">Transactions</div><div class="stat-change">This month</div></div>
+        <div class="stat-card"><div class="stat-header"><div class="stat-icon orange"><i class="fas fa-percent"></i></div></div><div class="stat-value" id="totalInterest">TSh 0</div><div class="stat-label">Interest Earned</div><div class="stat-change">This month</div></div>
+      </div>
+
+      <div class="interest-settings">
+        <div class="interest-info">
+          <h3><i class="fas fa-percent"></i> Automatic Monthly Interest (30-day cycle)</h3>
+          <p>1% interest applied every 30 days per user</p>
+          <small id="lastInterestApplied">Auto-interest system active</small>
+        </div>
+        <div class="toggle-switch">
+          <input type="checkbox" id="autoInterestToggle" class="toggle-input">
+          <label for="autoInterestToggle" class="toggle-label"></label>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Balance Growth (Real Data)</h3></div><div class="chart-container"><canvas id="balanceChart"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><h3 class="chart-title">User Distribution (Real Data)</h3></div><div class="chart-container"><canvas id="userDistributionChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- Users Section -->
+    <div class="content-section" id="users-section">
+      <div class="table-container">
+        <div class="table-header"><h3>User Management</h3><div class="search-box"><i class="fas fa-search"></i><input type="text" id="userSearch" placeholder="Search users..."></div></div>
+        <button class="btn btn-primary" id="addUserBtn" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Add New User</button>
+        <table id="usersTable"><thead><tr><th>User</th><th>Balance</th><th>Status</th><th>Joined</th><th>Next Interest</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- Requests Section -->
+    <div class="content-section" id="requests-section">
+      <div class="table-container">
+        <div class="table-header"><h3>Pending Requests</h3></div>
+        <div id="requestsList" class="requests-list"></div>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="content-section" id="analytics-section">
+      <div class="table-container">
+        <h3>User Analytics</h3>
+        <select id="userSelect" class="form-select" style="margin: 20px 0;">
+          <option value="">Select a user to view analytics</option>
+        </select>
+        <div id="userAnalytics" style="display: none;">
+          <div class="analytics-summary">
+            <div class="analytics-card"><h4><i class="fas fa-wallet"></i> Current Balance</h4><div class="value" id="analyticsBalance">TSh 0</div></div>
+            <div class="analytics-card"><h4><i class="fas fa-chart-line"></i> Total Transactions</h4><div class="value" id="analyticsTotalTrans">0</div></div>
+            <div class="analytics-card"><h4><i class="fas fa-percent"></i> Total Interest Earned</h4><div class="value" id="analyticsTotalInterest">TSh 0</div></div>
+          </div>
+          <div class="transaction-type-stats">
+            <div class="type-stat deposit"><div class="count" id="analyticsDeposits">0</div><div class="label">Deposits</div></div>
+            <div class="type-stat withdrawal"><div class="count" id="analyticsWithdrawals">0</div><div class="label">Withdrawals</div></div>
+            <div class="type-stat interest"><div class="count" id="analyticsInterests">0</div><div class="label">Interest Payments</div></div>
+          </div>
+          <div class="charts-container" style="margin-top: 24px;">
+            <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Balance History</h3></div><div class="chart-container" style="height: 250px;"><canvas id="userBalanceHistoryChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Transaction Breakdown</h3></div><div class="chart-container" style="height: 250px;"><canvas id="userTransactionChart"></canvas></div></div>
+          </div>
+          <div style="margin-top: 24px;"><h4 style="margin-bottom: 16px;">Recent Transactions</h4><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="userTransactionsBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculator Section -->
+    <div class="content-section" id="calculator-section">
+      <div class="table-container">
+        <h3><i class="fas fa-calculator"></i> Interest Calculator</h3>
+        <p style="color: #6b7280; margin-bottom: 20px;">Calculate compound interest with 1% monthly rate (12.68% APY)</p>
+        <div class="calculator-form">
+          <div class="calc-row">
+            <div class="form-group"><label class="form-label">Initial Deposit (TSh)</label><input type="number" id="calcPrincipal" class="form-input" placeholder="500,000" value="500000"></div>
+            <div class="form-group"><label class="form-label">Monthly Deposit (TSh)</label><input type="number" id="calcMonthly" class="form-input" placeholder="0" value="0"></div>
+          </div>
+          <div class="calc-row">
+            <div class="form-group"><label class="form-label">Time Period</label><select id="calcTimeUnit" class="form-input"><option value="months">Months</option><option value="years" selected>Years</option></select></div>
+            <div class="form-group"><label class="form-label">Duration</label><input type="number" id="calcDuration" class="form-input" placeholder="4" value="4"></div>
+          </div>
+          <button class="btn-calculate" id="calculateBtn"><i class="fas fa-chart-line"></i> Calculate Future Value</button>
+          <div class="calc-result" id="calcResult" style="display: none;">
+            <p><i class="fas fa-chart-pie"></i> Future Value</p>
+            <div class="calc-result-value" id="calcFutureValue">TSh 0</div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Total Deposited</div><div class="calc-breakdown-value" id="calcTotalDeposited">TSh 0</div></div>
+              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Interest Earned</div><div class="calc-breakdown-value" id="calcInterestEarned">TSh 0</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions Section -->
+    <div class="content-section" id="transactions-section">
+      <div class="table-container"><div class="table-header"><h3>All Transactions</h3></div><table id="allTransactionsTable"><thead><tr><th>Date</th><th>User</th><th>Type</th><th>Amount</th></tr></thead><tbody id="allTransactionsBody"></tbody></table></div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="content-section" id="settings-section">
+      <div class="table-container"><h3>Bank Settings</h3><div class="form-group"><label class="form-label">Interest Rate (%)</label><input type="number" id="interestRate" class="form-input" value="1" step="0.1"></div><button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button></div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal">
+      <div class="modal-header"><h3 class="modal-title">Add New User</h3><button class="modal-close" onclick="closeModal('addUserModal')">&times;</button></div>
+      <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="newUserName" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="newUserEmail" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" id="newUserPassword" class="form-input" value="client123"></div>
+      <div class="form-group"><label class="form-label">Initial Deposit (TSh)</label><input type="number" id="newUserBalance" class="form-input" value="0"></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button><button class="btn btn-primary" id="createUserBtn">Create User</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="transactionModal">
+    <div class="modal">
+      <div class="modal-header"><h3 class="modal-title" id="transactionModalTitle">Deposit</h3><button class="modal-close" onclick="closeModal('transactionModal')">&times;</button></div>
+      <div class="form-group"><label class="form-label">User</label><input type="text" id="transactionUser" class="form-input" readonly></div>
+      <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="transactionAmount" class="form-input"></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('transactionModal')">Cancel</button><button class="btn btn-primary" id="confirmTransactionBtn">Confirm</button></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
+      authDomain: "minibank-b76d6.firebaseapp.com",
+      projectId: "minibank-b76d6",
+      storageBucket: "minibank-b76d6.firebasestorage.app",
+      messagingSenderId: "1076277480681",
+      appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let users = [];
+    let transactions = [];
+    let requests = [];
+    let charts = {};
+    let userAnalyticsChart = null;
+    let userTransactionChart = null;
+    let currentTransactionType = 'deposit';
+    let selectedUser = null;
+
+    const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace('index.html'); return; }
+      const adminDoc = await getDoc(doc(db, "admins", user.uid));
+      if (!adminDoc.exists()) { await signOut(auth); window.location.replace('index.html'); return; }
+      currentUser = user;
+      document.getElementById('sidebarAdminName').textContent = adminDoc.data().name || 'Admin';
+      document.getElementById('sidebarAdminEmail').textContent = user.email;
+      document.getElementById('adminInitials').textContent = (adminDoc.data().name || 'AD').substring(0, 2).toUpperCase();
+      await loadSettings();
+      initRealtimeData();
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${item.dataset.section}-section`).classList.add('active');
+        document.getElementById('pageTitle').textContent = item.querySelector('span').textContent;
+        if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
+      });
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('index.html');
+    });
+
+    async function loadSettings() {
+      const settingsDoc = await getDoc(doc(db, "settings", "interest"));
+      if (settingsDoc.exists()) {
+        const data = settingsDoc.data();
+        document.getElementById('autoInterestToggle').checked = data.autoEnabled || false;
+        document.getElementById('interestRate').value = data.rate || 1;
+      }
+    }
+
+    document.getElementById('autoInterestToggle').addEventListener('change', async (e) => {
+      await updateDoc(doc(db, "settings", "interest"), { autoEnabled: e.target.checked });
+    });
+
+    function initRealtimeData() {
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        users = [];
+        snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+        updateDashboard();
+        renderUsersTable();
+        populateUserSelect();
+      });
+
+      const transactionQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"));
+      onSnapshot(transactionQuery, (snapshot) => {
+        transactions = [];
+        snapshot.forEach(doc => transactions.push({ id: doc.id, ...doc.data() }));
+        updateTransactionsDisplay();
+        updateDashboard();
+      });
+
+      const requestQuery = query(collection(db, "requests"), where("status", "==", "pending"), orderBy("timestamp", "desc"));
+      onSnapshot(requestQuery, (snapshot) => {
+        requests = [];
+        snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+        document.getElementById('requestCount').textContent = requests.length;
+        document.getElementById('notificationCount').textContent = requests.length;
+        renderRequests();
+      });
+    }
+
+    function updateDashboard() {
+      const total = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+      document.getElementById('totalBalance').textContent = formatMoney(total);
+      document.getElementById('totalUsers').textContent = users.length;
+      document.getElementById('totalTransactions').textContent = transactions.length;
+      
+      const thisMonth = new Date().getMonth();
+      const thisYear = new Date().getFullYear();
+      const monthlyInterest = transactions.filter(t => t.type === 'interest' && new Date(t.timestamp).getMonth() === thisMonth && new Date(t.timestamp).getFullYear() === thisYear).reduce((sum, t) => sum + t.amount, 0);
+      document.getElementById('totalInterest').textContent = formatMoney(monthlyInterest);
+      
+      updateCharts();
+      updateMonthlyStats();
+    }
+
+    function updateMonthlyStats() {
+      const now = new Date();
+      const thisMonth = now.getMonth();
+      const thisYear = now.getFullYear();
+      
+      const thisMonthTrans = transactions.filter(t => {
+        const d = new Date(t.timestamp);
+        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+      });
+      
+      const thisMonthDeposits = thisMonthTrans.filter(t => t.type === 'deposit' || t.type === 'interest').reduce((s, t) => s + t.amount, 0);
+      const thisMonthWithdrawals = thisMonthTrans.filter(t => t.type === 'withdrawal').reduce((s, t) => s + t.amount, 0);
+      const netChange = thisMonthDeposits - thisMonthWithdrawals;
+      
+      const changeEl = document.getElementById('balanceChange');
+      if (changeEl) {
+        changeEl.textContent = `${netChange >= 0 ? '+' : ''}${formatMoney(netChange)} this month`;
+        changeEl.style.color = netChange >= 0 ? '#10b981' : '#ef4444';
+      }
+      
+      const newUsers = users.filter(u => {
+        const d = new Date(u.createdAt);
+        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+      }).length;
+      
+      const userChangeEl = document.getElementById('userChange');
+      if (userChangeEl) userChangeEl.textContent = `+${newUsers} this month`;
+    }
+
+    function updateCharts() {
+      const ctx = document.getElementById('balanceChart')?.getContext('2d');
+      if (ctx) {
+        if (charts.balance) charts.balance.destroy();
+        const last30Days = Array.from({length: 30}, (_, i) => {
+          const d = new Date(); d.setDate(d.getDate() - (29 - i)); d.setHours(0, 0, 0, 0); return d;
+        });
+        const labels = last30Days.map(d => d.toLocaleDateString());
+        const balanceData = last30Days.map(targetDate => {
+          let runningTotal = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+          transactions.filter(t => { const td = new Date(t.timestamp); td.setHours(0,0,0,0); return td > targetDate; }).forEach(t => {
+            if (t.type === 'deposit' || t.type === 'interest') runningTotal -= t.amount;
+            else if (t.type === 'withdrawal') runningTotal += t.amount;
+          });
+          return Math.max(0, runningTotal);
+        });
+        charts.balance = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data: balanceData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      }
+      
+      const distCtx = document.getElementById('userDistributionChart')?.getContext('2d');
+      if (distCtx) {
+        if (charts.distribution) charts.distribution.destroy();
+        const ranges = [{ label: '0-100k', min: 0, max: 100000 }, { label: '100k-500k', min: 100000, max: 500000 }, { label: '500k-1M', min: 500000, max: 1000000 }, { label: '1M-5M', min: 1000000, max: 5000000 }, { label: '5M+', min: 5000000, max: Infinity }];
+        const distribution = ranges.map(r => users.filter(u => { const b = u.balance || 0; return b >= r.min && b < r.max; }).length);
+        charts.distribution = new Chart(distCtx, { type: 'doughnut', data: { labels: ranges.map(r => r.label), datasets: [{ data: distribution, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+      }
+    }
+
+    function getNextInterestDate(user) {
+      const userTrans = transactions.filter(t => t.userEmail === user.email && t.type === 'interest');
+      const lastInterest = userTrans.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+      if (lastInterest) {
+        const d = new Date(lastInterest.timestamp);
+        d.setDate(d.getDate() + 30);
+        return d;
+      } else if (user.createdAt) {
+        const d = new Date(user.createdAt);
+        d.setDate(d.getDate() + 30);
+        return d;
+      }
+      return null;
+    }
+
+    function renderUsersTable() {
+      const searchTerm = document.getElementById('userSearch')?.value.toLowerCase() || '';
+      const filtered = users.filter(u => u.name?.toLowerCase().includes(searchTerm) || u.email?.toLowerCase().includes(searchTerm));
+      const tbody = document.getElementById('usersTableBody');
+      if (tbody) {
+        tbody.innerHTML = filtered.map(u => {
+          const nextInterest = getNextInterestDate(u);
+          const nextInterestStr = nextInterest ? nextInterest.toLocaleDateString() : '—';
+          return `<tr><td><div class="user-cell"><div class="user-avatar">${(u.name || 'U').substring(0, 2).toUpperCase()}</div><div class="user-info"><h4>${u.name || 'N/A'}</h4><p>${u.email}</p></div></div></td><td class="balance">${formatMoney(u.balance || 0)}</td><td><span class="status-badge status-active">Active</span></td><td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td><td>${nextInterestStr}</td><td><div class="action-buttons"><button class="btn-icon" onclick="handleDeposit('${u.email}')"><i class="fas fa-plus"></i></button><button class="btn-icon" onclick="handleWithdraw('${u.email}')"><i class="fas fa-minus"></i></button><button class="btn-icon danger" onclick="deleteUser('${u.id}', '${u.name}')"><i class="fas fa-trash"></i></button></div></td></tr>`;
+        }).join('');
+      }
+    }
+
+    function renderRequests() {
+      const container = document.getElementById('requestsList');
+      if (container) {
+        if (requests.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">No pending requests</p>';
+          return;
+        }
+        container.innerHTML = requests.map(r => `<div class="request-card"><div class="request-header"><span class="request-user">${r.userName} (${r.userEmail})</span><span class="request-amount">${formatMoney(r.amount)}</span></div><p style="color: #6b7280; margin-bottom: 8px;">${r.type === 'deposit' ? 'Deposit Request' : 'Withdrawal Request'}</p>${r.note ? `<p style="font-size: 0.9rem; margin-bottom: 8px;">Note: ${r.note}</p>` : ''}<div class="request-actions"><button class="btn-approve" onclick="approveRequest('${r.id}')">Approve</button><button class="btn-reject" onclick="rejectRequest('${r.id}')">Reject</button></div></div>`).join('');
+      }
+    }
+
+    function updateTransactionsDisplay() {
+      const tbody = document.getElementById('allTransactionsBody');
+      if (tbody) {
+        tbody.innerHTML = transactions.slice(0, 50).map(t => `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.userName || t.userEmail}</td><td>${t.type}</td><td>${formatMoney(t.amount)}</td></tr>`).join('');
+      }
+    }
+
+    function populateUserSelect() {
+      const select = document.getElementById('userSelect');
+      if (select) {
+        select.innerHTML = '<option value="">Select a user to view analytics</option>' + users.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('');
+      }
+    }
+
+    document.getElementById('userSelect').addEventListener('change', (e) => {
+      const userId = e.target.value;
+      if (userId) loadUserAnalytics(userId);
+      else document.getElementById('userAnalytics').style.display = 'none';
+    });
+
+    function loadUserAnalytics(userId) {
+      const user = users.find(u => u.id === userId);
+      if (!user) return;
+      const userTrans = transactions.filter(t => t.userEmail === user.email);
+      document.getElementById('analyticsBalance').textContent = formatMoney(user.balance || 0);
+      document.getElementById('analyticsTotalTrans').textContent = userTrans.length;
+      document.getElementById('analyticsTotalInterest').textContent = formatMoney(userTrans.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0));
+      document.getElementById('analyticsDeposits').textContent = userTrans.filter(t => t.type === 'deposit').length;
+      document.getElementById('analyticsWithdrawals').textContent = userTrans.filter(t => t.type === 'withdrawal').length;
+      document.getElementById('analyticsInterests').textContent = userTrans.filter(t => t.type === 'interest').length;
+      
+      const ctx1 = document.getElementById('userBalanceHistoryChart').getContext('2d');
+      if (userAnalyticsChart) userAnalyticsChart.destroy();
+      const last30Days = Array.from({length: 30}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (29 - i)); d.setHours(0,0,0,0); return d; });
+      const labels = last30Days.map(d => d.toLocaleDateString());
+      const balanceHistory = last30Days.map(targetDate => {
+        let historical = user.balance || 0;
+        userTrans.filter(t => { const td = new Date(t.timestamp); td.setHours(0,0,0,0); return td > targetDate; }).forEach(t => {
+          if (t.type === 'deposit' || t.type === 'interest') historical -= t.amount;
+          else if (t.type === 'withdrawal') historical += t.amount;
+        });
+        return Math.max(0, historical);
+      });
+      userAnalyticsChart = new Chart(ctx1, { type: 'line', data: { labels, datasets: [{ data: balanceHistory, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      
+      const ctx2 = document.getElementById('userTransactionChart').getContext('2d');
+      if (userTransactionChart) userTransactionChart.destroy();
+      const depositTotal = userTrans.filter(t => t.type === 'deposit').reduce((s, t) => s + t.amount, 0);
+      const withdrawalTotal = userTrans.filter(t => t.type === 'withdrawal').reduce((s, t) => s + t.amount, 0);
+      const interestTotal = userTrans.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0);
+      userTransactionChart = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Deposits', 'Withdrawals', 'Interest'], datasets: [{ data: [depositTotal, withdrawalTotal, interestTotal], backgroundColor: ['#10b981', '#ef4444', '#8b5cf6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+      
+      const tbody = document.getElementById('userTransactionsBody');
+      tbody.innerHTML = userTrans.slice(0, 10).map(t => `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.type}</td><td style="color: ${t.type === 'withdrawal' ? '#ef4444' : '#10b981'};">${t.type === 'withdrawal' ? '-' : '+'}${formatMoney(t.amount)}</td><td><span class="status-badge status-active">Completed</span></td></tr>`).join('') || '<tr><td colspan="4" style="text-align: center; padding: 20px;">No transactions</td></tr>';
+      
+      document.getElementById('userAnalytics').style.display = 'block';
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', () => {
+      const principal = parseFloat(document.getElementById('calcPrincipal').value) || 0;
+      const monthly = parseFloat(document.getElementById('calcMonthly').value) || 0;
+      const unit = document.getElementById('calcTimeUnit').value;
+      const duration = parseFloat(document.getElementById('calcDuration').value) || 0;
+      const months = unit === 'years' ? duration * 12 : duration;
+      const rate = 0.01;
+      let futureValue = principal * Math.pow(1 + rate, months);
+      if (monthly > 0) futureValue += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
+      const totalDeposited = principal + (monthly * months);
+      const interestEarned = futureValue - totalDeposited;
+      document.getElementById('calcFutureValue').textContent = formatMoney(futureValue);
+      document.getElementById('calcTotalDeposited').textContent = formatMoney(totalDeposited);
+      document.getElementById('calcInterestEarned').textContent = formatMoney(interestEarned);
+      document.getElementById('calcResult').style.display = 'block';
+    });
+
+    window.handleDeposit = (email) => {
+      const user = users.find(u => u.email === email);
+      if (!user) return;
+      selectedUser = user;
+      currentTransactionType = 'deposit';
+      document.getElementById('transactionModalTitle').textContent = 'Deposit';
+      document.getElementById('transactionUser').value = `${user.name} (${user.email})`;
+      openModal('transactionModal');
+    };
+
+    window.handleWithdraw = (email) => {
+      const user = users.find(u => u.email === email);
+      if (!user) return;
+      selectedUser = user;
+      currentTransactionType = 'withdraw';
+      document.getElementById('transactionModalTitle').textContent = 'Withdraw';
+      document.getElementById('transactionUser').value = `${user.name} (${user.email})`;
+      openModal('transactionModal');
+    };
+
+    window.deleteUser = async (userId, userName) => {
+      if (!confirm(`Delete ${userName}?`)) return;
+      await deleteDoc(doc(db, "users", userId));
+    };
+
+    window.approveRequest = async (requestId) => {
+      const request = requests.find(r => r.id === requestId);
+      if (!request) return;
+      const user = users.find(u => u.email === request.userEmail);
+      if (!user) return;
+      const newBalance = request.type === 'deposit' ? user.balance + request.amount : user.balance - request.amount;
+      if (newBalance < 0) { alert('Insufficient funds'); return; }
+      await updateDoc(doc(db, "users", user.id), { balance: newBalance });
+      await updateDoc(doc(db, "requests", requestId), { status: 'approved' });
+      await setDoc(doc(collection(db, "transactions")), { userEmail: request.userEmail, userName: request.userName, type: request.type, amount: request.amount, timestamp: new Date().toISOString(), status: 'completed' });
+      await setDoc(doc(collection(db, "notifications")), { userEmail: request.userEmail, message: `✅ Your ${request.type} request for ${formatMoney(request.amount)} has been APPROVED.`, timestamp: new Date().toISOString(), read: false, type: 'request_approved' });
+    };
+
+    window.rejectRequest = async (requestId) => {
+      const request = requests.find(r => r.id === requestId);
+      if (!request) return;
+      await updateDoc(doc(db, "requests", requestId), { status: 'rejected' });
+      await setDoc(doc(collection(db, "notifications")), { userEmail: request.userEmail, message: `❌ Your ${request.type} request for ${formatMoney(request.amount)} was REJECTED.`, timestamp: new Date().toISOString(), read: false, type: 'request_rejected' });
+    };
+
+    window.openModal = (modalId) => document.getElementById(modalId).style.display = 'flex';
+    window.closeModal = (modalId) => document.getElementById(modalId).style.display = 'none';
+
+    document.getElementById('addUserBtn').addEventListener('click', () => openModal('addUserModal'));
+
+    document.getElementById('createUserBtn').addEventListener('click', async () => {
+      const name = document.getElementById('newUserName').value.trim();
+      const email = document.getElementById('newUserEmail').value.trim();
+      const password = document.getElementById('newUserPassword').value;
+      const balance = parseFloat(document.getElementById('newUserBalance').value) || 0;
+      if (!name || !email || !password) return alert('All fields required');
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", userCred.user.uid), { name, email, balance, createdAt: new Date().toISOString() });
+        closeModal('addUserModal');
+        document.getElementById('newUserName').value = document.getElementById('newUserEmail').value = '';
+        document.getElementById('newUserBalance').value = '0';
+      } catch (e) { alert(e.message); }
+    });
+
+    document.getElementById('confirmTransactionBtn').addEventListener('click', async () => {
+      const amount = parseFloat(document.getElementById('transactionAmount').value);
+      if (!amount || amount <= 0) return alert('Invalid amount');
+      const newBalance = currentTransactionType === 'deposit' ? selectedUser.balance + amount : selectedUser.balance - amount;
+      if (newBalance < 0) return alert('Insufficient funds');
+      await updateDoc(doc(db, "users", selectedUser.id), { balance: newBalance });
+      await setDoc(doc(collection(db, "transactions")), { userEmail: selectedUser.email, userName: selectedUser.name, type: currentTransactionType, amount, timestamp: new Date().toISOString(), status: 'completed' });
+      await setDoc(doc(collection(db, "notifications")), { userEmail: selectedUser.email, message: `💰 Admin ${currentTransactionType}: ${formatMoney(amount)}. New balance: ${formatMoney(newBalance)}`, timestamp: new Date().toISOString(), read: false, type: currentTransactionType });
+      closeModal('transactionModal');
+      document.getElementById('transactionAmount').value = '';
+    });
+
+    document.getElementById('userSearch').addEventListener('input', renderUsersTable);
+    document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+      const rate = parseFloat(document.getElementById('interestRate').value) || 1;
+      await updateDoc(doc(db, "settings", "interest"), { rate });
+      alert('Settings saved!');
+    });
+
+    // Per-user 30-day interest checker
+    setInterval(async () => {
+      const settingsDoc = await getDoc(doc(db, "settings", "interest"));
+      if (!settingsDoc.exists()) return;
+      const data = settingsDoc.data();
+      if (!data.autoEnabled) return;
+      
+      const now = new Date();
+      
+      for (const u of users) {
+        const userTrans = transactions.filter(t => t.userEmail === u.email && t.type === 'interest');
+        const lastInterest = userTrans.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        
+        let shouldApply = false;
+        if (lastInterest) {
+          const daysSince = (now - new Date(lastInterest.timestamp)) / (1000 * 60 * 60 * 24);
+          shouldApply = daysSince >= 30;
+        } else if (u.createdAt) {
+          const daysSince = (now - new Date(u.createdAt)) / (1000 * 60 * 60 * 24);
+          shouldApply = daysSince >= 30;
+        }
+        
+        if (shouldApply) {
+          const interest = (u.balance || 0) * (data.rate / 100 || 0.01);
+          if (interest > 0) {
+            await updateDoc(doc(db, "users", u.id), { balance: (u.balance || 0) + interest, lastInterestDate: now.toISOString() });
+            await setDoc(doc(collection(db, "transactions")), { userEmail: u.email, userName: u.name, type: 'interest', amount: interest, timestamp: now.toISOString() });
+            await setDoc(doc(collection(db, "notifications")), { userEmail: u.email, message: `📈 Monthly interest (1%): +${formatMoney(interest)} added to your account.`, timestamp: now.toISOString(), read: false, type: 'interest' });
+          }
+        }
+      }
+    }, 3600000);
+  </script>
+</body>
+</html>

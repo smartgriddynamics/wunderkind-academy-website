@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>IT Dashboard · Student Registration & User Management</title>
+
+<!-- Font Awesome 6 (free) for icons & brand -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+  /* ---------- GLOBAL & VARIABLES ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+    min-height: 100vh;
+    padding: clamp(1rem, 5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* ---------- DECORATIVE RADIAL CIRCLES (fixed) ---------- */
+  .bg-circle-1, .bg-circle-2 {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-circle-1 {
+    top: 2%;
+    left: 2%;
+    width: clamp(200px, 30vw, 280px);
+    height: clamp(200px, 30vw, 280px);
+    background: radial-gradient(circle, rgba(0,112,243,0.08) 0%, transparent 75%);
+  }
+  .bg-circle-2 {
+    bottom: 5%;
+    right: 2%;
+    width: clamp(240px, 35vw, 340px);
+    height: clamp(240px, 35vw, 340px);
+    background: radial-gradient(circle, rgba(0,180,210,0.07) 0%, transparent 80%);
+  }
+
+  /* ---------- MAIN CONTAINER (above circles) ---------- */
+  .dashboard-container {
+    max-width: 1400px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    animation: fadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ---------- GLASS CARD (reusable) ---------- */
+  .glass-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-radius: clamp(24px, 5vw, 32px);
+    box-shadow: 0 20px 35px -10px rgba(0,20,40,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset, 0 20px 35px -10px rgba(0,20,40,0.15);
+    padding: clamp(1.2rem, 4vw, 2rem);
+    transition: box-shadow 0.25s ease, background 0.25s;
+    margin-bottom: 1.8rem;
+  }
+  .glass-card:hover {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 24px 42px -12px rgba(0,60,120,0.2), 0 0 0 1px rgba(255,255,255,0.7) inset;
+  }
+
+  /* ---------- FLUID TYPOGRAPHY / CLAMP ---------- */
+  body, input, select, button, td, th, li, .badge, .info-note, #todayDate, h2 {
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    font-weight: 600;
+    color: #0b2b4e;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-weight: 600;
+    color: #1e4c6b;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-icon {
+    font-size: clamp(1.4rem, 4vw, 1.6rem);
+    color: #0a66c2;
+    background: rgba(10,102,194,0.08);
+    padding: 0.6rem;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- HEADER CARD (brand + role) ---------- */
+  .header-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand i {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    color: #0a66c2;
+    filter: drop-shadow(0 4px 6px rgba(0,102,204,0.2));
+  }
+  .brand-text {
+    background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    letter-spacing: -0.01em;
+  }
+  .role-badge {
+    background: rgba(10,102,194,0.15);
+    border-radius: 40px;
+    color: #0a4e7a;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ---------- FORM INPUTS WITH ICONS ---------- */
+  .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .input-icon-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b8ca3;
+    font-size: 1rem;
+    z-index: 2;
+  }
+  .input-icon-wrapper input,
+  .input-icon-wrapper select,
+  .input-icon-wrapper textarea {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid rgba(200,215,225,0.7);
+    border-radius: 20px;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s;
+    outline: none;
+    color: #1e2f3e;
+    appearance: none;
+  }
+  .input-icon-wrapper textarea {
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .input-icon-wrapper select {
+    background: rgba(255,255,255,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b8ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+    padding-right: 2.5rem;
+  }
+  .input-icon-wrapper input:focus,
+  .input-icon-wrapper select:focus,
+  .input-icon-wrapper textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+  }
+
+  /* ---------- BUTTON VARIANTS ---------- */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+  }
+  button i {
+    font-size: 0.95rem;
+  }
+  .btn-primary {
+    background: #0a66c2;
+    color: white;
+    box-shadow: 0 8px 16px -6px rgba(10,102,194,0.25);
+  }
+  .btn-primary:hover {
+    background: #004a8f;
+    scale: 1.02;
+    border-color: rgba(255,255,255,0.5);
+  }
+  .btn-success {
+    background: #10b981;
+    color: white;
+  }
+  .btn-success:hover {
+    background: #059669;
+    scale: 1.02;
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #dc2626;
+    scale: 1.02;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid #0a66c2;
+    color: #0a66c2;
+  }
+  .btn-outline:hover {
+    background: #0a66c2;
+    color: white;
+    scale: 1.02;
+  }
+  .btn-warning {
+    background: #f59e0b;
+    color: white;
+  }
+  .btn-warning:hover {
+    background: #d97706;
+    scale: 1.02;
+  }
+  .btn-small {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+  .btn-super {
+    background: #8b5cf6;
+    color: white;
+    box-shadow: 0 8px 16px -6px rgba(139,92,246,0.25);
+  }
+  .btn-super:hover {
+    background: #7c3aed;
+    scale: 1.02;
+  }
+  @media (max-width: 768px) {
+    button { width: 100%; justify-content: center; }
+  }
+
+  /* ---------- GRID & FLEX ---------- */
+  .grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 1.2rem;
+    align-items: end;
+  }
+  .flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+  }
+
+  /* ---------- TABLE STYLES ---------- */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 20px;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px rgba(10,102,194,0.1);
+  }
+  th {
+    background: #0a66c2;
+    color: white;
+    padding: 0.9rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+  }
+  th:first-child { border-radius: 16px 0 0 0; }
+  th:last-child { border-radius: 0 16px 0 0; }
+  td {
+    padding: 0.8rem 0.5rem;
+    border-bottom: 1px solid rgba(10,102,194,0.1);
+    background: transparent;
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:hover {
+    background: rgba(10,102,194,0.02);
+  }
+  tfoot tr {
+    background: #0a66c2;
+    color: white;
+    font-weight: 700;
+  }
+  tfoot td, tfoot th {
+    border-top: 2px solid rgba(255,255,255,0.3);
+    background: #0a66c2;
+    color: white;
+    padding: 1rem 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* ---------- INPUT STYLES INSIDE TABLE ---------- */
+  td input {
+    width: 60px;
+    padding: 0.5rem;
+    border-radius: 16px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.9);
+    text-align: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  td input:focus {
+    border-color: #0a66c2;
+    box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
+    outline: none;
+    background: white;
+  }
+  
+  /* Style for readonly inputs (attendance fields) */
+  td input[readonly] {
+    background: rgba(230, 240, 250, 0.5);
+    color: #2c5a73;
+    font-weight: 600;
+    border-color: rgba(10,102,194,0.2);
+    cursor: not-allowed;
+  }
+  
+  td:not(:first-child) {
+    font-weight: 500;
+  }
+
+  /* ---------- CLASS CHECKBOX GROUP ---------- */
+  .class-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(255,255,255,0.5);
+    border-radius: 20px;
+    border: 1px solid rgba(10,102,194,0.1);
+  }
+  .class-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid rgba(10,102,194,0.1);
+  }
+  .class-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0a66c2;
+    cursor: pointer;
+  }
+  .class-checkbox-item label {
+    font-weight: 500;
+    color: #1e4c6b;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  /* ---------- SELECTED CLASSES DISPLAY ---------- */
+  .selected-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    min-height: 40px;
+  }
+  .class-tag {
+    background: #0a66c2;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    animation: fadeIn 0.3s ease;
+  }
+  .class-tag i {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .class-tag i:hover {
+    opacity: 1;
+  }
+
+  /* ---------- ROLE BADGE VARIANTS ---------- */
+  .badge-success {
+    background: rgba(16,185,129,0.15);
+    color: #059669;
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .badge-warning {
+    background: rgba(245,158,11,0.15);
+    color: #d97706;
+    border: 1px solid rgba(245,158,11,0.3);
+  }
+  .badge-info {
+    background: rgba(142,68,173,0.15);
+    color: #8e44ad;
+    border: 1px solid rgba(142,68,173,0.3);
+  }
+  .badge-super {
+    background: rgba(139,92,246,0.15);
+    color: #7c3aed;
+    border: 1px solid rgba(139,92,246,0.3);
+  }
+
+  /* ---------- BADGES & INFO ---------- */
+  .badge {
+    background: rgba(10,102,194,0.1);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: #0a4e7a;
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .info-note {
+    background: rgba(10,102,194,0.04);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(10,102,194,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #2c5a73;
+    margin: 1.2rem 0;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b8ca3;
+    background: rgba(255,255,255,0.5);
+    border-radius: 24px;
+    font-style: italic;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeSlide {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  #logoutBtn i { transition: transform 0.2s; }
+  #logoutBtn:hover i { transform: translateX(3px); }
+
+  /* ---------- CUSTOM DATE DISPLAY ---------- */
+  #todayDate {
+    font-weight: 600;
+    color: #1e4c6b;
+    background: rgba(255,255,255,0.4);
+    padding: 0.3rem 1.2rem;
+    border-radius: 40px;
+    display: inline-block;
+    backdrop-filter: blur(4px);
+  }
+
+  hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid rgba(10,102,194,0.2);
+  }
+
+  /* ---------- QUESTION TEXTAREAS ---------- */
+  .question-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .question-header i {
+    color: #0a66c2;
+    font-size: 1.2rem;
+  }
+  
+  .question-header span {
+    font-weight: 600;
+    color: #1e4c6b;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(200,215,225,0.7);
+    background: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+  }
+  textarea:focus {
+    border-color: #0a66c2;
+    background: white;
+    box-shadow: 0 6px 14px rgba(10,102,194,0.08);
+    outline: none;
+  }
+
+  /* ---------- INFO MESSAGE ---------- */
+  .info-message {
+    background: rgba(10,102,194,0.05);
+    border-radius: 16px;
+    padding: 0.8rem 1.2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #0a4e7a;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-left: 4px solid #0a66c2;
+  }
+
+  /* ---------- EDIT MODE INDICATOR ---------- */
+  .edit-mode-indicator {
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 1rem;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+  }
+
+  /* ---------- SUPER USER ACCESS CARD ---------- */
+  .super-access-card {
+    background: linear-gradient(145deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05));
+    border: 2px solid rgba(139,92,246,0.3);
+  }
+  .user-select-dropdown {
+    padding: 0.8rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(139,92,246,0.3);
+    background: white;
+    font-size: 1rem;
+    min-width: 250px;
+  }
+</style>
+</head>
+
+<body>
+<!-- Decorative background circles -->
+<div class="bg-circle-1"></div>
+<div class="bg-circle-2"></div>
+
+<div class="dashboard-container">
+  <!-- HEADER CARD (brand + role) -->
+  <div class="glass-card header-card">
+    <div class="brand">
+      <i class="fas fa-chart-pie"></i>
+      <span class="brand-text">IT Dashboard</span>
+    </div>
+    <div class="role-badge">
+      <i class="fas fa-user-shield"></i> IT Admin
+      <span class="badge" style="margin-left: 0.5rem;">System Control</span>
+    </div>
+  </div>
+
+  <!-- DATE HEADER -->
+  <h2 style="display: flex; align-items: center; gap: 1rem;">
+    <i class="fas fa-calendar-alt" style="color: #0a66c2;"></i> 
+    System Configuration - <span id="todayDate"></span>
+  </h2>
+
+  <!-- ================= CLASS REGISTRATION TABLE (FIXED WITH ALL TOTALS) ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-chalkboard-teacher"></i></span> Class Registration (Prep 1 - Class 7)</h3>
+    
+    <div class="info-message">
+      <i class="fas fa-info-circle"></i>
+      <span><strong>Only Reg B and Reg G are editable.</strong> All totals are calculated automatically.</span>
+    </div>
+    
+    <div class="table-responsive">
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th rowspan="2">Class</th>
+            <th colspan="3">Registered</th>
+            <th colspan="3">Present</th>
+            <th colspan="3">Absent</th>
+            <th colspan="2">Permission</th>
+            <th colspan="2">Sick</th>
+          </tr>
+          <tr>
+            <th>B</th><th>G</th><th>T</th>
+            <th>B</th><th>G</th><th>T</th>
+            <th>B</th><th>G</th><th>T</th>
+            <th>B</th><th>G</th>
+            <th>B</th><th>G</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+        <tfoot>
+          <tr>
+            <td><strong>GRAND TOTAL</strong></td>
+            <td id="gRegB">0</td>
+            <td id="gRegG">0</td>
+            <td id="gRegT">0</td>
+            <td id="gPreB">0</td>
+            <td id="gPreG">0</td>
+            <td id="gPreT">0</td>
+            <td id="gAbsB">0</td>
+            <td id="gAbsG">0</td>
+            <td id="gAbsT">0</td>
+            <td id="gPermB">0</td>
+            <td id="gPermG">0</td>
+            <td id="gSickB">0</td>
+            <td id="gSickG">0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn-success" onclick="saveRegistration()">
+        <i class="fas fa-save"></i> Save Registration Numbers
+      </button>
+      <button class="btn-primary" onclick="loadRegistration()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= SUPER USER ACCESS CARD (NEW) ================= -->
+  <div class="glass-card super-access-card">
+    <h3><span class="section-icon"><i class="fas fa-crown" style="color: #8b5cf6;"></i></span> Super User Access</h3>
+    
+    <div class="info-message" style="border-left-color: #8b5cf6;">
+      <i class="fas fa-info-circle" style="color: #8b5cf6;"></i>
+      <span><strong>Super Users</strong> can view any user's dashboard without logging into their account.</span>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <select id="superUserSelect" class="user-select-dropdown" onchange="viewAsUser()">
+        <option value="">Select a user to view as...</option>
+      </select>
+      <button class="btn-super" onclick="openSuperView()">
+        <i class="fas fa-eye"></i> View Dashboard
+      </button>
+      <button class="btn-outline" onclick="refreshUserList()" style="border-color: #8b5cf6; color: #8b5cf6;">
+        <i class="fas fa-sync-alt"></i> Refresh List
+      </button>
+    </div>
+    
+    <div id="superUserInfo" style="margin-top: 1rem; font-size: 0.9rem; color: #6b8ca3;">
+      <i class="fas fa-shield-alt"></i> You can access any user's dashboard while maintaining your IT privileges
+    </div>
+  </div>
+
+  <!-- ================= USER MANAGEMENT WITH CLASS ASSIGNMENT ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-user-plus"></i></span> Create / Edit User</h3>
+    
+    <div class="grid-auto">
+      <div class="input-icon-wrapper">
+        <i class="fas fa-user"></i>
+        <input type="text" id="newName" placeholder="Full Name">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="newEmail" placeholder="Email">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="newPass" placeholder="Password (new users only)">
+      </div>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-briefcase"></i>
+        <select id="newRole" onchange="toggleClassSelection()">
+          <option value="TOD">TOD (Teacher On Duty)</option>
+          <option value="CT">CT (Class Teacher)</option>
+          <option value="HT">HT (Head Teacher)</option>
+          <option value="SHC">SHC</option>
+          <option value="SUPER">SUPER (Super User)</option>
+          <option value="IT">IT</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Class Selection for CT and TOD -->
+    <div id="classSelectionSection" style="display: none; margin-top: 1.5rem;">
+      <h4 style="color: #0a4e7a; margin-bottom: 1rem;">
+        <i class="fas fa-chalkboard"></i> Assign Classes (select multiple)
+      </h4>
+      <div class="info-note" style="margin-bottom: 1rem;">
+        <i class="fas fa-info-circle"></i> CTs and TODs can be assigned to multiple classes.
+      </div>
+      
+      <!-- Class Checkboxes -->
+      <div id="classCheckboxes" class="class-checkbox-group"></div>
+      
+      <!-- Selected Classes Display -->
+      <div id="selectedClassesDisplay" class="selected-classes"></div>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+      <button class="btn-success" onclick="createUser()">
+        <i class="fas fa-check-circle"></i> Create User
+      </button>
+      <button class="btn-primary" onclick="clearUserForm()">
+        <i class="fas fa-undo"></i> Clear Form
+      </button>
+      <div id="editModeIndicator" class="edit-mode-indicator" style="display: none;">
+        <i class="fas fa-pen"></i> Editing Mode
+      </div>
+    </div>
+
+    <h3 style="margin-top: 2rem;"><span class="section-icon"><i class="fas fa-users"></i></span> All Users</h3>
+    
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Classes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ================= DAILY QUESTIONS ================= -->
+  <div class="glass-card">
+    <h3><span class="section-icon"><i class="fas fa-clipboard-list"></i></span> Daily Questions</h3>
+    
+    <div class="question-section">
+      <div class="question-header">
+        <i class="fas fa-user-tie"></i>
+        <span>TOD Questions</span>
+      </div>
+      <textarea id="todQ" rows="3" placeholder="Enter TOD questions for today..."></textarea>
+    </div>
+    
+    <div class="question-section">
+      <div class="question-header">
+        <i class="fas fa-user-shield"></i>
+        <span>HT / SHC Questions</span>
+      </div>
+      <textarea id="htQ" rows="3" placeholder="Enter HT questions for today..."></textarea>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end;">
+      <button class="btn-primary" onclick="saveQuestions()">
+        <i class="fas fa-save"></i> Save Questions
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== LOGOUT BUTTON ========== -->
+  <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+    <button id="logoutBtn" class="btn-outline" style="border-width: 1.5px; padding: 0.7rem 2.2rem;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, getDoc, getDocs,
+  collection, deleteDoc, updateDoc, query, where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signOut, signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// ========== FIREBASE CONFIG ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
+  authDomain: "teacher-on-duty-system.firebaseapp.com",
+  projectId: "teacher-on-duty-system",
+  storageBucket: "teacher-on-duty-system.firebasestorage.app",
+  messagingSenderId: "723640168531",
+  appId: "1:723640168531:web:a52f5dac1f5502460016a6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ========== DATE ==========
+document.getElementById("todayDate").innerText = 
+  new Date().toLocaleDateString("en-US", { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+/* ---------- GLOBAL VARIABLES ---------- */
+let currentUserId = null;
+let editingUserId = null;
+let allUsers = [];
+
+/* ---------- CLASS LIST ---------- */
+const classes = [
+  "Prep 1", "Prep 2",
+  "Class 1", "Class 2", "Class 3",
+  "Class 4", "Class 5", "Class 6", "Class 7"
+];
+
+/* ---------- ROLE PROTECTION (IT only) ---------- */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { 
+    window.location = "index.html"; 
+    return;
+  }
+  
+  currentUserId = user.uid;
+  
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists() || snap.data().role !== "IT") {
+    alert("Access Denied: IT admin only");
+    window.location = "index.html";
+  }
+  await loadUsers();
+  loadRegistration();
+  loadQuestions();
+  initClassCheckboxes();
+  await loadSuperUserList();
+});
+
+/* ---------- INIT CLASS CHECKBOXES ---------- */
+function initClassCheckboxes() {
+  const container = document.getElementById("classCheckboxes");
+  container.innerHTML = "";
+  
+  classes.forEach(cls => {
+    const div = document.createElement("div");
+    div.className = "class-checkbox-item";
+    div.innerHTML = `
+      <input type="checkbox" id="cls_${cls.replace(/\s/g, '_')}" value="${cls}" onchange="updateSelectedClasses()">
+      <label for="cls_${cls.replace(/\s/g, '_')}">${cls}</label>
+    `;
+    container.appendChild(div);
+  });
+}
+
+/* ---------- TOGGLE CLASS SELECTION BASED ON ROLE ---------- */
+window.toggleClassSelection = function() {
+  const role = document.getElementById("newRole").value;
+  const section = document.getElementById("classSelectionSection");
+  
+  if (role === "CT" || role === "TOD") {
+    section.style.display = "block";
+  } else {
+    section.style.display = "none";
+    clearClassSelections();
+  }
+};
+
+/* ---------- CLEAR CLASS SELECTIONS ---------- */
+function clearClassSelections() {
+  document.querySelectorAll('#classCheckboxes input[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+  });
+  document.getElementById("selectedClassesDisplay").innerHTML = "";
+}
+
+/* ---------- UPDATE SELECTED CLASSES DISPLAY ---------- */
+window.updateSelectedClasses = function() {
+  const selected = [];
+  document.querySelectorAll('#classCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+    selected.push(cb.value);
+  });
+  
+  const display = document.getElementById("selectedClassesDisplay");
+  display.innerHTML = "";
+  
+  selected.forEach(cls => {
+    const tag = document.createElement("span");
+    tag.className = "class-tag";
+    tag.innerHTML = `${cls} <i class="fas fa-times" onclick="removeClass('${cls}')"></i>`;
+    display.appendChild(tag);
+  });
+};
+
+/* ---------- REMOVE CLASS FROM SELECTION ---------- */
+window.removeClass = function(cls) {
+  const cb = document.getElementById(`cls_${cls.replace(/\s/g, '_')}`);
+  if (cb) {
+    cb.checked = false;
+    updateSelectedClasses();
+  }
+};
+
+/* ---------- CREATE TABLE WITH FIXED TOTALS ---------- */
+const tbody = document.getElementById("attendanceBody");
+
+function createTable() {
+  tbody.innerHTML = "";
+  
+  classes.forEach(c => {
+    const tr = document.createElement("tr");
+    
+    // Class name cell
+    const tdClass = document.createElement("td");
+    tdClass.innerHTML = `<strong>${c}</strong>`;
+    tr.appendChild(tdClass);
+    
+    // Reg B (EDITABLE)
+    const tdRegB = document.createElement("td");
+    tdRegB.innerHTML = `<input type="number" class="regB" value="0" min="0">`;
+    tr.appendChild(tdRegB);
+    
+    // Reg G (EDITABLE)
+    const tdRegG = document.createElement("td");
+    tdRegG.innerHTML = `<input type="number" class="regG" value="0" min="0">`;
+    tr.appendChild(tdRegG);
+    
+    // Reg T (READONLY - calculated)
+    const tdRegT = document.createElement("td");
+    tdRegT.innerHTML = `<input type="number" class="regT" value="0" readonly>`;
+    tr.appendChild(tdRegT);
+    
+    // Pre B (READONLY)
+    const tdPreB = document.createElement("td");
+    tdPreB.innerHTML = `<input type="number" class="preB" value="0" readonly>`;
+    tr.appendChild(tdPreB);
+    
+    // Pre G (READONLY)
+    const tdPreG = document.createElement("td");
+    tdPreG.innerHTML = `<input type="number" class="preG" value="0" readonly>`;
+    tr.appendChild(tdPreG);
+    
+    // Pre T (READONLY)
+    const tdPreT = document.createElement("td");
+    tdPreT.innerHTML = `<input type="number" class="preT" value="0" readonly>`;
+    tr.appendChild(tdPreT);
+    
+    // Abs B (READONLY)
+    const tdAbsB = document.createElement("td");
+    tdAbsB.innerHTML = `<input type="number" class="absB" value="0" readonly>`;
+    tr.appendChild(tdAbsB);
+    
+    // Abs G (READONLY)
+    const tdAbsG = document.createElement("td");
+    tdAbsG.innerHTML = `<input type="number" class="absG" value="0" readonly>`;
+    tr.appendChild(tdAbsG);
+    
+    // Abs T (READONLY)
+    const tdAbsT = document.createElement("td");
+    tdAbsT.innerHTML = `<input type="number" class="absT" value="0" readonly>`;
+    tr.appendChild(tdAbsT);
+    
+    // Perm B (READONLY)
+    const tdPermB = document.createElement("td");
+    tdPermB.innerHTML = `<input type="number" class="permB" value="0" readonly>`;
+    tr.appendChild(tdPermB);
+    
+    // Perm G (READONLY)
+    const tdPermG = document.createElement("td");
+    tdPermG.innerHTML = `<input type="number" class="permG" value="0" readonly>`;
+    tr.appendChild(tdPermG);
+    
+    // Sick B (READONLY)
+    const tdSickB = document.createElement("td");
+    tdSickB.innerHTML = `<input type="number" class="sickB" value="0" readonly>`;
+    tr.appendChild(tdSickB);
+    
+    // Sick G (READONLY)
+    const tdSickG = document.createElement("td");
+    tdSickG.innerHTML = `<input type="number" class="sickG" value="0" readonly>`;
+    tr.appendChild(tdSickG);
+    
+    tbody.appendChild(tr);
+  });
+  
+  // Add event listeners to Reg B and Reg G to update Reg T
+  document.querySelectorAll('.regB, .regG').forEach(input => {
+    input.addEventListener('input', function() {
+      const row = this.closest('tr');
+      const regB = +row.querySelector('.regB').value || 0;
+      const regG = +row.querySelector('.regG').value || 0;
+      row.querySelector('.regT').value = regB + regG;
+      calculateTotals();
+    });
+  });
+}
+
+createTable();
+
+/* ---------- CALCULATE ALL TOTALS (FIXED) ---------- */
+function calculateTotals() {
+  let gRegB = 0, gRegG = 0, gRegT = 0;
+  let gPreB = 0, gPreG = 0, gPreT = 0;
+  let gAbsB = 0, gAbsG = 0, gAbsT = 0;
+  let gPermB = 0, gPermG = 0;
+  let gSickB = 0, gSickG = 0;
+
+  [...tbody.rows].forEach(r => {
+    const regB = +r.querySelector(".regB").value || 0;
+    const regG = +r.querySelector(".regG").value || 0;
+    const preB = +r.querySelector(".preB").value || 0;
+    const preG = +r.querySelector(".preG").value || 0;
+    const absB = +r.querySelector(".absB").value || 0;
+    const absG = +r.querySelector(".absG").value || 0;
+    const permB = +r.querySelector(".permB").value || 0;
+    const permG = +r.querySelector(".permG").value || 0;
+    const sickB = +r.querySelector(".sickB").value || 0;
+    const sickG = +r.querySelector(".sickG").value || 0;
+
+    // Update Reg T
+    r.querySelector(".regT").value = regB + regG;
+    // Update Pre T
+    r.querySelector(".preT").value = preB + preG;
+    // Update Abs T
+    r.querySelector(".absT").value = absB + absG;
+
+    gRegB += regB; gRegG += regG;
+    gPreB += preB; gPreG += preG;
+    gAbsB += absB; gAbsG += absG;
+    gPermB += permB; gPermG += permG;
+    gSickB += sickB; gSickG += sickG;
+  });
+
+  gRegT = gRegB + gRegG;
+  gPreT = gPreB + gPreG;
+  gAbsT = gAbsB + gAbsG;
+
+  // Update footer with all totals
+  document.getElementById("gRegB").innerText = gRegB;
+  document.getElementById("gRegG").innerText = gRegG;
+  document.getElementById("gRegT").innerText = gRegT;
+  document.getElementById("gPreB").innerText = gPreB;
+  document.getElementById("gPreG").innerText = gPreG;
+  document.getElementById("gPreT").innerText = gPreT;
+  document.getElementById("gAbsB").innerText = gAbsB;
+  document.getElementById("gAbsG").innerText = gAbsG;
+  document.getElementById("gAbsT").innerText = gAbsT;
+  document.getElementById("gPermB").innerText = gPermB;
+  document.getElementById("gPermG").innerText = gPermG;
+  document.getElementById("gSickB").innerText = gSickB;
+  document.getElementById("gSickG").innerText = gSickG;
+}
+
+/* ---------- SAVE REGISTRATION ---------- */
+window.saveRegistration = async () => {
+  const registrationData = [];
+  [...tbody.rows].forEach(r => {
+    registrationData.push({
+      class: r.cells[0].innerText,
+      regB: +r.querySelector(".regB").value || 0,
+      regG: +r.querySelector(".regG").value || 0
+    });
+  });
+  
+  await setDoc(doc(db, "system", "classRegistration"), { 
+    classes: registrationData,
+    lastUpdated: new Date(),
+    updatedBy: auth.currentUser?.email || 'IT Admin'
+  });
+  
+  alert("✅ Registration numbers saved!");
+};
+
+/* ---------- LOAD REGISTRATION ---------- */
+window.loadRegistration = async () => {
+  const snap = await getDoc(doc(db, "system", "classRegistration"));
+  if (snap.exists()) {
+    const data = snap.data().classes;
+    if (data && data.length) {
+      [...tbody.rows].forEach((r, index) => {
+        if (data[index]) {
+          r.querySelector(".regB").value = data[index].regB || 0;
+          r.querySelector(".regG").value = data[index].regG || 0;
+        }
+      });
+      calculateTotals();
+    }
+  }
+  
+  // Also load attendance data for today to display other fields
+  const today = new Date().toISOString().split('T')[0];
+  const attendanceSnap = await getDoc(doc(db, "attendance", today));
+  if (attendanceSnap.exists()) {
+    const data = attendanceSnap.data().data;
+    if (data && data.length) {
+      [...tbody.rows].forEach((r, index) => {
+        if (data[index]) {
+          r.querySelector(".preB").value = data[index].preB || 0;
+          r.querySelector(".preG").value = data[index].preG || 0;
+          r.querySelector(".absB").value = data[index].absB || 0;
+          r.querySelector(".absG").value = data[index].absG || 0;
+          r.querySelector(".permB").value = data[index].perB || 0;
+          r.querySelector(".permG").value = data[index].perG || 0;
+          r.querySelector(".sickB").value = data[index].sickB || 0;
+          r.querySelector(".sickG").value = data[index].sickG || 0;
+        }
+      });
+      calculateTotals();
+    }
+  }
+};
+
+/* ---------- LOAD SUPER USER LIST ---------- */
+async function loadSuperUserList() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  const select = document.getElementById("superUserSelect");
+  select.innerHTML = '<option value="">Select a user to view as...</option>';
+  
+  allUsers = [];
+  usersSnap.forEach(doc => {
+    const user = { id: doc.id, ...doc.data() };
+    allUsers.push(user);
+    
+    // Don't show IT users in the list (they already have access)
+    if (user.role !== 'IT') {
+      const option = document.createElement("option");
+      option.value = user.id;
+      option.textContent = `${user.name || 'Unknown'} (${user.role}) - ${user.email}`;
+      select.appendChild(option);
+    }
+  });
+}
+
+/* ---------- REFRESH USER LIST ---------- */
+window.refreshUserList = async function() {
+  await loadSuperUserList();
+  alert("✅ User list refreshed");
+};
+
+/* ---------- VIEW AS SELECTED USER (SUPER USER FEATURE) ---------- */
+window.viewAsUser = function() {
+  const select = document.getElementById("superUserSelect");
+  const userId = select.value;
+  
+  if (!userId) {
+    document.getElementById("superUserInfo").innerHTML = `
+      <i class="fas fa-shield-alt"></i> Select a user to view their dashboard
+    `;
+    return;
+  }
+  
+  const user = allUsers.find(u => u.id === userId);
+  if (user) {
+    document.getElementById("superUserInfo").innerHTML = `
+      <i class="fas fa-check-circle" style="color: #10b981;"></i> 
+      Ready to view <strong>${user.name || 'Unknown'}</strong> (${user.role}) dashboard
+    `;
+  }
+};
+
+/* ---------- OPEN SUPER VIEW (NEW WINDOW WITH USER IMPERSONATION) ---------- */
+window.openSuperView = function() {
+  const select = document.getElementById("superUserSelect");
+  const userId = select.value;
+  
+  if (!userId) {
+    alert("Please select a user first");
+    return;
+  }
+  
+  const user = allUsers.find(u => u.id === userId);
+  if (!user) return;
+  
+  // Determine which dashboard to open based on role
+  let dashboardPage = "";
+  switch(user.role) {
+    case "TOD":
+      dashboardPage = "tod.html";
+      break;
+    case "CT":
+      dashboardPage = "tod.html"; // CT uses same dashboard
+      break;
+    case "HT":
+      dashboardPage = "ht.html";
+      break;
+    case "SUPER":
+      dashboardPage = "super.html"; // You can create a super dashboard
+      break;
+    default:
+      dashboardPage = "dashboard.html";
+  }
+  
+  // Open in new window with super access parameter
+  const superWindow = window.open(`${dashboardPage}?superId=${userId}&superToken=${currentUserId}`, '_blank');
+  
+  if (superWindow) {
+    superWindow.focus();
+    document.getElementById("superUserInfo").innerHTML = `
+      <i class="fas fa-check-circle" style="color: #10b981;"></i> 
+      Dashboard opened for <strong>${user.name || 'Unknown'}</strong>
+    `;
+  } else {
+    alert("Please allow pop-ups to open the dashboard");
+  }
+};
+
+/* ---------- SAVE QUESTIONS ---------- */
+window.saveQuestions = async () => {
+  const todQuestion = document.getElementById("todQ").value;
+  const htQuestion = document.getElementById("htQ").value;
+  
+  await setDoc(doc(db, "questions", "daily"), {
+    tod: todQuestion,
+    ht: htQuestion,
+    updatedAt: new Date(),
+    updatedBy: auth.currentUser?.email || 'IT Admin'
+  });
+  
+  alert("✅ Questions saved!");
+};
+
+/* ---------- LOAD QUESTIONS ---------- */
+async function loadQuestions() {
+  const qSnap = await getDoc(doc(db, "questions", "daily"));
+  if (qSnap.exists()) {
+    document.getElementById("todQ").value = qSnap.data().tod || "";
+    document.getElementById("htQ").value = qSnap.data().ht || "";
+  }
+}
+
+/* ---------- LOAD USERS ---------- */
+async function loadUsers() {
+  const snap = await getDocs(collection(db, "users"));
+  const body = document.getElementById("usersBody");
+  body.innerHTML = "";
+  
+  for (const docu of snap.docs) {
+    const u = docu.data();
+    const isCurrentUser = (docu.id === currentUserId);
+    
+    // Get assigned classes for display
+    let classesHtml = '';
+    if (u.assignedClasses && u.assignedClasses.length > 0) {
+      classesHtml = u.assignedClasses.map(cls => 
+        `<span class="badge badge-success" style="margin: 2px;">${cls}</span>`
+      ).join(' ');
+    } else {
+      classesHtml = '<span class="badge" style="opacity: 0.5;">None</span>';
+    }
+    
+    // Role badge color
+    let roleBadgeClass = '';
+    if (u.role === 'CT') roleBadgeClass = 'badge-success';
+    else if (u.role === 'TOD') roleBadgeClass = 'badge-warning';
+    else if (u.role === 'HT') roleBadgeClass = 'badge-info';
+    else if (u.role === 'SUPER') roleBadgeClass = 'badge-super';
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${u.name || ''}</strong> ${isCurrentUser ? '<span class="badge" style="background: #0a66c2; color: white;">You</span>' : ''}</td>
+      <td>${u.email || ''}</td>
+      <td><span class="badge ${roleBadgeClass}">${u.role || ''}</span> ${u.isAlsoCT ? '<span class="badge badge-success" style="margin-left: 2px;">Also CT</span>' : ''}</td>
+      <td>${classesHtml}</td>
+      <td>
+        <button class="btn-small btn-primary" style="margin: 0 2px;" onclick="editUser('${docu.id}')">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn-small btn-danger" style="margin: 0 2px;" onclick="deleteUser('${docu.id}', ${isCurrentUser})">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+        ${u.role !== 'IT' ? `
+        <button class="btn-small btn-super" style="margin: 0 2px;" onclick="quickViewAsUser('${docu.id}')">
+          <i class="fas fa-eye"></i> Quick View
+        </button>
+        ` : ''}
+      </td>
+    `;
+    body.appendChild(tr);
+  }
+}
+
+/* ---------- QUICK VIEW AS USER ---------- */
+window.quickViewAsUser = function(userId) {
+  const select = document.getElementById("superUserSelect");
+  select.value = userId;
+  viewAsUser();
+  openSuperView();
+};
+
+/* ---------- CLEAR USER FORM ---------- */
+window.clearUserForm = function() {
+  editingUserId = null;
+  document.getElementById("newName").value = "";
+  document.getElementById("newEmail").value = "";
+  document.getElementById("newPass").value = "";
+  document.getElementById("newRole").value = "TOD";
+  document.getElementById("editModeIndicator").style.display = "none";
+  clearClassSelections();
+  toggleClassSelection();
+};
+
+/* ---------- EDIT USER ---------- */
+window.editUser = async (id) => {
+  const userDoc = await getDoc(doc(db, "users", id));
+  if (!userDoc.exists()) return;
+  
+  const userData = userDoc.data();
+  editingUserId = id;
+  
+  document.getElementById("newName").value = userData.name || '';
+  document.getElementById("newEmail").value = userData.email || '';
+  document.getElementById("newPass").value = ''; // Don't show password
+  document.getElementById("newRole").value = userData.role || 'TOD';
+  document.getElementById("editModeIndicator").style.display = "inline-flex";
+  
+  // Show class selection if CT or TOD
+  toggleClassSelection();
+  
+  // Clear and set checkboxes
+  clearClassSelections();
+  if (userData.assignedClasses && userData.assignedClasses.length > 0) {
+    userData.assignedClasses.forEach(cls => {
+      const cb = document.getElementById(`cls_${cls.replace(/\s/g, '_')}`);
+      if (cb) cb.checked = true;
+    });
+    updateSelectedClasses();
+  }
+};
+
+/* ---------- CREATE/UPDATE USER ---------- */
+window.createUser = async () => {
+  const name = document.getElementById("newName").value.trim();
+  const email = document.getElementById("newEmail").value.trim();
+  const pass = document.getElementById("newPass").value;
+  const role = document.getElementById("newRole").value;
+  
+  // Get selected classes
+  const assignedClasses = [];
+  document.querySelectorAll('#classCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+    assignedClasses.push(cb.value);
+  });
+  
+  if (!name || !email) return alert("Name and Email are required");
+  
+  const admin = auth.currentUser;
+  const adminEmail = admin.email;
+  
+  try {
+    if (editingUserId) {
+      // Update existing user
+      const userData = {
+        name,
+        email,
+        role,
+        updatedAt: new Date(),
+        updatedBy: adminEmail
+      };
+      
+      // Add classes if CT or TOD
+      if (role === "CT" || role === "TOD") {
+        userData.assignedClasses = assignedClasses;
+        userData.isAlsoCT = (role === "TOD" && assignedClasses.length > 0);
+      } else {
+        userData.assignedClasses = [];
+        userData.isAlsoCT = false;
+      }
+      
+      await updateDoc(doc(db, "users", editingUserId), userData);
+      alert("✅ User Updated Successfully");
+    } else {
+      // Create new user
+      if (!pass) return alert("Password required for new users");
+      
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      
+      const userData = {
+        name,
+        email,
+        role,
+        createdAt: new Date(),
+        createdBy: adminEmail
+      };
+      
+      // Add classes if CT or TOD
+      if (role === "CT" || role === "TOD") {
+        userData.assignedClasses = assignedClasses;
+        userData.isAlsoCT = (role === "TOD" && assignedClasses.length > 0);
+      } else {
+        userData.assignedClasses = [];
+        userData.isAlsoCT = false;
+      }
+      
+      await setDoc(doc(db, "users", cred.user.uid), userData);
+      
+      // Sign back in as admin
+      await signOut(auth);
+      const adminPass = prompt("Re-enter IT admin password to continue");
+      if (!adminPass) {
+        window.location = "index.html";
+        return;
+      }
+      await signInWithEmailAndPassword(auth, adminEmail, adminPass);
+      
+      alert("✅ User Created Successfully");
+    }
+    
+    clearUserForm();
+    await loadUsers();
+    await loadSuperUserList();
+  } catch (e) {
+    alert("Error: " + e.message);
+  }
+};
+
+/* ---------- DELETE USER ---------- */
+window.deleteUser = async (id, isCurrentUser) => {
+  // Check if trying to delete themselves
+  if (isCurrentUser) {
+    alert("❌ You cannot delete your own account!");
+    return;
+  }
+  
+  if (confirm("Delete this user?")) {
+    try {
+      await deleteDoc(doc(db, "users", id));
+      alert("✅ User deleted successfully");
+      await loadUsers();
+      await loadSuperUserList();
+    } catch (error) {
+      alert("Error deleting user: " + error.message);
+    }
+  }
+};
+
+/* ---------- LOGOUT ---------- */
+document.getElementById("logoutBtn").onclick = async () => {
+  await signOut(auth);
+  window.location = "index.html";
+};
+
+// Load initial data
+loadQuestions();
+
+// Make functions globally available
+window.calculateTotals = calculateTotals;
+window.saveRegistration = saveRegistration;
+window.loadRegistration = loadRegistration;
+window.saveQuestions = saveQuestions;
+window.createUser = createUser;
+window.editUser = editUser;
+window.deleteUser = deleteUser;
+window.clearUserForm = clearUserForm;
+window.toggleClassSelection = toggleClassSelection;
+window.updateSelectedClasses = updateSelectedClasses;
+window.removeClass = removeClass;
+window.viewAsUser = viewAsUser;
+window.openSuperView = openSuperView;
+window.refreshUserList = refreshUserList;
+window.quickViewAsUser = quickViewAsUser;
+</script>
+
+</body>
+</html>

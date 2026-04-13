@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>miniBank · Client Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .client-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .navbar { background: white; border-radius: 20px; padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 15px; }
+    .nav-brand { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-menu { display: flex; gap: 30px; flex-wrap: wrap; }
+    .nav-link { color: #4a5568; text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 2px solid transparent; cursor: pointer; }
+    .nav-link:hover, .nav-link.active { color: #667eea; border-bottom-color: #667eea; }
+    .nav-actions { display: flex; align-items: center; gap: 20px; }
+    .notification-icon { position: relative; cursor: pointer; }
+    .badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .logout-btn:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3); }
+    .welcome-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+    .user-greeting h1 { font-size: 2rem; color: #1a1a2e; }
+    .user-greeting p { color: #718096; }
+    .balance-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
+    .balance-label { font-size: 1rem; opacity: 0.9; }
+    .balance-amount { font-size: 3.5rem; font-weight: 700; margin: 10px 0; }
+    .interest-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+    @media (max-width: 480px) { .interest-stats { grid-template-columns: 1fr; } }
+    .interest-stat-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
+    .interest-stat-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
+    .interest-stat-value { font-size: 1.5rem; font-weight: 700; }
+    .progress-bar { background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+    .progress-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .quick-actions { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+    .btn-action { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
+    .btn-action:hover { background: rgba(255,255,255,0.3); }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    @media (max-width: 768px) { 
+      .dashboard-grid { grid-template-columns: 1fr; } 
+      .navbar { flex-direction: column; text-align: center; }
+      .nav-menu { justify-content: center; }
+      .balance-amount { font-size: 2.5rem; }
+      .user-greeting h1 { font-size: 1.5rem; }
+      .notifications-panel { width: 90% !important; right: 5% !important; }
+    }
+    .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .card-title { font-size: 1.2rem; font-weight: 600; color: #1a1a2e; }
+    .chart-container { position: relative; height: 250px; }
+    .transaction-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
+    .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 12px; flex-wrap: wrap; gap: 10px; }
+    .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
+    .transaction-icon.deposit { background: #d1fae5; color: #10b981; }
+    .transaction-icon.withdrawal { background: #fee2e2; color: #ef4444; }
+    .transaction-icon.interest { background: #e0e7ff; color: #8b5cf6; }
+    .transaction-info { flex: 1; min-width: 150px; }
+    .transaction-title { font-weight: 600; margin-bottom: 4px; }
+    .transaction-date { font-size: 0.8rem; color: #718096; }
+    .transaction-amount { font-weight: 600; }
+    .amount-positive { color: #10b981; }
+    .amount-negative { color: #ef4444; }
+    .calculator-form { margin-top: 20px; }
+    .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    @media (max-width: 480px) { .calc-row { grid-template-columns: 1fr; } }
+    .calc-result { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; text-align: center; }
+    .calc-result-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+    .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .calc-breakdown-item { text-align: center; }
+    .calc-breakdown-label { font-size: 0.8rem; opacity: 0.8; }
+    .calc-breakdown-value { font-size: 1.1rem; font-weight: 600; }
+    .request-form { margin-top: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568; }
+    .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .btn-submit { width: 100%; padding: 14px; background: #667eea; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-calculate { width: 100%; padding: 14px; background: #764ba2; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .notifications-panel { position: fixed; top: 100px; right: 20px; width: 350px; max-height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; display: none; z-index: 1000; }
+    .notifications-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+    .notifications-body { max-height: 400px; overflow-y: auto; }
+    .notification-item { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+    .notification-item:hover { background: #f7fafc; }
+    .notification-item.unread { background: #e0e7ff; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+    .modal { background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .modal-close { cursor: pointer; font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="client-container">
+    <nav class="navbar">
+      <div class="nav-brand"><i class="fas fa-piggy-bank"></i> miniBank</div>
+      <div class="nav-menu">
+        <a class="nav-link active" data-section="dashboard">Dashboard</a>
+        <a class="nav-link" data-section="calculator">Calculator</a>
+        <a class="nav-link" data-section="transactions">Transactions</a>
+        <a class="nav-link" data-section="request">Request</a>
+      </div>
+      <div class="nav-actions">
+        <div class="notification-icon" id="notificationBell">
+          <i class="fas fa-bell"></i>
+          <span class="badge" id="notificationBadge">0</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <div class="content-section active" id="dashboard-section">
+      <div class="welcome-card">
+        <div class="welcome-header">
+          <div class="user-greeting">
+            <h1 id="greeting">Welcome back!</h1>
+            <p id="userEmail">client@example.com</p>
+          </div>
+        </div>
+        <div class="balance-card">
+          <div class="balance-label">Current Balance</div>
+          <div class="balance-amount" id="balance">TSh 0</div>
+          
+          <div class="interest-stats">
+            <div class="interest-stat-card">
+              <div class="interest-stat-label"><i class="fas fa-percent"></i> Monthly Interest (1%)</div>
+              <div class="interest-stat-value" id="monthlyInterest">TSh 0</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="interestProgress" style="width: 0%"></div>
+              </div>
+              <small id="daysUntilInterest">Next interest in 30 days</small>
+            </div>
+            <div class="interest-stat-card">
+              <div class="interest-stat-label"><i class="fas fa-calendar"></i> Total Interest Earned</div>
+              <div class="interest-stat-value" id="totalInterestEarned">TSh 0</div>
+              <small>All time</small>
+            </div>
+          </div>
+          
+          <div class="quick-actions">
+            <button class="btn-action" onclick="openRequestModal('deposit')"><i class="fas fa-plus"></i> Request Deposit</button>
+            <button class="btn-action" onclick="openRequestModal('withdraw')"><i class="fas fa-minus"></i> Request Withdrawal</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">Balance History</h3></div>
+          <div class="chart-container"><canvas id="balanceHistoryChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">Transaction Breakdown</h3></div>
+          <div class="chart-container"><canvas id="transactionBreakdownChart"></canvas></div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Recent Transactions</h3></div>
+        <div class="transaction-list" id="recentTransactions"></div>
+      </div>
+    </div>
+
+    <!-- Calculator Section -->
+    <div class="content-section" id="calculator-section">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-calculator"></i> Interest Calculator</h3>
+          <p style="color: #718096; font-size: 0.9rem;">1% Monthly Compound Interest</p>
+        </div>
+        <div class="calculator-form">
+          <div class="calc-row">
+            <div class="form-group"><label class="form-label">Initial Deposit (TSh)</label><input type="number" id="calcPrincipal" class="form-input" placeholder="500,000" value="500000"></div>
+            <div class="form-group"><label class="form-label">Monthly Deposit (TSh)</label><input type="number" id="calcMonthly" class="form-input" placeholder="0" value="0"></div>
+          </div>
+          <div class="calc-row">
+            <div class="form-group"><label class="form-label">Time Period</label><select id="calcTimeUnit" class="form-input"><option value="months">Months</option><option value="years" selected>Years</option></select></div>
+            <div class="form-group"><label class="form-label">Duration</label><input type="number" id="calcDuration" class="form-input" placeholder="4" value="4"></div>
+          </div>
+          <button class="btn-calculate" id="calculateBtn"><i class="fas fa-chart-line"></i> Calculate Future Value</button>
+          <div class="calc-result" id="calcResult" style="display: none;">
+            <p><i class="fas fa-chart-pie"></i> Future Value</p>
+            <div class="calc-result-value" id="calcFutureValue">TSh 0</div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Total Deposited</div><div class="calc-breakdown-value" id="calcTotalDeposited">TSh 0</div></div>
+              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Interest Earned</div><div class="calc-breakdown-value" id="calcInterestEarned">TSh 0</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions Section -->
+    <div class="content-section" id="transactions-section">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">All Transactions</h3></div>
+        <div class="transaction-list" id="allTransactions" style="max-height: 600px;"></div>
+      </div>
+    </div>
+
+    <!-- Request Section -->
+    <div class="content-section" id="request-section">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Make a Request</h3></div>
+        <div class="request-form">
+          <div class="form-group"><label class="form-label">Request Type</label><select id="requestType" class="form-input"><option value="deposit">Deposit</option><option value="withdraw">Withdrawal</option></select></div>
+          <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="requestAmount" class="form-input" min="0"></div>
+          <div class="form-group"><label class="form-label">Note (Optional)</label><textarea id="requestNote" class="form-input" rows="3"></textarea></div>
+          <button class="btn-submit" id="submitRequestBtn">Submit Request</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header"><h3 class="card-title">Your Requests</h3></div>
+        <div id="userRequests"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Panel -->
+  <div class="notifications-panel" id="notificationsPanel">
+    <div class="notifications-header">
+      <h3>Notifications</h3>
+      <button onclick="markAllRead()" style="background: none; border: none; color: #667eea; cursor: pointer;">Mark all read</button>
+    </div>
+    <div class="notifications-body" id="notificationsList"></div>
+  </div>
+
+  <!-- Request Modal -->
+  <div class="modal-overlay" id="requestModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Request Deposit</h3>
+        <span class="modal-close" onclick="closeRequestModal()">&times;</span>
+      </div>
+      <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="modalAmount" class="form-input" min="0"></div>
+      <div class="form-group"><label class="form-label">Note</label><input type="text" id="modalNote" class="form-input"></div>
+      <button class="btn-submit" id="modalSubmitBtn">Submit Request</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
+      authDomain: "minibank-b76d6.firebaseapp.com",
+      projectId: "minibank-b76d6",
+      storageBucket: "minibank-b76d6.firebasestorage.app",
+      messagingSenderId: "1076277480681",
+      appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let userData = null;
+    let balanceChart = null;
+    let breakdownChart = null;
+    let currentRequestType = 'deposit';
+    let allTransactions = [];
+
+    const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace('index.html'); return; }
+      currentUser = user;
+      await loadUserData();
+      initRealtimeData();
+    });
+
+    async function loadUserData() {
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        userData = userDoc.data();
+        document.getElementById('greeting').textContent = `Welcome back, ${userData.name}!`;
+        document.getElementById('userEmail').textContent = currentUser.email;
+      }
+    }
+
+    function initRealtimeData() {
+      onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
+        if (doc.exists()) {
+          userData = doc.data();
+          document.getElementById('balance').textContent = formatMoney(userData.balance || 0);
+          updateInterestStats();
+        }
+      });
+
+      const transactionQuery = query(collection(db, "transactions"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(transactionQuery, (snapshot) => {
+        allTransactions = [];
+        snapshot.forEach(doc => allTransactions.push({ id: doc.id, ...doc.data() }));
+        renderTransactions(allTransactions);
+        updateBalanceChart(allTransactions);
+        updateBreakdownChart(allTransactions);
+        updateInterestStats();
+      });
+
+      const notifQuery = query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(notifQuery, (snapshot) => {
+        const notifications = [];
+        snapshot.forEach(doc => notifications.push({ id: doc.id, ...doc.data() }));
+        renderNotifications(notifications);
+      });
+
+      const requestQuery = query(collection(db, "requests"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(requestQuery, (snapshot) => {
+        const requests = [];
+        snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+        renderUserRequests(requests);
+      });
+    }
+
+    function updateInterestStats() {
+      const balance = userData?.balance || 0;
+      const monthlyInterest = balance * 0.01;
+      document.getElementById('monthlyInterest').textContent = formatMoney(monthlyInterest);
+      
+      const totalInterestEarned = allTransactions.filter(t => t.type === 'interest').reduce((sum, t) => sum + t.amount, 0);
+      document.getElementById('totalInterestEarned').textContent = formatMoney(totalInterestEarned);
+      
+      const now = new Date();
+      const lastInterest = allTransactions.filter(t => t.type === 'interest').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+      
+      let nextInterestDate;
+      let daysPassed;
+      
+      if (lastInterest) {
+        nextInterestDate = new Date(lastInterest.timestamp);
+        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        daysPassed = Math.min(30, Math.ceil((now - new Date(lastInterest.timestamp)) / (1000 * 60 * 60 * 24)));
+      } else if (userData?.createdAt) {
+        nextInterestDate = new Date(userData.createdAt);
+        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        daysPassed = Math.min(30, Math.ceil((now - new Date(userData.createdAt)) / (1000 * 60 * 60 * 24)));
+      } else {
+        nextInterestDate = new Date();
+        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        daysPassed = 15;
+      }
+      
+      const daysLeft = Math.max(0, Math.ceil((nextInterestDate - now) / (1000 * 60 * 60 * 24)));
+      
+      if (daysLeft === 0) {
+        document.getElementById('daysUntilInterest').textContent = `Interest is due now!`;
+        document.getElementById('interestProgress').style.width = '100%';
+      } else {
+        document.getElementById('daysUntilInterest').textContent = `Next interest in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+        const progress = (daysPassed / 30) * 100;
+        document.getElementById('interestProgress').style.width = Math.min(progress, 100) + '%';
+      }
+    }
+
+    function updateBalanceChart(transactions) {
+      const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
+      if (balanceChart) balanceChart.destroy();
+      
+      const last30Days = Array.from({length: 30}, (_, i) => {
+        const d = new Date(); d.setDate(d.getDate() - (29 - i)); d.setHours(0, 0, 0, 0); return d;
+      });
+      
+      const labels = last30Days.map(d => d.toLocaleDateString());
+      const balanceHistory = last30Days.map(targetDate => {
+        let historical = userData?.balance || 0;
+        transactions.filter(t => { const td = new Date(t.timestamp); td.setHours(0,0,0,0); return td > targetDate; }).forEach(t => {
+          if (t.type === 'deposit' || t.type === 'interest') historical -= t.amount;
+          else if (t.type === 'withdrawal') historical += t.amount;
+        });
+        return Math.max(0, historical);
+      });
+      
+      balanceChart = new Chart(ctx, {
+        type: 'line', data: { labels, datasets: [{ data: balanceHistory, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function updateBreakdownChart(transactions) {
+      const ctx = document.getElementById('transactionBreakdownChart').getContext('2d');
+      if (breakdownChart) breakdownChart.destroy();
+      
+      const depositTotal = transactions.filter(t => t.type === 'deposit').reduce((s, t) => s + t.amount, 0);
+      const withdrawalTotal = transactions.filter(t => t.type === 'withdrawal').reduce((s, t) => s + t.amount, 0);
+      const interestTotal = transactions.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0);
+      
+      breakdownChart = new Chart(ctx, {
+        type: 'doughnut', data: { labels: ['Deposits', 'Withdrawals', 'Interest'], datasets: [{ data: [depositTotal, withdrawalTotal, interestTotal], backgroundColor: ['#10b981', '#ef4444', '#8b5cf6'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    function renderTransactions(transactions) {
+      const renderItem = (t) => `<div class="transaction-item"><div style="display: flex; align-items: center;"><div class="transaction-icon ${t.type}"><i class="fas fa-${t.type === 'deposit' ? 'plus' : t.type === 'withdrawal' ? 'minus' : 'percent'}"></i></div><div class="transaction-info"><div class="transaction-title">${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div></div></div><div class="transaction-amount ${t.type === 'deposit' || t.type === 'interest' ? 'amount-positive' : 'amount-negative'}">${t.type === 'deposit' || t.type === 'interest' ? '+' : '-'}${formatMoney(t.amount)}</div></div>`;
+      document.getElementById('recentTransactions').innerHTML = transactions.slice(0, 5).map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
+      document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
+    }
+
+    function renderNotifications(notifications) {
+      const unread = notifications.filter(n => !n.read).length;
+      document.getElementById('notificationBadge').textContent = unread;
+      document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead('${n.id}')"><strong>${n.message}</strong><div style="font-size: 0.8rem; color: #718096; margin-top: 4px;">${new Date(n.timestamp).toLocaleString()}</div></div>`).join('') || '<p style="padding: 20px; color: #718096;">No notifications</p>';
+    }
+
+    function renderUserRequests(requests) {
+      document.getElementById('userRequests').innerHTML = requests.map(r => `<div style="padding: 12px; background: #f7fafc; border-radius: 10px; margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600;">${r.type.toUpperCase()}</span><span>${formatMoney(r.amount)}</span></div><div style="display: flex; justify-content: space-between;"><span style="color: #718096;">Status: ${r.status}</span><span style="font-size: 0.8rem;">${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p style="color: #718096;">No requests yet</p>';
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', () => {
+      const principal = parseFloat(document.getElementById('calcPrincipal').value) || 0;
+      const monthly = parseFloat(document.getElementById('calcMonthly').value) || 0;
+      const unit = document.getElementById('calcTimeUnit').value;
+      const duration = parseFloat(document.getElementById('calcDuration').value) || 0;
+      const months = unit === 'years' ? duration * 12 : duration;
+      const rate = 0.01;
+      let futureValue = principal * Math.pow(1 + rate, months);
+      if (monthly > 0) futureValue += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
+      const totalDeposited = principal + (monthly * months);
+      const interestEarned = futureValue - totalDeposited;
+      document.getElementById('calcFutureValue').textContent = formatMoney(futureValue);
+      document.getElementById('calcTotalDeposited').textContent = formatMoney(totalDeposited);
+      document.getElementById('calcInterestEarned').textContent = formatMoney(interestEarned);
+      document.getElementById('calcResult').style.display = 'block';
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${link.dataset.section}-section`).classList.add('active');
+      });
+    });
+
+    document.getElementById('notificationBell').addEventListener('click', () => {
+      const panel = document.getElementById('notificationsPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications", id), { read: true }); };
+    
+    window.markAllRead = async () => {
+      const snapshot = await getDocs(query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), where("read", "==", false)));
+      snapshot.forEach(async (doc) => { await updateDoc(doc.ref, { read: true }); });
+    };
+
+    window.openRequestModal = (type) => {
+      currentRequestType = type;
+      document.getElementById('modalTitle').textContent = `Request ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      document.getElementById('requestModal').style.display = 'flex';
+    };
+
+    window.closeRequestModal = () => {
+      document.getElementById('requestModal').style.display = 'none';
+      document.getElementById('modalAmount').value = document.getElementById('modalNote').value = '';
+    };
+
+    document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
+      const amount = parseFloat(document.getElementById('modalAmount').value);
+      if (!amount || amount <= 0) return alert('Invalid amount');
+      await setDoc(doc(collection(db, "requests")), {
+        userEmail: currentUser.email, userName: userData.name, type: currentRequestType,
+        amount, note: document.getElementById('modalNote').value, status: 'pending', timestamp: new Date().toISOString()
+      });
+      closeRequestModal();
+      alert('Request submitted!');
+    });
+
+    document.getElementById('submitRequestBtn').addEventListener('click', async () => {
+      const type = document.getElementById('requestType').value;
+      const amount = parseFloat(document.getElementById('requestAmount').value);
+      if (!amount || amount <= 0) return alert('Invalid amount');
+      await setDoc(doc(collection(db, "requests")), {
+        userEmail: currentUser.email, userName: userData.name, type,
+        amount, note: document.getElementById('requestNote').value, status: 'pending', timestamp: new Date().toISOString()
+      });
+      document.getElementById('requestAmount').value = document.getElementById('requestNote').value = '';
+      alert('Request submitted!');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => { 
+      await signOut(auth); 
+      window.location.replace('index.html'); 
+    });
+
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('notificationsPanel');
+      const bell = document.getElementById('notificationBell');
+      if (!panel.contains(e.target) && !bell.contains(e.target)) panel.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

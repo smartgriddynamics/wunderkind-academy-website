@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>miniBank · Secure Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      animation: rotate 30s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 32px;
+      padding: 32px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @media (min-width: 480px) {
+      .login-container {
+        padding: 48px 44px;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 480px) {
+      .logo {
+        margin-bottom: 40px;
+      }
+    }
+
+    .logo-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .logo-icon i {
+      font-size: 32px;
+      color: white;
+    }
+
+    .bank-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 480px) {
+      .bank-name {
+        font-size: 2rem;
+      }
+    }
+
+    .welcome-text {
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+
+    @media (min-width: 480px) {
+      .welcome-text {
+        margin-bottom: 32px;
+        font-size: 0.95rem;
+      }
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 480px) {
+      .input-group {
+        margin-bottom: 24px;
+      }
+    }
+
+    .input-label {
+      display: block;
+      color: #374151;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 480px) {
+      .input-label {
+        font-size: 0.9rem;
+      }
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      color: #1a1a1a;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    @media (min-width: 480px) {
+      .input-field {
+        padding: 14px 18px;
+        font-size: 1rem;
+        border-radius: 14px;
+      }
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .input-field::placeholder {
+      color: #9ca3af;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+      transition: color 0.2s;
+      font-size: 1rem;
+    }
+
+    .toggle-password:hover {
+      color: #667eea;
+    }
+
+    .remember-forgot {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .remember-forgot {
+        margin-bottom: 28px;
+      }
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 480px) {
+      .checkbox-wrapper {
+        font-size: 0.9rem;
+      }
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #667eea;
+    }
+
+    @media (min-width: 480px) {
+      .checkbox-wrapper input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .forgot-link {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    @media (min-width: 480px) {
+      .forgot-link {
+        font-size: 0.9rem;
+      }
+    }
+
+    .forgot-link:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 480px) {
+      .login-btn {
+        padding: 16px;
+        font-size: 1.05rem;
+        border-radius: 14px;
+      }
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .login-btn:hover::before {
+      left: 100%;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      display: none;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @media (min-width: 480px) {
+      .error-message {
+        font-size: 0.9rem;
+      }
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .signup-prompt {
+      text-align: center;
+      margin-top: 24px;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 480px) {
+      .signup-prompt {
+        margin-top: 28px;
+        font-size: 0.9rem;
+      }
+    }
+
+    .signup-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .signup-link:hover {
+      text-decoration: underline;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #9ca3af;
+      font-size: 0.75rem;
+    }
+
+    @media (min-width: 480px) {
+      .footer-text {
+        margin-top: 24px;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 360px) {
+      .login-container {
+        padding: 24px 20px;
+      }
+      
+      .bank-name {
+        font-size: 1.5rem;
+      }
+      
+      .remember-forgot {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* Touch-friendly */
+    button, .toggle-password, .nav-link {
+      min-height: 44px;
+    }
+
+    .input-field {
+      min-height: 48px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-landmark"></i>
+      </div>
+      <div class="bank-name">miniBank</div>
+    </div>
+    
+    <div class="welcome-text">
+      <i class="fas fa-lock" style="margin-right: 6px; opacity: 0.7;"></i>
+      Secure Banking Portal
+    </div>
+
+    <form id="loginForm" onsubmit="return false;">
+      <div class="input-group">
+        <label class="input-label">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          class="input-field" 
+          placeholder="your@email.com" 
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <div class="password-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            class="input-field" 
+            placeholder="••••••••" 
+            required
+            autocomplete="current-password"
+          >
+          <i class="far fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+      </div>
+
+      <div class="remember-forgot">
+        <label class="checkbox-wrapper">
+          <input type="checkbox" id="rememberMe">
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" id="loginBtn" class="login-btn">
+        <span id="btnText">Sign In</span>
+        <span id="btnSpinner" style="display: none;">
+          <span class="loading-spinner"></span> Signing in...
+        </span>
+      </button>
+    </form>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="signup-prompt">
+      Don't have an account?
+      <a href="#" class="signup-link" id="contactBankLink">Contact your bank</a>
+    </div>
+    
+    <div class="footer-text">
+      <i class="far fa-shield"></i> Secure & Encrypted Connection
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
+      authDomain: "minibank-b76d6.firebaseapp.com",
+      projectId: "minibank-b76d6",
+      storageBucket: "minibank-b76d6.firebasestorage.app",
+      messagingSenderId: "1076277480681",
+      appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Enable persistence
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    // UI Elements
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const errorMessage = document.getElementById('errorMessage');
+    const togglePassword = document.getElementById('togglePassword');
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = type;
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    // Handle login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      
+      if (!email || !password) {
+        showError('Please enter your email and password');
+        return;
+      }
+
+      // Show loading state
+      setLoading(true);
+      hideError();
+
+      try {
+        // Sign in with Firebase Auth
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        console.log('User signed in successfully:', user.email);
+
+        // Store session info
+        if (document.getElementById('rememberMe').checked) {
+          localStorage.setItem('rememberedEmail', email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
+        // Check if user is admin
+        try {
+          const adminDoc = await getDoc(doc(db, "admins", user.uid));
+          const isAdmin = adminDoc.exists();
+          
+          console.log('Is admin?', isAdmin);
+
+          // Redirect based on role
+          if (isAdmin) {
+            console.log('Redirecting to admin dashboard...');
+            window.location.replace('admin-dashboard.html');
+          } else {
+            console.log('Redirecting to client dashboard...');
+            window.location.replace('client-dashboard.html');
+          }
+        } catch (roleError) {
+          console.error('Error checking role:', roleError);
+          // If there's an error checking role, default to client dashboard
+          // This allows newly created users to log in
+          window.location.replace('client-dashboard.html');
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+        setLoading(false);
+        
+        // Handle specific errors with user-friendly messages
+        let errorMsg = 'Login failed. Please try again.';
+        
+        switch (error.code) {
+          case 'auth/user-not-found':
+            errorMsg = 'No account found with this email address. Please check your email or contact the bank to create an account.';
+            break;
+          case 'auth/wrong-password':
+            errorMsg = 'Incorrect password. Please try again or use the forgot password option.';
+            break;
+          case 'auth/invalid-email':
+            errorMsg = 'Please enter a valid email address.';
+            break;
+          case 'auth/user-disabled':
+            errorMsg = 'This account has been disabled. Please contact bank support.';
+            break;
+          case 'auth/too-many-requests':
+            errorMsg = 'Too many failed login attempts. Please try again later or reset your password.';
+            break;
+          case 'auth/network-request-failed':
+            errorMsg = 'Network error. Please check your internet connection and try again.';
+            break;
+          default:
+            errorMsg = `Login failed: ${error.message}`;
+        }
+        
+        showError(errorMsg);
+      }
+    });
+
+    function setLoading(loading) {
+      if (loading) {
+        loginBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'inline-flex';
+        btnSpinner.style.alignItems = 'center';
+        btnSpinner.style.justifyContent = 'center';
+      } else {
+        loginBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+      }
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    function hideError() {
+      errorMessage.classList.remove('show');
+    }
+
+    // Load remembered email
+    const remembered = localStorage.getItem('rememberedEmail');
+    if (remembered) {
+      emailInput.value = remembered;
+      document.getElementById('rememberMe').checked = true;
+    }
+
+    // Auto-focus email field
+    emailInput.focus();
+
+    // Contact bank link
+    document.getElementById('contactBankLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Please visit your nearest miniBank branch or call customer service to open an account.');
+    });
+
+    // Forgot password link
+    document.querySelector('.forgot-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (email) {
+        alert(`Password reset instructions will be sent to ${email}. Please check your email.`);
+        // Here you would implement Firebase password reset
+        // sendPasswordResetEmail(auth, email)
+      } else {
+        alert('Please enter your email address first.');
+      }
+    });
+
+    // Check if already logged in
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // User is already signed in, redirect to appropriate dashboard
+        try {
+          const adminDoc = await getDoc(doc(db, "admins", user.uid));
+          if (adminDoc.exists()) {
+            window.location.replace('admin-dashboard.html');
+          } else {
+            window.location.replace('client-dashboard.html');
+          }
+        } catch (error) {
+          console.error('Error checking role:', error);
+          window.location.replace('client-dashboard.html');
+        }
+      }
+    });
+
+    // Add touch-friendly features
+    document.querySelectorAll('input, button').forEach(el => {
+      el.addEventListener('touchstart', () => {}, { passive: true });
+    });
+  </script>
+</body>
+</html>

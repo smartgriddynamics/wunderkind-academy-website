@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOD · Secure Redirect</title>
+  <!-- Same font & icons as the entire system -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    /* ---------- GLOBAL DESIGN SYSTEM (identical to all pages) ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    /* subtle abstract shapes — signature style */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle at 30% 30%, rgba(0,112,243,0.08), transparent 70%);
+      top: 5%;
+      left: 2%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at 70% 80%, rgba(0,180,210,0.07), transparent 70%);
+      bottom: 5%;
+      right: 2%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .redirect-container {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      z-index: 10;
+      animation: fadeSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ----- GLASS CARD (signature) ----- */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border-radius: 40px;
+      box-shadow: 
+        0 20px 35px -10px rgba(0, 20, 40, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset,
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: box-shadow 0.3s ease;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .glass-card:hover {
+      box-shadow: 
+        0 24px 42px -12px rgba(0, 60, 120, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+    }
+
+    /* ----- BRAND / ICON AREA ----- */
+    .brand-icon {
+      font-size: 3.2rem;
+      color: #0a66c2;
+      filter: drop-shadow(0 8px 16px rgba(0,112,243,0.15));
+      margin-bottom: 1.2rem;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(150deg, #0b2b4e, #1e4c6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ----- LOADING INDICATOR (modern spinner) ----- */
+    .loading-spinner {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(10, 102, 194, 0.1);
+      border-radius: 50%;
+      border-top-color: #0a66c2;
+      animation: spin 0.8s ease-in-out infinite;
+      margin: 1.8rem 0 1.2rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ----- STATUS MESSAGE (dynamic) ----- */
+    .status-message {
+      background: rgba(244, 248, 250, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+      padding: 0.9rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1f5569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      border: 0.5px solid rgba(120, 180, 220, 0.2);
+      margin-top: 0.8rem;
+    }
+
+    .status-message i {
+      color: #0a66c2;
+    }
+
+    /* ----- USER AVATAR PLACEHOLDER (optional) ----- */
+    .user-hint {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #54738a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      opacity: 0.8;
+    }
+
+    .user-hint i {
+      color: #6b8ca3;
+    }
+
+    /* ----- REDIRECT NOTICE (subtle) ----- */
+    .redirect-notice {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(10,102,194,0.08);
+      font-size: 0.8rem;
+      color: #5f7e94;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    /* ----- FALLBACK LINK (in case redirect stalls) ----- */
+    .fallback-link {
+      margin-top: 1.2rem;
+      font-size: 0.8rem;
+    }
+    .fallback-link a {
+      color: #0a66c2;
+      text-decoration: none;
+      border-bottom: 1px dashed #0a66c2;
+      padding-bottom: 0.1rem;
+    }
+    .fallback-link a:hover {
+      border-bottom: 1px solid #0a66c2;
+    }
+
+    /* responsive */
+    @media (max-width: 480px) {
+      .glass-card { padding: 2rem 1.5rem; }
+      .brand-text { font-size: 1.7rem; }
+    }
+
+    /* hide the old h2 */
+    h2 {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="redirect-container">
+  <div class="glass-card">
+    
+    <!-- Brand icon (shield / chalkboard) -->
+    <div class="brand-icon">
+      <i class="fas fa-chalkboard"></i>
+    </div>
+    
+    <!-- System name -->
+    <div class="brand-text">
+      Teacher On Duty
+    </div>
+
+    <!-- Subtle greeting / loading state -->
+    <div style="color: #315569; font-weight: 500; margin-bottom: 0.5rem;">
+      verifying your credentials
+    </div>
+
+    <!-- Modern spinner -->
+    <div class="loading-spinner"></div>
+
+    <!-- Dynamic status message (replaces old h2) -->
+    <div id="statusMessage" class="status-message">
+      <i class="fas fa-circle" style="font-size: 0.5rem; color: #0a66c2;"></i>
+      <span id="statusText">Loading dashboard...</span>
+    </div>
+
+    <!-- User hint – will be filled by JS if needed -->
+    <div id="userHint" class="user-hint">
+      <i class="fas fa-shield-alt"></i>
+      <span id="userHintText">secure portal · redirecting</span>
+    </div>
+
+    <!-- Redirect notice (invisible until needed) -->
+    <div id="redirectNotice" class="redirect-notice">
+      <i class="fas fa-arrow-right"></i>
+      <span id="redirectMessage">preparing your workspace</span>
+    </div>
+
+    <!-- Fallback manual link (hidden by default) -->
+    <div id="fallbackLink" class="fallback-link" style="display: none;">
+      <a href="index.html"><i class="fas fa-sign-in-alt"></i> return to login</a>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  // ----------------------------------------------------------------------
+  //  MODERN DASHBOARD REDIRECT · same Firebase config & style
+  //  Fully matches the Teacher On Duty system aesthetic
+  //  UPDATED: Added SUPER role support
+  // ----------------------------------------------------------------------
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // --- Firebase configuration (same as your system) ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYOXnAQQWQNI9rFu0ZwMjNkMEdJH7SxxA",
+    authDomain: "teacher-on-duty-system.firebaseapp.com",
+    projectId: "teacher-on-duty-system",
+    storageBucket: "teacher-on-duty-system.firebasestorage.app",
+    messagingSenderId: "723640168531",
+    appId: "1:723640168531:web:a52f5dac1f5502460016a6"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // --- DOM elements for dynamic updates ---
+  const statusEl = document.getElementById('statusText');
+  const statusMessageEl = document.getElementById('statusMessage');
+  const userHintText = document.getElementById('userHintText');
+  const redirectMsg = document.getElementById('redirectMessage');
+  const fallbackDiv = document.getElementById('fallbackLink');
+
+  // Helper to update status with icon context
+  function setStatus(message, type = 'info') {
+    statusEl.innerText = message;
+    
+    // update icon and color based on type
+    let iconHtml = '';
+    let bgColor = 'rgba(244, 248, 250, 0.7)';
+    let textColor = '#1f5569';
+    let iconColor = '#0a66c2';
+
+    if (type === 'loading') {
+      iconHtml = '<i class="fas fa-circle" style="font-size: 0.5rem; color: #0a66c2;"></i>';
+    } else if (type === 'success') {
+      iconHtml = '<i class="fas fa-check-circle" style="color: #10b981;"></i>';
+      bgColor = 'rgba(16, 185, 129, 0.08)';
+      textColor = '#065f46';
+    } else if (type === 'error') {
+      iconHtml = '<i class="fas fa-exclamation-circle" style="color: #b85a5a;"></i>';
+      bgColor = 'rgba(239, 68, 68, 0.08)';
+      textColor = '#b91c1c';
+      iconColor = '#b85a5a';
+    } else if (type === 'warning') {
+      iconHtml = '<i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>';
+      bgColor = 'rgba(245, 158, 11, 0.08)';
+      textColor = '#92400e';
+    }
+
+    // update the message div
+    if (statusMessageEl) {
+      statusMessageEl.innerHTML = iconHtml + ' <span id="statusText">' + message + '</span>';
+      statusMessageEl.style.background = bgColor;
+      statusMessageEl.style.color = textColor;
+    }
+  }
+
+  // Update user hint with email or name if available
+  function setUserHint(text) {
+    if (userHintText) {
+      userHintText.innerText = text;
+    }
+  }
+
+  // Update redirect message
+  function setRedirectMessage(text) {
+    if (redirectMsg) {
+      redirectMsg.innerText = text;
+    }
+  }
+
+  // --- Main authentication state listener ---
+  onAuthStateChanged(auth, async (user) => {
+    
+    if (user) {
+      // User is signed in
+      setStatus('Verifying role...', 'loading');
+      setUserHint(`👋 ${user.email || 'user'}`);
+      setRedirectMessage('checking permissions');
+
+      try {
+        // Fetch user document from Firestore
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const role = userData.role;
+          const userName = userData.name || user.email?.split('@')[0] || 'User';
+          
+          // Store user info in localStorage for other dashboards
+          localStorage.setItem("userId", user.uid);
+          localStorage.setItem("userName", userName);
+          localStorage.setItem("userEmail", user.email || '');
+          localStorage.setItem("role", role);
+
+          // Success message with role
+          setStatus(`Welcome, ${userName} · ${role}`, 'success');
+          setUserHint(`✅ authenticated as ${role}`);
+          setRedirectMessage(`redirecting to ${role} dashboard...`);
+
+          // Redirect based on role - UPDATED to include SUPER
+          setTimeout(() => {
+            if (role === "IT") {
+              window.location.href = "it.html";
+            } else if (role === "TOD") {
+              window.location.href = "tod.html";
+            } else if (role === "HT") {
+              window.location.href = "ht.html";
+            } else if (role === "SUPER") {
+              window.location.href = "super.html";
+            } else if (role === "CT") {
+              window.location.href = "tod.html"; // CT uses TOD dashboard
+            } else {
+              // Unknown role
+              setStatus('Role not recognized', 'error');
+              setUserHint('please contact IT administrator');
+              setRedirectMessage('unknown role · staying on this page');
+              fallbackDiv.style.display = 'block';
+            }
+          }, 600); // slight delay for UX
+
+        } else {
+          // User document doesn't exist
+          setStatus('User role not found!', 'error');
+          setUserHint('⚠️ no role assigned');
+          setRedirectMessage('contact IT support');
+          fallbackDiv.style.display = 'block';
+          
+          // Optionally sign out after a few seconds
+          setTimeout(() => {
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js")
+              .then(({ signOut }) => {
+                signOut(auth);
+                window.location.href = "index.html";
+              });
+          }, 3000);
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        setStatus('Error loading profile', 'error');
+        setUserHint('⚠️ ' + error.message.substring(0, 40) + '...');
+        setRedirectMessage('please try again');
+        fallbackDiv.style.display = 'block';
+      }
+
+    } else {
+      // No user is signed in
+      setStatus('No active session', 'warning');
+      setUserHint('🔒 redirecting to login');
+      setRedirectMessage('please sign in');
+      
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1200);
+    }
+  });
+
+  // --- Fallback manual link (show if redirect takes too long) ---
+  setTimeout(() => {
+    if (window.location.href.includes('dashboard.html') && !fallbackDiv.style.display) {
+      fallbackDiv.style.display = 'block';
+    }
+  }, 5000);
+
+  // --- Also expose logout if needed (for cleanup) ---
+  window.handleLogout = async function() {
+    const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = "index.html";
+  };
+
+  console.log('🚀 Modern redirect dashboard loaded with SUPER role support');
+</script>
+
+<!-- 
+  Preserve modal placeholder for consistency (some pages reference it)
+  but hidden by default 
+-->
+<div id="modal" style="display: none;"></div>
+
+</body>
+</html>
