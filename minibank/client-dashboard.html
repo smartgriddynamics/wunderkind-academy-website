@@ -21,10 +21,9 @@
     .nav-actions { display: flex; align-items: center; gap: 20px; }
     .notification-icon { position: relative; cursor: pointer; }
     .badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
-    .logout-btn:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3); }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .logout-btn:hover { background: #dc2626; }
     .welcome-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
     .user-greeting h1 { font-size: 2rem; color: #1a1a2e; }
     .user-greeting p { color: #718096; }
     .balance-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
@@ -46,8 +45,6 @@
       .navbar { flex-direction: column; text-align: center; }
       .nav-menu { justify-content: center; }
       .balance-amount { font-size: 2.5rem; }
-      .user-greeting h1 { font-size: 1.5rem; }
-      .notifications-panel { width: 90% !important; right: 5% !important; }
     }
     .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
@@ -56,32 +53,41 @@
     .transaction-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
     .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 12px; flex-wrap: wrap; gap: 10px; }
     .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
-    .transaction-icon.deposit { background: #d1fae5; color: #10b981; }
+    .transaction-icon.deposit, .transaction-icon.loan_disbursement { background: #d1fae5; color: #10b981; }
     .transaction-icon.withdrawal { background: #fee2e2; color: #ef4444; }
     .transaction-icon.interest { background: #e0e7ff; color: #8b5cf6; }
+    .transaction-icon.loan_repayment { background: #fef3c7; color: #92400e; }
     .transaction-info { flex: 1; min-width: 150px; }
     .transaction-title { font-weight: 600; margin-bottom: 4px; }
     .transaction-date { font-size: 0.8rem; color: #718096; }
     .transaction-amount { font-weight: 600; }
     .amount-positive { color: #10b981; }
     .amount-negative { color: #ef4444; }
+    
+    /* Calculator & Loan Styles */
     .calculator-form { margin-top: 20px; }
     .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     @media (max-width: 480px) { .calc-row { grid-template-columns: 1fr; } }
     .calc-result { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; text-align: center; }
     .calc-result-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
-    .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
     .calc-breakdown-item { text-align: center; }
-    .calc-breakdown-label { font-size: 0.8rem; opacity: 0.8; }
-    .calc-breakdown-value { font-size: 1.1rem; font-weight: 600; }
-    .request-form { margin-top: 20px; }
+    .calc-breakdown-label { font-size: 0.75rem; opacity: 0.8; }
+    .calc-breakdown-value { font-size: 1rem; font-weight: 600; }
+    .loan-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    .loan-stat { background: rgba(102, 126, 234, 0.1); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(102, 126, 234, 0.2); }
+    .loan-stat .value { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
+    .loan-stat .label { font-size: 0.8rem; color: #718096; }
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568; }
-    .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
-    .form-input:focus { outline: none; border-color: #667eea; }
+    .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: #667eea; }
     .btn-submit { width: 100%; padding: 14px; background: #667eea; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-calculate { width: 100%; padding: 14px; background: #764ba2; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .btn-submit:hover { background: #5a67d8; }
+    .btn-calculate { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+    .btn-calculate:hover { background: #059669; }
     .notifications-panel { position: fixed; top: 100px; right: 20px; width: 350px; max-height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; display: none; z-index: 1000; }
+    @media (max-width: 768px) { .notifications-panel { width: 90%; right: 5%; } }
     .notifications-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
     .notifications-body { max-height: 400px; overflow-y: auto; }
     .notification-item { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
@@ -93,6 +99,12 @@
     .modal { background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 90%; }
     .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
     .modal-close { cursor: pointer; font-size: 1.5rem; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-overdue { background: #fee2e2; color: #991b1b; }
+    .status-paid { background: #e0e7ff; color: #3730a3; }
+    .warning-text { color: #ef4444; font-size: 0.9rem; margin-top: 5px; }
+    .info-text { color: #3b82f6; font-size: 0.9rem; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -101,6 +113,7 @@
       <div class="nav-brand"><i class="fas fa-piggy-bank"></i> miniBank</div>
       <div class="nav-menu">
         <a class="nav-link active" data-section="dashboard">Dashboard</a>
+        <a class="nav-link" data-section="loan">Loan</a>
         <a class="nav-link" data-section="calculator">Calculator</a>
         <a class="nav-link" data-section="transactions">Transactions</a>
         <a class="nav-link" data-section="request">Request</a>
@@ -156,40 +169,154 @@
           <div class="chart-container"><canvas id="balanceHistoryChart"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-header"><h3 class="card-title">Transaction Breakdown</h3></div>
-          <div class="chart-container"><canvas id="transactionBreakdownChart"></canvas></div>
+          <div class="card-header"><h3 class="card-title">Recent Transactions</h3></div>
+          <div class="transaction-list" id="recentTransactions"></div>
         </div>
-      </div>
-      
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">Recent Transactions</h3></div>
-        <div class="transaction-list" id="recentTransactions"></div>
       </div>
     </div>
 
-    <!-- Calculator Section -->
+    <!-- Loan Section - WITH CALCULATOR -->
+    <div class="content-section" id="loan-section">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-hand-holding-usd"></i> Loan Management</h3>
+        </div>
+        
+        <!-- Active Loan Summary -->
+        <div class="loan-summary">
+          <div class="loan-stat">
+            <div class="value" id="activeLoanAmount">TSh 0</div>
+            <div class="label">Active Loan Balance</div>
+          </div>
+          <div class="loan-stat">
+            <div class="value" id="nextPaymentDue">—</div>
+            <div class="label">Next Due Date</div>
+          </div>
+        </div>
+        
+        <!-- LOAN CALCULATOR - Shows exactly what they'll pay -->
+        <h4 style="margin: 20px 0 15px;"><i class="fas fa-calculator"></i> Calculate Your Loan</h4>
+        <div style="background: #f8fafc; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+          <div class="calc-row">
+            <div class="form-group">
+              <label class="form-label">Loan Amount (TSh)</label>
+              <input type="number" id="calcLoanAmount" class="form-input" placeholder="100,000" value="100000" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration (Days)</label>
+              <select id="calcLoanDuration" class="form-select">
+                <option value="30">30 Days</option>
+                <option value="60">60 Days</option>
+                <option value="90" selected>90 Days</option>
+                <option value="180">180 Days</option>
+              </select>
+            </div>
+          </div>
+          
+          <button class="btn-calculate" id="calculateLoanBtn"><i class="fas fa-calculator"></i> Calculate Repayment</button>
+          
+          <div class="calc-result" id="loanCalcResult" style="display: none;">
+            <p><i class="fas fa-chart-pie"></i> Loan Summary</p>
+            <div class="calc-result-value" id="calcTotalRepayment">TSh 0</div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Loan Amount</div>
+                <div class="calc-breakdown-value" id="calcPrincipal">TSh 0</div>
+              </div>
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Interest (5%)</div>
+                <div class="calc-breakdown-value" id="calcInterest">TSh 0</div>
+              </div>
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Total to Repay</div>
+                <div class="calc-breakdown-value" id="calcTotal">TSh 0</div>
+              </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;">
+              <i class="fas fa-info-circle"></i> Interest is 5% flat rate. Pay on time to avoid additional 5% monthly penalty!
+            </p>
+          </div>
+        </div>
+        
+        <!-- Request Loan Form -->
+        <h4 style="margin: 20px 0 15px;">Request New Loan</h4>
+        <div class="form-group">
+          <label class="form-label">Loan Amount (TSh)</label>
+          <input type="number" id="loanAmount" class="form-input" placeholder="Enter amount" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (Days)</label>
+          <select id="loanDuration" class="form-select">
+            <option value="30">30 Days</option>
+            <option value="60">60 Days</option>
+            <option value="90">90 Days</option>
+            <option value="180">180 Days</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Interest Rate</label>
+          <p style="background: #fef3c7; padding: 10px; border-radius: 8px; color: #92400e;">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>5% interest</strong> on the loan amount. If not paid by due date, an additional <strong>5% monthly penalty</strong> applies!
+          </p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estimated Total Repayment</label>
+          <p style="font-size: 1.2rem; font-weight: 700; color: #1a1a2e;" id="estimatedRepayment">TSh 0</p>
+        </div>
+        <button class="btn-submit" id="requestLoanBtn">Request Loan</button>
+        
+        <!-- Active Loans List -->
+        <h4 style="margin: 20px 0 15px;">Your Active Loans</h4>
+        <div id="activeLoansList"></div>
+      </div>
+    </div>
+
+    <!-- Calculator Section (Savings Calculator) -->
     <div class="content-section" id="calculator-section">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-calculator"></i> Interest Calculator</h3>
+          <h3 class="card-title"><i class="fas fa-calculator"></i> Savings Calculator</h3>
           <p style="color: #718096; font-size: 0.9rem;">1% Monthly Compound Interest</p>
         </div>
         <div class="calculator-form">
           <div class="calc-row">
-            <div class="form-group"><label class="form-label">Initial Deposit (TSh)</label><input type="number" id="calcPrincipal" class="form-input" placeholder="500,000" value="500000"></div>
-            <div class="form-group"><label class="form-label">Monthly Deposit (TSh)</label><input type="number" id="calcMonthly" class="form-input" placeholder="0" value="0"></div>
+            <div class="form-group">
+              <label class="form-label">Initial Deposit (TSh)</label>
+              <input type="number" id="calcPrincipal" class="form-input" placeholder="500,000" value="500000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Monthly Deposit (TSh)</label>
+              <input type="number" id="calcMonthly" class="form-input" placeholder="0" value="0">
+            </div>
           </div>
           <div class="calc-row">
-            <div class="form-group"><label class="form-label">Time Period</label><select id="calcTimeUnit" class="form-input"><option value="months">Months</option><option value="years" selected>Years</option></select></div>
-            <div class="form-group"><label class="form-label">Duration</label><input type="number" id="calcDuration" class="form-input" placeholder="4" value="4"></div>
+            <div class="form-group">
+              <label class="form-label">Time Period</label>
+              <select id="calcTimeUnit" class="form-input">
+                <option value="months">Months</option>
+                <option value="years" selected>Years</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration</label>
+              <input type="number" id="calcDuration" class="form-input" placeholder="4" value="4">
+            </div>
           </div>
-          <button class="btn-calculate" id="calculateBtn"><i class="fas fa-chart-line"></i> Calculate Future Value</button>
+          <button class="btn-calculate" id="calculateSavingsBtn"><i class="fas fa-chart-line"></i> Calculate Future Value</button>
+          
           <div class="calc-result" id="calcResult" style="display: none;">
             <p><i class="fas fa-chart-pie"></i> Future Value</p>
             <div class="calc-result-value" id="calcFutureValue">TSh 0</div>
             <div class="calc-breakdown">
-              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Total Deposited</div><div class="calc-breakdown-value" id="calcTotalDeposited">TSh 0</div></div>
-              <div class="calc-breakdown-item"><div class="calc-breakdown-label">Interest Earned</div><div class="calc-breakdown-value" id="calcInterestEarned">TSh 0</div></div>
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Total Deposited</div>
+                <div class="calc-breakdown-value" id="calcTotalDeposited">TSh 0</div>
+              </div>
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Interest Earned</div>
+                <div class="calc-breakdown-value" id="calcInterestEarned">TSh 0</div>
+              </div>
             </div>
           </div>
         </div>
@@ -208,12 +335,19 @@
     <div class="content-section" id="request-section">
       <div class="card">
         <div class="card-header"><h3 class="card-title">Make a Request</h3></div>
-        <div class="request-form">
-          <div class="form-group"><label class="form-label">Request Type</label><select id="requestType" class="form-input"><option value="deposit">Deposit</option><option value="withdraw">Withdrawal</option></select></div>
-          <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="requestAmount" class="form-input" min="0"></div>
-          <div class="form-group"><label class="form-label">Note (Optional)</label><textarea id="requestNote" class="form-input" rows="3"></textarea></div>
-          <button class="btn-submit" id="submitRequestBtn">Submit Request</button>
+        <div class="form-group">
+          <label class="form-label">Request Type</label>
+          <select id="requestType" class="form-select"><option value="deposit">Deposit</option><option value="withdraw">Withdrawal</option></select>
         </div>
+        <div class="form-group">
+          <label class="form-label">Amount (TSh)</label>
+          <input type="number" id="requestAmount" class="form-input" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note (Optional)</label>
+          <textarea id="requestNote" class="form-input" rows="3"></textarea>
+        </div>
+        <button class="btn-submit" id="submitRequestBtn">Submit Request</button>
       </div>
       <div class="card" style="margin-top: 20px;">
         <div class="card-header"><h3 class="card-title">Your Requests</h3></div>
@@ -238,9 +372,16 @@
         <h3 id="modalTitle">Request Deposit</h3>
         <span class="modal-close" onclick="closeRequestModal()">&times;</span>
       </div>
-      <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="modalAmount" class="form-input" min="0"></div>
-      <div class="form-group"><label class="form-label">Note</label><input type="text" id="modalNote" class="form-input"></div>
+      <div class="form-group">
+        <label class="form-label">Amount (TSh)</label>
+        <input type="number" id="modalAmount" class="form-input" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note</label>
+        <input type="text" id="modalNote" class="form-input">
+      </div>
       <button class="btn-submit" id="modalSubmitBtn">Submit Request</button>
+      <button class="btn-submit" style="background: #ef4444; margin-top: 10px;" onclick="closeRequestModal()">Cancel</button>
     </div>
   </div>
 
@@ -264,8 +405,7 @@
 
     let currentUser = null;
     let userData = null;
-    let balanceChart = null;
-    let breakdownChart = null;
+    let chart = null;
     let currentRequestType = 'deposit';
     let allTransactions = [];
 
@@ -301,8 +441,7 @@
         allTransactions = [];
         snapshot.forEach(doc => allTransactions.push({ id: doc.id, ...doc.data() }));
         renderTransactions(allTransactions);
-        updateBalanceChart(allTransactions);
-        updateBreakdownChart(allTransactions);
+        updateChart();
         updateInterestStats();
       });
 
@@ -318,6 +457,13 @@
         const requests = [];
         snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
         renderUserRequests(requests);
+      });
+
+      const loansQuery = query(collection(db, "loans"), where("userEmail", "==", currentUser.email), where("status", "in", ["active", "overdue"]), orderBy("dueDate", "asc"));
+      onSnapshot(loansQuery, (snapshot) => {
+        const loans = [];
+        snapshot.forEach(doc => loans.push({ id: doc.id, ...doc.data() }));
+        renderActiveLoans(loans);
       });
     }
 
@@ -361,48 +507,36 @@
       }
     }
 
-    function updateBalanceChart(transactions) {
-      const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
-      if (balanceChart) balanceChart.destroy();
-      
-      const last30Days = Array.from({length: 30}, (_, i) => {
-        const d = new Date(); d.setDate(d.getDate() - (29 - i)); d.setHours(0, 0, 0, 0); return d;
-      });
-      
-      const labels = last30Days.map(d => d.toLocaleDateString());
-      const balanceHistory = last30Days.map(targetDate => {
-        let historical = userData?.balance || 0;
-        transactions.filter(t => { const td = new Date(t.timestamp); td.setHours(0,0,0,0); return td > targetDate; }).forEach(t => {
-          if (t.type === 'deposit' || t.type === 'interest') historical -= t.amount;
-          else if (t.type === 'withdrawal') historical += t.amount;
-        });
-        return Math.max(0, historical);
-      });
-      
-      balanceChart = new Chart(ctx, {
-        type: 'line', data: { labels, datasets: [{ data: balanceHistory, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
-    }
-
-    function updateBreakdownChart(transactions) {
-      const ctx = document.getElementById('transactionBreakdownChart').getContext('2d');
-      if (breakdownChart) breakdownChart.destroy();
-      
-      const depositTotal = transactions.filter(t => t.type === 'deposit').reduce((s, t) => s + t.amount, 0);
-      const withdrawalTotal = transactions.filter(t => t.type === 'withdrawal').reduce((s, t) => s + t.amount, 0);
-      const interestTotal = transactions.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0);
-      
-      breakdownChart = new Chart(ctx, {
-        type: 'doughnut', data: { labels: ['Deposits', 'Withdrawals', 'Interest'], datasets: [{ data: [depositTotal, withdrawalTotal, interestTotal], backgroundColor: ['#10b981', '#ef4444', '#8b5cf6'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
-    }
-
     function renderTransactions(transactions) {
-      const renderItem = (t) => `<div class="transaction-item"><div style="display: flex; align-items: center;"><div class="transaction-icon ${t.type}"><i class="fas fa-${t.type === 'deposit' ? 'plus' : t.type === 'withdrawal' ? 'minus' : 'percent'}"></i></div><div class="transaction-info"><div class="transaction-title">${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div></div></div><div class="transaction-amount ${t.type === 'deposit' || t.type === 'interest' ? 'amount-positive' : 'amount-negative'}">${t.type === 'deposit' || t.type === 'interest' ? '+' : '-'}${formatMoney(t.amount)}</div></div>`;
+      const renderItem = (t) => {
+        let icon = 'plus';
+        if (t.type === 'withdrawal') icon = 'minus';
+        else if (t.type === 'interest') icon = 'percent';
+        else if (t.type === 'loan_disbursement') icon = 'hand-holding-usd';
+        else if (t.type === 'loan_repayment') icon = 'money-bill';
+        
+        return `<div class="transaction-item">
+          <div style="display: flex; align-items: center;">
+            <div class="transaction-icon ${t.type}"><i class="fas fa-${icon}"></i></div>
+            <div class="transaction-info">
+              <div class="transaction-title">${t.type.replace('_', ' ').toUpperCase()}</div>
+              <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+          <div class="transaction-amount ${t.type === 'withdrawal' || t.type === 'loan_repayment' ? 'amount-negative' : 'amount-positive'}">
+            ${t.type === 'withdrawal' || t.type === 'loan_repayment' ? '-' : '+'}${formatMoney(t.amount)}
+          </div>
+        </div>`;
+      };
       document.getElementById('recentTransactions').innerHTML = transactions.slice(0, 5).map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
       document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
+      if (chart) chart.destroy();
+      const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toLocaleDateString(); });
+      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ label: 'Balance', data: last7Days.map(() => userData?.balance || 0), borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
     function renderNotifications(notifications) {
@@ -415,17 +549,88 @@
       document.getElementById('userRequests').innerHTML = requests.map(r => `<div style="padding: 12px; background: #f7fafc; border-radius: 10px; margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600;">${r.type.toUpperCase()}</span><span>${formatMoney(r.amount)}</span></div><div style="display: flex; justify-content: space-between;"><span style="color: #718096;">Status: ${r.status}</span><span style="font-size: 0.8rem;">${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p style="color: #718096;">No requests yet</p>';
     }
 
-    document.getElementById('calculateBtn').addEventListener('click', () => {
+    function renderActiveLoans(loans) {
+      if (loans.length === 0) {
+        document.getElementById('activeLoanAmount').textContent = 'TSh 0';
+        document.getElementById('nextPaymentDue').textContent = '—';
+        document.getElementById('activeLoansList').innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">No active loans</p>';
+        return;
+      }
+      
+      const totalLoan = loans.reduce((sum, l) => sum + (l.remainingAmount || l.amount), 0);
+      const nextDue = loans.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+      
+      document.getElementById('activeLoanAmount').textContent = formatMoney(totalLoan);
+      document.getElementById('nextPaymentDue').textContent = new Date(nextDue.dueDate).toLocaleDateString();
+      
+      document.getElementById('activeLoansList').innerHTML = loans.map(l => {
+        const dueDate = new Date(l.dueDate);
+        const isOverdue = new Date() > dueDate;
+        const remaining = l.remainingAmount || l.amount;
+        const originalAmount = l.amount;
+        const interestCharged = remaining > originalAmount ? remaining - originalAmount : 0;
+        
+        return `<div style="padding: 15px; background: #f7fafc; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${isOverdue ? '#ef4444' : '#10b981'};">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span><strong>Loan Amount:</strong> ${formatMoney(originalAmount)}</span>
+            <span><strong>Remaining:</strong> ${formatMoney(remaining)}</span>
+          </div>
+          ${interestCharged > 0 ? `<div style="margin-bottom: 8px; color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Interest/Penalty Added: ${formatMoney(interestCharged)}</div>` : ''}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</span>
+            <span class="status-badge ${isOverdue ? 'status-overdue' : 'status-active'}">${isOverdue ? 'OVERDUE' : 'Active'}</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #718096;"><i class="fas fa-info-circle"></i> ${isOverdue ? '5% monthly penalty applies!' : 'Pay on time to avoid 5% monthly penalty.'}</p>
+        </div>`;
+      }).join('');
+    }
+
+    // Loan Calculator
+    document.getElementById('calculateLoanBtn').addEventListener('click', () => {
+      const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
+      const interest = amount * 0.05; // 5% flat interest
+      const total = amount + interest;
+      
+      document.getElementById('calcPrincipal').textContent = formatMoney(amount);
+      document.getElementById('calcInterest').textContent = formatMoney(interest);
+      document.getElementById('calcTotal').textContent = formatMoney(total);
+      document.getElementById('calcTotalRepayment').textContent = formatMoney(total);
+      document.getElementById('loanCalcResult').style.display = 'block';
+    });
+
+    // Update estimated repayment when loan amount changes
+    document.getElementById('loanAmount').addEventListener('input', (e) => {
+      const amount = parseFloat(e.target.value) || 0;
+      const interest = amount * 0.05;
+      const total = amount + interest;
+      document.getElementById('estimatedRepayment').textContent = formatMoney(total);
+    });
+
+    document.getElementById('loanDuration').addEventListener('change', () => {
+      const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
+      const interest = amount * 0.05;
+      const total = amount + interest;
+      document.getElementById('estimatedRepayment').textContent = formatMoney(total);
+    });
+
+    // Savings Calculator
+    document.getElementById('calculateSavingsBtn').addEventListener('click', () => {
       const principal = parseFloat(document.getElementById('calcPrincipal').value) || 0;
       const monthly = parseFloat(document.getElementById('calcMonthly').value) || 0;
       const unit = document.getElementById('calcTimeUnit').value;
       const duration = parseFloat(document.getElementById('calcDuration').value) || 0;
+      
       const months = unit === 'years' ? duration * 12 : duration;
       const rate = 0.01;
+      
       let futureValue = principal * Math.pow(1 + rate, months);
-      if (monthly > 0) futureValue += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
+      if (monthly > 0) {
+        futureValue += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
+      }
+      
       const totalDeposited = principal + (monthly * months);
       const interestEarned = futureValue - totalDeposited;
+      
       document.getElementById('calcFutureValue').textContent = formatMoney(futureValue);
       document.getElementById('calcTotalDeposited').textContent = formatMoney(totalDeposited);
       document.getElementById('calcInterestEarned').textContent = formatMoney(interestEarned);
@@ -453,6 +658,43 @@
       snapshot.forEach(async (doc) => { await updateDoc(doc.ref, { read: true }); });
     };
 
+    // Loan Request
+    document.getElementById('requestLoanBtn').addEventListener('click', async () => {
+      const amount = parseFloat(document.getElementById('loanAmount').value);
+      const duration = parseInt(document.getElementById('loanDuration').value);
+      
+      if (!amount || amount <= 0) {
+        alert('Please enter a valid loan amount');
+        return;
+      }
+      
+      const interest = amount * 0.05;
+      const totalRepayment = amount + interest;
+      
+      if (!confirm(`Loan Summary:\n\nLoan Amount: ${formatMoney(amount)}\nInterest (5%): ${formatMoney(interest)}\nTotal to Repay: ${formatMoney(totalRepayment)}\nDuration: ${duration} days\n\nSubmit this loan request?`)) {
+        return;
+      }
+      
+      try {
+        await setDoc(doc(collection(db, "loanRequests")), {
+          userEmail: currentUser.email,
+          userName: userData.name,
+          amount,
+          duration,
+          interestAmount: interest,
+          totalRepayment: totalRepayment,
+          status: 'pending',
+          timestamp: new Date().toISOString()
+        });
+        
+        document.getElementById('loanAmount').value = '';
+        document.getElementById('estimatedRepayment').textContent = 'TSh 0';
+        alert('✅ Loan request submitted! Admin will review your request.');
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    });
+
     window.openRequestModal = (type) => {
       currentRequestType = type;
       document.getElementById('modalTitle').textContent = `Request ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -467,6 +709,7 @@
     document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('modalAmount').value);
       if (!amount || amount <= 0) return alert('Invalid amount');
+      
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData.name, type: currentRequestType,
         amount, note: document.getElementById('modalNote').value, status: 'pending', timestamp: new Date().toISOString()
@@ -479,6 +722,7 @@
       const type = document.getElementById('requestType').value;
       const amount = parseFloat(document.getElementById('requestAmount').value);
       if (!amount || amount <= 0) return alert('Invalid amount');
+      
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData.name, type,
         amount, note: document.getElementById('requestNote').value, status: 'pending', timestamp: new Date().toISOString()
