@@ -102,8 +102,6 @@
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
     .status-active { background: #d1fae5; color: #065f46; }
     .status-overdue { background: #fee2e2; color: #991b1b; }
-    .warning-text { color: #ef4444; font-size: 0.9rem; margin-top: 5px; }
-    .duration-info { margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -131,8 +129,8 @@
       <div class="welcome-card">
         <div class="welcome-header">
           <div class="user-greeting">
-            <h1 id="greeting">Welcome back!</h1>
-            <p id="userEmail">client@example.com</p>
+            <h1 id="greeting">Welcome!</h1>
+            <p id="userEmail">Loading...</p>
           </div>
         </div>
         <div class="balance-card">
@@ -192,7 +190,7 @@
           </div>
         </div>
         
-        <!-- LOAN CALCULATOR - FULLY WORKING FOR ALL DURATIONS -->
+        <!-- LOAN CALCULATOR - 5% PER MONTH -->
         <h4 style="margin: 20px 0 15px;"><i class="fas fa-calculator"></i> Calculate Your Loan</h4>
         <div style="background: #f8fafc; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
           <div class="calc-row">
@@ -203,15 +201,15 @@
             <div class="form-group">
               <label class="form-label">Duration</label>
               <select id="calcLoanDuration" class="form-select">
-                <option value="30">30 Days (1 Month)</option>
-                <option value="60">60 Days (2 Months)</option>
-                <option value="90" selected>90 Days (3 Months)</option>
-                <option value="180">180 Days (6 Months)</option>
+                <option value="30">30 Days (1 Month) - 5%</option>
+                <option value="60">60 Days (2 Months) - 10%</option>
+                <option value="90" selected>90 Days (3 Months) - 15%</option>
+                <option value="180">180 Days (6 Months) - 30%</option>
               </select>
             </div>
           </div>
           
-          <button class="btn-calculate" id="calculateLoanBtn"><i class="fas fa-calculator"></i> Calculate Repayment</button>
+          <button class="btn-calculate" id="calculateLoanBtn"><i class="fas fa-calculator"></i> Calculate</button>
           
           <div class="calc-result" id="loanCalcResult" style="display: none;">
             <p><i class="fas fa-chart-pie"></i> Loan Summary</p>
@@ -222,7 +220,7 @@
                 <div class="calc-breakdown-value" id="loanCalcPrincipal">TSh 0</div>
               </div>
               <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Interest (5%)</div>
+                <div class="calc-breakdown-label">Interest</div>
                 <div class="calc-breakdown-value" id="loanCalcInterest">TSh 0</div>
               </div>
               <div class="calc-breakdown-item">
@@ -230,9 +228,8 @@
                 <div class="calc-breakdown-value" id="loanCalcTotal">TSh 0</div>
               </div>
             </div>
-            <div id="durationInfoContainer"></div>
-            <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;">
-              <i class="fas fa-info-circle"></i> 5% flat interest. Pay on time to avoid 5% monthly penalty!
+            <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;" id="loanInterestRateDisplay">
+              <i class="fas fa-info-circle"></i> Interest: 5% per month. After due date: +5% monthly penalty!
             </p>
           </div>
         </div>
@@ -246,22 +243,15 @@
         <div class="form-group">
           <label class="form-label">Duration</label>
           <select id="loanDuration" class="form-select">
-            <option value="30">30 Days (1 Month)</option>
-            <option value="60">60 Days (2 Months)</option>
-            <option value="90">90 Days (3 Months)</option>
-            <option value="180">180 Days (6 Months)</option>
+            <option value="30">30 Days (1 Month) - 5%</option>
+            <option value="60">60 Days (2 Months) - 10%</option>
+            <option value="90">90 Days (3 Months) - 15%</option>
+            <option value="180">180 Days (6 Months) - 30%</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Interest Rate</label>
-          <p style="background: #fef3c7; padding: 10px; border-radius: 8px; color: #92400e;">
-            <i class="fas fa-exclamation-triangle"></i> 
-            <strong>5% interest</strong> on the loan amount. If not paid by due date, an additional <strong>5% monthly penalty</strong> applies!
-          </p>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Estimated Total Repayment</label>
-          <p style="font-size: 1.2rem; font-weight: 700; color: #1a1a2e;" id="estimatedRepayment">TSh 0</p>
+          <label class="form-label">Total to Repay</label>
+          <p style="font-size: 1.5rem; font-weight: 700; color: #1a1a2e;" id="estimatedRepayment">TSh 0</p>
           <small id="monthlyPaymentHint" style="display: block; color: #718096; margin-top: 5px;"></small>
         </div>
         <button class="btn-submit" id="requestLoanBtn">Request Loan</button>
@@ -303,7 +293,7 @@
               <input type="number" id="calcSavingsDuration" class="form-input" placeholder="4" value="4">
             </div>
           </div>
-          <button class="btn-calculate" id="calculateSavingsBtn"><i class="fas fa-chart-line"></i> Calculate Future Value</button>
+          <button class="btn-calculate" id="calculateSavingsBtn"><i class="fas fa-chart-line"></i> Calculate</button>
           
           <div class="calc-result" id="savingsCalcResult" style="display: none;">
             <p><i class="fas fa-chart-pie"></i> Future Value</p>
@@ -414,16 +404,24 @@
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.replace('index.html'); return; }
       currentUser = user;
+      console.log('✅ Logged in as:', user.email);
       await loadUserData();
       initRealtimeData();
     });
 
     async function loadUserData() {
-      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-      if (userDoc.exists()) {
-        userData = userDoc.data();
-        document.getElementById('greeting').textContent = `Welcome back, ${userData.name}!`;
-        document.getElementById('userEmail').textContent = currentUser.email;
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+          document.getElementById('greeting').textContent = `Welcome, ${userData.name || 'Client'}!`;
+          document.getElementById('userEmail').textContent = currentUser.email;
+        } else {
+          document.getElementById('greeting').textContent = 'Welcome!';
+          document.getElementById('userEmail').textContent = currentUser.email;
+        }
+      } catch (e) {
+        console.error('Error loading user:', e);
       }
     }
 
@@ -469,41 +467,32 @@
 
     function updateInterestStats() {
       const balance = userData?.balance || 0;
-      const monthlyInterest = balance * 0.01;
-      document.getElementById('monthlyInterest').textContent = formatMoney(monthlyInterest);
+      document.getElementById('monthlyInterest').textContent = formatMoney(balance * 0.01);
       
-      const totalInterestEarned = allTransactions.filter(t => t.type === 'interest').reduce((sum, t) => sum + t.amount, 0);
-      document.getElementById('totalInterestEarned').textContent = formatMoney(totalInterestEarned);
+      const totalInterest = allTransactions.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0);
+      document.getElementById('totalInterestEarned').textContent = formatMoney(totalInterest);
       
       const now = new Date();
       const lastInterest = allTransactions.filter(t => t.type === 'interest').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
       
-      let nextInterestDate, daysPassed;
-      
+      let nextDate, daysPassed;
       if (lastInterest) {
-        nextInterestDate = new Date(lastInterest.timestamp);
-        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        nextDate = new Date(lastInterest.timestamp);
+        nextDate.setDate(nextDate.getDate() + 30);
         daysPassed = Math.min(30, Math.ceil((now - new Date(lastInterest.timestamp)) / (1000 * 60 * 60 * 24)));
       } else if (userData?.createdAt) {
-        nextInterestDate = new Date(userData.createdAt);
-        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        nextDate = new Date(userData.createdAt);
+        nextDate.setDate(nextDate.getDate() + 30);
         daysPassed = Math.min(30, Math.ceil((now - new Date(userData.createdAt)) / (1000 * 60 * 60 * 24)));
       } else {
-        nextInterestDate = new Date();
-        nextInterestDate.setDate(nextInterestDate.getDate() + 30);
+        nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + 30);
         daysPassed = 15;
       }
       
-      const daysLeft = Math.max(0, Math.ceil((nextInterestDate - now) / (1000 * 60 * 60 * 24)));
-      
-      if (daysLeft === 0) {
-        document.getElementById('daysUntilInterest').textContent = `Interest is due now!`;
-        document.getElementById('interestProgress').style.width = '100%';
-      } else {
-        document.getElementById('daysUntilInterest').textContent = `Next interest in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-        const progress = (daysPassed / 30) * 100;
-        document.getElementById('interestProgress').style.width = Math.min(progress, 100) + '%';
-      }
+      const daysLeft = Math.max(0, Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24)));
+      document.getElementById('daysUntilInterest').textContent = daysLeft === 0 ? 'Interest due now!' : `Next interest in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+      document.getElementById('interestProgress').style.width = Math.min((daysPassed / 30) * 100, 100) + '%';
     }
 
     function renderTransactions(transactions) {
@@ -527,261 +516,135 @@
           </div>
         </div>`;
       };
-      document.getElementById('recentTransactions').innerHTML = transactions.slice(0, 5).map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
-      document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('') || '<p style="color: #718096;">No transactions yet</p>';
+      document.getElementById('recentTransactions').innerHTML = transactions.slice(0, 5).map(renderItem).join('') || '<p style="color: #718096;">No transactions</p>';
+      document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('') || '<p style="color: #718096;">No transactions</p>';
     }
 
     function updateChart() {
       const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
       if (chart) chart.destroy();
       const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toLocaleDateString(); });
-      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ label: 'Balance', data: last7Days.map(() => userData?.balance || 0), borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ data: last7Days.map(() => userData?.balance || 0), borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
     function renderNotifications(notifications) {
       const unread = notifications.filter(n => !n.read).length;
       document.getElementById('notificationBadge').textContent = unread;
-      document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead('${n.id}')"><strong>${n.message}</strong><div style="font-size: 0.8rem; color: #718096; margin-top: 4px;">${new Date(n.timestamp).toLocaleString()}</div></div>`).join('') || '<p style="padding: 20px; color: #718096;">No notifications</p>';
+      document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead('${n.id}')"><strong>${n.message}</strong><div style="font-size:0.8rem;margin-top:4px;">${new Date(n.timestamp).toLocaleString()}</div></div>`).join('') || '<p style="padding:20px;">No notifications</p>';
     }
 
     function renderUserRequests(requests) {
-      document.getElementById('userRequests').innerHTML = requests.map(r => `<div style="padding: 12px; background: #f7fafc; border-radius: 10px; margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600;">${r.type.toUpperCase()}</span><span>${formatMoney(r.amount)}</span></div><div style="display: flex; justify-content: space-between;"><span style="color: #718096;">Status: ${r.status}</span><span style="font-size: 0.8rem;">${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p style="color: #718096;">No requests yet</p>';
+      document.getElementById('userRequests').innerHTML = requests.map(r => `<div style="padding:12px;background:#f7fafc;border-radius:10px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><span><strong>${r.type.toUpperCase()}</strong></span><span>${formatMoney(r.amount)}</span></div><div style="display:flex;justify-content:space-between;margin-top:8px;"><span>Status: ${r.status}</span><span>${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p>No requests</p>';
     }
 
     function renderActiveLoans(loans) {
       if (loans.length === 0) {
         document.getElementById('activeLoanAmount').textContent = 'TSh 0';
         document.getElementById('nextPaymentDue').textContent = '—';
-        document.getElementById('activeLoansList').innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">No active loans</p>';
+        document.getElementById('activeLoansList').innerHTML = '<p style="text-align:center;padding:20px;">No active loans</p>';
         return;
       }
       
-      const totalLoan = loans.reduce((sum, l) => sum + (l.remainingAmount || l.amount), 0);
-      const nextDue = loans.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+      const total = loans.reduce((s, l) => s + (l.remainingAmount || l.amount), 0);
+      const next = loans.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
       
-      document.getElementById('activeLoanAmount').textContent = formatMoney(totalLoan);
-      document.getElementById('nextPaymentDue').textContent = new Date(nextDue.dueDate).toLocaleDateString();
+      document.getElementById('activeLoanAmount').textContent = formatMoney(total);
+      document.getElementById('nextPaymentDue').textContent = new Date(next.dueDate).toLocaleDateString();
       
       document.getElementById('activeLoansList').innerHTML = loans.map(l => {
-        const dueDate = new Date(l.dueDate);
-        const isOverdue = new Date() > dueDate;
+        const due = new Date(l.dueDate);
+        const overdue = new Date() > due;
         const remaining = l.remainingAmount || l.amount;
-        const originalAmount = l.amount;
-        const interestCharged = remaining > originalAmount ? remaining - originalAmount : 0;
+        const penalty = remaining - l.amount;
         
-        return `<div style="padding: 15px; background: #f7fafc; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${isOverdue ? '#ef4444' : '#10b981'};">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span><strong>Loan Amount:</strong> ${formatMoney(originalAmount)}</span>
-            <span><strong>Remaining:</strong> ${formatMoney(remaining)}</span>
-          </div>
-          ${interestCharged > 0 ? `<div style="margin-bottom: 8px; color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Interest/Penalty Added: ${formatMoney(interestCharged)}</div>` : ''}
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</span>
-            <span class="status-badge ${isOverdue ? 'status-overdue' : 'status-active'}">${isOverdue ? 'OVERDUE' : 'Active'}</span>
-          </div>
-          <p style="font-size: 0.85rem; color: #718096;"><i class="fas fa-info-circle"></i> ${isOverdue ? '5% monthly penalty applies!' : 'Pay on time to avoid 5% monthly penalty.'}</p>
+        return `<div style="padding:15px;background:#f7fafc;border-radius:10px;margin-bottom:10px;border-left:4px solid ${overdue ? '#ef4444' : '#10b981'};">
+          <div style="display:flex;justify-content:space-between;"><span><strong>Loan:</strong> ${formatMoney(l.amount)}</span><span><strong>Remaining:</strong> ${formatMoney(remaining)}</span></div>
+          ${penalty > 0 ? `<div style="color:#ef4444;margin-top:5px;"><i class="fas fa-exclamation-circle"></i> Penalty: ${formatMoney(penalty)}</div>` : ''}
+          <div style="display:flex;justify-content:space-between;margin-top:8px;"><span><strong>Due:</strong> ${due.toLocaleDateString()}</span><span class="status-badge ${overdue ? 'status-overdue' : 'status-active'}">${overdue ? 'OVERDUE' : 'Active'}</span></div>
         </div>`;
       }).join('');
     }
 
-    // ============ LOAN CALCULATOR - CRYSTAL CLEAR ============
-document.getElementById('calculateLoanBtn').addEventListener('click', () => {
-  const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
-  const duration = parseInt(document.getElementById('calcLoanDuration').value) || 30;
-  
-  if (amount <= 0) {
-    alert('Please enter a valid loan amount');
-    return;
-  }
-  
-  // ONE-TIME 5% FLAT INTEREST (not monthly!)
-  const interestRate = 0.05;
-  const interest = amount * interestRate;
-  const totalRepayment = amount + interest;
-  
-  // For monthly installments (if they choose to pay over time)
-  const months = duration / 30;
-  const monthlyInstallment = totalRepayment / months;
-  
-  // Update the display
-  document.getElementById('loanCalcPrincipal').textContent = formatMoney(amount);
-  document.getElementById('loanCalcInterest').textContent = formatMoney(interest);
-  document.getElementById('loanCalcTotal').textContent = formatMoney(totalRepayment);
-  document.getElementById('loanCalcTotalRepayment').textContent = formatMoney(totalRepayment);
-  
-  // Show clear breakdown
-  const container = document.getElementById('durationInfoContainer');
-  container.innerHTML = `
-    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px;">
-      <div style="text-align: left; margin-bottom: 10px;">
-        <strong><i class="fas fa-receipt"></i> Payment Breakdown:</strong>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
-        <div>Loan Amount:</div>
-        <div style="text-align: right; font-weight: 600;">${formatMoney(amount)}</div>
-        
-        <div>Interest (5% one-time):</div>
-        <div style="text-align: right; font-weight: 600;">+ ${formatMoney(interest)}</div>
-        
-        <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 8px; margin-top: 5px; grid-column: 1/-1; display: flex; justify-content: space-between;">
-          <span><strong>TOTAL TO REPAY:</strong></span>
-          <span style="font-weight: 700; font-size: 1.1rem;">${formatMoney(totalRepayment)}</span>
-        </div>
-      </div>
+    // Helper function to calculate interest based on months
+    function calculateLoanInterest(amount, durationDays) {
+      const months = durationDays / 30;
+      const interestRate = 0.05 * months; // 5% per month
+      return amount * interestRate;
+    }
+
+    // Loan Calculator - 5% PER MONTH
+    document.getElementById('calculateLoanBtn').addEventListener('click', () => {
+      const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
+      const duration = parseInt(document.getElementById('calcLoanDuration').value) || 30;
+      if (amount <= 0) { alert('Enter amount'); return; }
       
-      <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
-        <div style="display: flex; justify-content: space-between;">
-          <span><i class="fas fa-calendar"></i> Duration:</span>
-          <span style="font-weight: 600;">${duration} Days (${months.toFixed(1)} Months)</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-          <span><i class="fas fa-money-bill-wave"></i> Suggested Monthly:</span>
-          <span style="font-weight: 600;">${formatMoney(monthlyInstallment)}</span>
-        </div>
-      </div>
+      const months = duration / 30;
+      const interestRate = 0.05 * months;
+      const interest = amount * interestRate;
+      const total = amount + interest;
+      const monthlyPayment = total / months;
       
-      <div style="margin-top: 15px; padding: 10px; background: rgba(239, 68, 68, 0.2); border-radius: 8px; border-left: 3px solid #ef4444;">
-        <i class="fas fa-exclamation-triangle" style="color: #fbbf24;"></i> 
-        <strong>Important:</strong> Interest is 5% ONE-TIME. Pay by due date to avoid additional 5% monthly penalty!
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('loanCalcResult').style.display = 'block';
-  
-  // Sync with request form
-  document.getElementById('loanAmount').value = amount;
-  document.getElementById('loanDuration').value = duration;
-  updateEstimatedRepayment();
-});
+      document.getElementById('loanCalcPrincipal').textContent = formatMoney(amount);
+      document.getElementById('loanCalcInterest').textContent = formatMoney(interest) + ` (${interestRate * 100}%)`;
+      document.getElementById('loanCalcTotal').textContent = formatMoney(total);
+      document.getElementById('loanCalcTotalRepayment').textContent = formatMoney(total);
+      document.getElementById('loanInterestRateDisplay').innerHTML = 
+        `<i class="fas fa-info-circle"></i> Interest: ${interestRate * 100}% (5% × ${months} month${months !== 1 ? 's' : ''}). After due: +5% monthly penalty!`;
+      document.getElementById('loanCalcResult').style.display = 'block';
+      
+      document.getElementById('loanAmount').value = amount;
+      document.getElementById('loanDuration').value = duration;
+      updateEstimatedRepayment();
+    });
 
-// Update estimated repayment in real-time - CRYSTAL CLEAR
-function updateEstimatedRepayment() {
-  const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
-  const duration = parseInt(document.getElementById('loanDuration').value) || 30;
-  
-  if (amount <= 0) {
-    document.getElementById('estimatedRepayment').textContent = 'TSh 0';
-    document.getElementById('monthlyPaymentHint').innerHTML = 'Enter amount to see calculation';
-    return;
-  }
-  
-  const interest = amount * 0.05;
-  const total = amount + interest;
-  const months = duration / 30;
-  const monthlyPayment = total / months;
-  
-  document.getElementById('estimatedRepayment').textContent = formatMoney(total);
-  document.getElementById('monthlyPaymentHint').innerHTML = 
-    `💰 Loan: ${formatMoney(amount)} + 5% Interest (${formatMoney(interest)}) = <strong>Total to Repay: ${formatMoney(total)}</strong> | Suggested monthly: ${formatMoney(monthlyPayment)}`;
-}
-
-document.getElementById('loanAmount').addEventListener('input', updateEstimatedRepayment);
-document.getElementById('loanDuration').addEventListener('change', updateEstimatedRepayment);
-
-// Sync calculator with request form
-document.getElementById('calcLoanAmount').addEventListener('input', (e) => {
-  document.getElementById('loanAmount').value = e.target.value;
-  updateEstimatedRepayment();
-});
-
-document.getElementById('calcLoanDuration').addEventListener('change', (e) => {
-  document.getElementById('loanDuration').value = e.target.value;
-  updateEstimatedRepayment();
-});
-
-// Initialize
-updateEstimatedRepayment();
-
-    // Update estimated repayment in real-time
+    // Update estimated repayment
     function updateEstimatedRepayment() {
       const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
       const duration = parseInt(document.getElementById('loanDuration').value) || 30;
       
-      if (amount <= 0) {
+      if (amount > 0) {
+        const months = duration / 30;
+        const interestRate = 0.05 * months;
+        const interest = amount * interestRate;
+        const total = amount + interest;
+        const monthlyPayment = total / months;
+        
+        document.getElementById('estimatedRepayment').textContent = formatMoney(total);
+        document.getElementById('monthlyPaymentHint').innerHTML = 
+          `Interest: ${interestRate * 100}% (${formatMoney(interest)}) | Duration: ${months} month${months !== 1 ? 's' : ''} | Monthly payment: ${formatMoney(monthlyPayment)}`;
+      } else {
         document.getElementById('estimatedRepayment').textContent = 'TSh 0';
-        document.getElementById('monthlyPaymentHint').textContent = 'Enter an amount to see calculation';
-        return;
+        document.getElementById('monthlyPaymentHint').textContent = 'Enter amount to see calculation';
       }
-      
-      const interest = amount * 0.05;
-      const total = amount + interest;
-      const months = duration / 30;
-      const monthlyPayment = total / months;
-      
-      document.getElementById('estimatedRepayment').textContent = formatMoney(total);
-      document.getElementById('monthlyPaymentHint').innerHTML = 
-        `<i class="fas fa-calendar-alt"></i> Duration: ${duration} days (${months.toFixed(1)} months) | Suggested monthly payment: ${formatMoney(monthlyPayment)}`;
     }
 
     document.getElementById('loanAmount').addEventListener('input', updateEstimatedRepayment);
     document.getElementById('loanDuration').addEventListener('change', updateEstimatedRepayment);
-
-    // Sync calculator with request form
-    document.getElementById('calcLoanAmount').addEventListener('input', (e) => {
-      document.getElementById('loanAmount').value = e.target.value;
-      updateEstimatedRepayment();
-    });
-
-    document.getElementById('calcLoanDuration').addEventListener('change', (e) => {
-      document.getElementById('loanDuration').value = e.target.value;
-      updateEstimatedRepayment();
-    });
-
-    // Initialize estimated repayment
     updateEstimatedRepayment();
 
     // Loan Request
     document.getElementById('requestLoanBtn').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('loanAmount').value);
       const duration = parseInt(document.getElementById('loanDuration').value);
+      if (!amount || amount <= 0) { alert('Enter amount'); return; }
       
-      if (!amount || amount <= 0) {
-        alert('Please enter a valid loan amount');
-        return;
-      }
-      
-      const interest = amount * 0.05;
-      const totalRepayment = amount + interest;
       const months = duration / 30;
-      const monthlyPayment = totalRepayment / months;
+      const interestRate = 0.05 * months;
+      const interest = amount * interestRate;
+      const total = amount + interest;
       
-      const confirmMsg = `📋 Loan Summary:
-━━━━━━━━━━━━━━━━━━━━
-💰 Loan Amount: ${formatMoney(amount)}
-📊 Interest (5%): ${formatMoney(interest)}
-💳 Total to Repay: ${formatMoney(totalRepayment)}
-📅 Duration: ${duration} days (${months.toFixed(1)} months)
-💵 Suggested Monthly: ${formatMoney(monthlyPayment)}
-━━━━━━━━━━━━━━━━━━━━
-
-Submit this loan request?`;
+      if (!confirm(`📋 Loan Summary:\n━━━━━━━━━━━━━━━━━━━━\n💰 Loan Amount: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total to Repay: ${formatMoney(total)}\n📅 Duration: ${duration} days (${months} month${months !== 1 ? 's' : ''})\n━━━━━━━━━━━━━━━━━━━━\n\nSubmit this loan request?`)) return;
       
-      if (!confirm(confirmMsg)) return;
+      await setDoc(doc(collection(db, "loanRequests")), {
+        userEmail: currentUser.email, userName: userData?.name || 'Client',
+        amount, duration, interestRate: interestRate, interestAmount: interest, totalRepayment: total,
+        status: 'pending', timestamp: new Date().toISOString()
+      });
       
-      try {
-        await setDoc(doc(collection(db, "loanRequests")), {
-          userEmail: currentUser.email,
-          userName: userData.name,
-          amount: amount,
-          duration: duration,
-          interestAmount: interest,
-          totalRepayment: totalRepayment,
-          monthlyPayment: monthlyPayment,
-          status: 'pending',
-          timestamp: new Date().toISOString()
-        });
-        
-        document.getElementById('loanAmount').value = '';
-        document.getElementById('calcLoanAmount').value = '100000';
-        document.getElementById('estimatedRepayment').textContent = 'TSh 0';
-        document.getElementById('monthlyPaymentHint').textContent = 'Enter an amount to see calculation';
-        document.getElementById('loanCalcResult').style.display = 'none';
-        
-        alert('✅ Loan request submitted! Admin will review your request.');
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
+      document.getElementById('loanAmount').value = '';
+      document.getElementById('estimatedRepayment').textContent = 'TSh 0';
+      document.getElementById('monthlyPaymentHint').textContent = '';
+      alert('✅ Request submitted!');
     });
 
     // Savings Calculator
@@ -794,18 +657,18 @@ Submit this loan request?`;
       const months = unit === 'years' ? duration * 12 : duration;
       const rate = 0.01;
       
-      let futureValue = principal * Math.pow(1 + rate, months);
-      if (monthly > 0) futureValue += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
+      let fv = principal * Math.pow(1 + rate, months);
+      if (monthly > 0) fv += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
       
-      const totalDeposited = principal + (monthly * months);
-      const interestEarned = futureValue - totalDeposited;
+      const deposited = principal + (monthly * months);
       
-      document.getElementById('savingsFutureValue').textContent = formatMoney(futureValue);
-      document.getElementById('savingsTotalDeposited').textContent = formatMoney(totalDeposited);
-      document.getElementById('savingsInterestEarned').textContent = formatMoney(interestEarned);
+      document.getElementById('savingsFutureValue').textContent = formatMoney(fv);
+      document.getElementById('savingsTotalDeposited').textContent = formatMoney(deposited);
+      document.getElementById('savingsInterestEarned').textContent = formatMoney(fv - deposited);
       document.getElementById('savingsCalcResult').style.display = 'block';
     });
 
+    // Navigation
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -816,34 +679,37 @@ Submit this loan request?`;
     });
 
     document.getElementById('notificationBell').addEventListener('click', () => {
-      const panel = document.getElementById('notificationsPanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      const p = document.getElementById('notificationsPanel');
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
     });
 
-    window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications"), { read: true }); };
+    window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications", id), { read: true }); };
     
     window.markAllRead = async () => {
       const snapshot = await getDocs(query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), where("read", "==", false)));
-      snapshot.forEach(async (doc) => { await updateDoc(doc.ref, { read: true }); });
+      snapshot.forEach(async (d) => { await updateDoc(d.ref, { read: true }); });
     };
 
     window.openRequestModal = (type) => {
       currentRequestType = type;
-      document.getElementById('modalTitle').textContent = `Request ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      document.getElementById('modalTitle').textContent = `Request ${type}`;
       document.getElementById('requestModal').style.display = 'flex';
     };
 
     window.closeRequestModal = () => {
       document.getElementById('requestModal').style.display = 'none';
-      document.getElementById('modalAmount').value = document.getElementById('modalNote').value = '';
+      document.getElementById('modalAmount').value = '';
+      document.getElementById('modalNote').value = '';
     };
 
     document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('modalAmount').value);
-      if (!amount || amount <= 0) return alert('Invalid amount');
+      if (!amount || amount <= 0) { alert('Invalid amount'); return; }
+      
       await setDoc(doc(collection(db, "requests")), {
-        userEmail: currentUser.email, userName: userData.name, type: currentRequestType,
-        amount, note: document.getElementById('modalNote').value, status: 'pending', timestamp: new Date().toISOString()
+        userEmail: currentUser.email, userName: userData?.name || 'Client',
+        type: currentRequestType, amount, note: document.getElementById('modalNote').value,
+        status: 'pending', timestamp: new Date().toISOString()
       });
       closeRequestModal();
       alert('Request submitted!');
@@ -852,16 +718,22 @@ Submit this loan request?`;
     document.getElementById('submitRequestBtn').addEventListener('click', async () => {
       const type = document.getElementById('requestType').value;
       const amount = parseFloat(document.getElementById('requestAmount').value);
-      if (!amount || amount <= 0) return alert('Invalid amount');
+      if (!amount || amount <= 0) { alert('Invalid amount'); return; }
+      
       await setDoc(doc(collection(db, "requests")), {
-        userEmail: currentUser.email, userName: userData.name, type,
-        amount, note: document.getElementById('requestNote').value, status: 'pending', timestamp: new Date().toISOString()
+        userEmail: currentUser.email, userName: userData?.name || 'Client',
+        type, amount, note: document.getElementById('requestNote').value,
+        status: 'pending', timestamp: new Date().toISOString()
       });
-      document.getElementById('requestAmount').value = document.getElementById('requestNote').value = '';
+      document.getElementById('requestAmount').value = '';
+      document.getElementById('requestNote').value = '';
       alert('Request submitted!');
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.replace('index.html'); });
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.replace('index.html');
+    });
 
     document.addEventListener('click', (e) => {
       const panel = document.getElementById('notificationsPanel');
