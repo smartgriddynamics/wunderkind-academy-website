@@ -522,6 +522,7 @@
             <div class="request-header"><span class="request-user">${r.userName} (${r.userEmail})</span><span class="request-amount">${formatMoney(r.amount)}</span></div>
             <p>Duration: ${r.duration} days (${months} month${months !== 1 ? 's' : ''}) | Interest: ${interestRate * 100}% (${formatMoney(interest)})</p>
             <p><strong>Total to Repay: ${formatMoney(total)}</strong></p>
+            <p style="color: #ef4444; font-size: 0.9rem;"><i class="fas fa-exclamation-triangle"></i> Loan is DEBT - NOT added to balance!</p>
             <div class="request-actions"><button class="btn-approve" onclick="approveLoanRequest('${r.id}')">Approve</button><button class="btn-reject" onclick="rejectLoanRequest('${r.id}')">Reject</button></div>
           </div>`;
         }).join('');
@@ -674,7 +675,7 @@
       await updateDoc(doc(db, "requests", requestId), { status: 'rejected' });
     };
 
-    // Loan Management
+    // LOAN APPROVAL - DOES NOT ADD TO BALANCE!
     window.approveLoanRequest = async (requestId) => {
       const request = loanRequests.find(r => r.id === requestId);
       if (!request) return;
@@ -689,18 +690,35 @@
       const totalRepayment = request.totalRepayment || (request.amount + interest);
       
       await updateDoc(doc(db, "loanRequests", requestId), { status: 'approved' });
+      
       await setDoc(doc(collection(db, "loans")), {
-        userEmail: request.userEmail, userName: request.userName,
-        amount: request.amount, remainingAmount: totalRepayment,
-        duration: request.duration, dueDate: dueDate.toISOString(),
-        approvedAt: new Date().toISOString(), status: 'active'
+        userEmail: request.userEmail,
+        userName: request.userName,
+        amount: request.amount,
+        remainingAmount: totalRepayment,
+        duration: request.duration,
+        dueDate: dueDate.toISOString(),
+        approvedAt: new Date().toISOString(),
+        status: 'active'
       });
       
-      await updateDoc(doc(db, "users", user.id), { balance: user.balance + request.amount });
-      await setDoc(doc(collection(db, "transactions")), { userEmail: user.email, userName: user.name, type: 'loan_disbursement', amount: request.amount, timestamp: new Date().toISOString() });
-      await setDoc(doc(collection(db, "notifications")), { userEmail: user.email, message: `✅ Your loan of ${formatMoney(request.amount)} has been APPROVED. Total to repay: ${formatMoney(totalRepayment)}. Due: ${dueDate.toLocaleDateString()}`, timestamp: new Date().toISOString(), read: false });
+      await setDoc(doc(collection(db, "transactions")), { 
+        userEmail: user.email, 
+        userName: user.name, 
+        type: 'loan_disbursement', 
+        amount: request.amount, 
+        timestamp: new Date().toISOString(),
+        note: 'Loan approved - debt to repay, NOT added to balance'
+      });
       
-      alert('Loan approved!');
+      await setDoc(doc(collection(db, "notifications")), { 
+        userEmail: user.email, 
+        message: `✅ Your loan of ${formatMoney(request.amount)} has been APPROVED. Total to repay: ${formatMoney(totalRepayment)}. Due: ${dueDate.toLocaleDateString()}. NOTE: This is debt - NOT added to your balance.`,
+        timestamp: new Date().toISOString(), 
+        read: false 
+      });
+      
+      alert('✅ Loan approved! (Loan amount is debt - NOT added to user balance)');
     };
 
     window.rejectLoanRequest = async (requestId) => {
@@ -723,15 +741,28 @@
       const amount = parseFloat(document.getElementById('loanPaymentAmount').value);
       if (!amount || amount <= 0) return alert('Invalid amount');
       
+      const user = users.find(u => u.email === selectedLoan.userEmail);
+      if (!user) return alert('User not found');
+      
+      if (user.balance < amount) return alert('User has insufficient balance to make this payment');
+      
       const remaining = (selectedLoan.remainingAmount || selectedLoan.amount) - amount;
       const newStatus = remaining <= 0 ? 'paid' : 'active';
       
+      // Deduct from user balance
+      await updateDoc(doc(db, "users", user.id), { balance: user.balance - amount });
+      
+      // Update loan
       await updateDoc(doc(db, "loans", selectedLoan.id), { remainingAmount: Math.max(0, remaining), status: newStatus, lastPayment: amount, lastPaymentDate: new Date().toISOString() });
+      
+      // Record transaction
       await setDoc(doc(collection(db, "transactions")), { userEmail: selectedLoan.userEmail, userName: selectedLoan.userName, type: 'loan_repayment', amount, timestamp: new Date().toISOString() });
+      
+      // Notify user
       await setDoc(doc(collection(db, "notifications")), { userEmail: selectedLoan.userEmail, message: `💰 Loan payment of ${formatMoney(amount)} recorded. Remaining: ${formatMoney(Math.max(0, remaining))}`, timestamp: new Date().toISOString(), read: false });
       
       closeModal('loanPaymentModal');
-      alert('Payment recorded!');
+      alert('Payment recorded! Amount deducted from user balance.');
     });
 
     window.openModal = (modalId) => document.getElementById(modalId).style.display = 'flex';
