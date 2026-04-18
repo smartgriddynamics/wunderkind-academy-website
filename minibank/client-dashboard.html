@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>miniBank · Client Portal</title>
+  <title>IBE Bank · Client Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -11,13 +11,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 100%); min-height: 100vh; }
     .client-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
     .navbar { background: white; border-radius: 20px; padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 15px; }
-    .nav-brand { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-brand { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #1a3a5c, #c9a23d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .nav-menu { display: flex; gap: 30px; flex-wrap: wrap; }
     .nav-link { color: #4a5568; text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 2px solid transparent; cursor: pointer; }
-    .nav-link:hover, .nav-link.active { color: #667eea; border-bottom-color: #667eea; }
+    .nav-link:hover, .nav-link.active { color: #1a3a5c; border-bottom-color: #c9a23d; }
     .nav-actions { display: flex; align-items: center; gap: 20px; }
     .notification-icon { position: relative; cursor: pointer; }
     .badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
@@ -26,7 +26,7 @@
     .welcome-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .user-greeting h1 { font-size: 2rem; color: #1a1a2e; }
     .user-greeting p { color: #718096; }
-    .balance-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
+    .balance-card { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
     .balance-label { font-size: 1rem; opacity: 0.9; }
     .balance-amount { font-size: 3.5rem; font-weight: 700; margin: 10px 0; }
     .interest-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -70,14 +70,14 @@
     .calculator-form { margin-top: 20px; }
     .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     @media (max-width: 480px) { .calc-row { grid-template-columns: 1fr; } }
-    .calc-result { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; text-align: center; }
+    .calc-result { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; text-align: center; }
     .calc-result-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
     .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
     .calc-breakdown-item { text-align: center; }
     .calc-breakdown-label { font-size: 0.75rem; opacity: 0.8; }
     .calc-breakdown-value { font-size: 1rem; font-weight: 600; }
     .loan-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-    .loan-stat { background: rgba(102, 126, 234, 0.1); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(102, 126, 234, 0.2); }
+    .loan-stat { background: rgba(26, 58, 92, 0.1); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(26, 58, 92, 0.2); }
     .loan-stat .value { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
     .loan-stat .label { font-size: 0.8rem; color: #718096; }
     .debt-warning { background: #fef3c7; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #ef4444; }
@@ -85,11 +85,11 @@
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568; }
     .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
-    .form-input:focus, .form-select:focus { outline: none; border-color: #667eea; }
-    .btn-submit { width: 100%; padding: 14px; background: #667eea; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-submit:hover { background: #5a67d8; }
-    .btn-calculate { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-    .btn-calculate:hover { background: #059669; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: #1a3a5c; }
+    .btn-submit { width: 100%; padding: 14px; background: #1a3a5c; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-submit:hover { background: #0f2842; }
+    .btn-calculate { width: 100%; padding: 14px; background: #c9a23d; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+    .btn-calculate:hover { background: #a07f2a; }
     .notifications-panel { position: fixed; top: 100px; right: 20px; width: 350px; max-height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; display: none; z-index: 1000; }
     @media (max-width: 768px) { .notifications-panel { width: 90%; right: 5%; } }
     .notifications-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
@@ -111,7 +111,7 @@
 <body>
   <div class="client-container">
     <nav class="navbar">
-      <div class="nav-brand"><i class="fas fa-piggy-bank"></i> miniBank</div>
+      <div class="nav-brand"><i class="fas fa-building-columns"></i> IBE Bank</div>
       <div class="nav-menu">
         <a class="nav-link active" data-section="dashboard">Dashboard</a>
         <a class="nav-link" data-section="loan">Loan</a>
@@ -280,7 +280,7 @@
         
         <!-- Important Note -->
         <div class="info-note">
-          <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+          <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
           <strong>Note:</strong> Approved loans are <strong>NOT added to your balance</strong>. The loan amount is tracked as debt that you must repay by the due date.
         </div>
         
@@ -378,7 +378,7 @@
   <div class="notifications-panel" id="notificationsPanel">
     <div class="notifications-header">
       <h3>Notifications</h3>
-      <button onclick="markAllRead()" style="background: none; border: none; color: #667eea; cursor: pointer;">Mark all read</button>
+      <button onclick="markAllRead()" style="background: none; border: none; color: #1a3a5c; cursor: pointer;">Mark all read</button>
     </div>
     <div class="notifications-body" id="notificationsList"></div>
   </div>
@@ -555,7 +555,7 @@
       const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
       if (chart) chart.destroy();
       const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toLocaleDateString(); });
-      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ data: last7Days.map(() => userData?.balance || 0), borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ data: last7Days.map(() => userData?.balance || 0), borderColor: '#1a3a5c', backgroundColor: 'rgba(26, 58, 92, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
     function renderNotifications(notifications) {
