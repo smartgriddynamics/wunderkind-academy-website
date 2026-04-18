@@ -898,9 +898,9 @@
         const adminDoc = await getDoc(doc(db, "admins", user.uid));
         
         if (adminDoc.exists()) {
-          window.location.href = 'minibank/admin-dashboard.html';
+          window.location.href = 'IBEBank/admin-dashboard.html';
         } else {
-          window.location.href = 'minibank/client-dashboard.html';
+          window.location.href = 'IBEBank/client-dashboard.html';
         }
       } catch (error) {
         showNotification('error', 'Login Failed', error.message);
@@ -989,12 +989,12 @@
       if (user) {
         const adminDoc = await getDoc(doc(db, "admins", user.uid));
         if (adminDoc.exists()) {
-          window.location.href = 'minibank/admin-dashboard.html';
+          window.location.href = 'IBEBank/admin-dashboard.html';
         } else {
           // Check if user is approved (exists in users collection)
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
-            window.location.href = 'minibank/client-dashboard.html';
+            window.location.href = 'IBEBank/client-dashboard.html';
           } else {
             // User is in auth but not in users - pending approval
             await signOut(auth);
