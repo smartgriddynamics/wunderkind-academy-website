@@ -26,6 +26,9 @@
     .welcome-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .user-greeting h1 { font-size: 2rem; color: #1a1a2e; }
     .user-greeting p { color: #718096; }
+    .account-number-box { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 15px; padding: 15px 20px; margin-bottom: 20px; display: inline-block; }
+    .account-number-label { font-size: 0.8rem; opacity: 0.8; color: white; }
+    .account-number-value { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: 2px; }
     .balance-card { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
     .balance-label { font-size: 1rem; opacity: 0.9; }
     .balance-amount { font-size: 3.5rem; font-weight: 700; margin: 10px 0; }
@@ -34,8 +37,6 @@
     .interest-stat-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
     .interest-stat-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
     .interest-stat-value { font-size: 1.5rem; font-weight: 700; }
-    .progress-bar { background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
-    .progress-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; }
     .quick-actions { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
     .btn-action { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
     .btn-action:hover { background: rgba(255,255,255,0.3); }
@@ -53,9 +54,8 @@
     .transaction-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
     .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 12px; flex-wrap: wrap; gap: 10px; }
     .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
-    .transaction-icon.deposit { background: #d1fae5; color: #10b981; }
-    .transaction-icon.withdrawal { background: #fee2e2; color: #ef4444; }
-    .transaction-icon.interest { background: #e0e7ff; color: #8b5cf6; }
+    .transaction-icon.deposit, .transaction-icon.transfer_received, .transaction-icon.profit_share { background: #d1fae5; color: #10b981; }
+    .transaction-icon.withdrawal, .transaction-icon.transfer_sent { background: #fee2e2; color: #ef4444; }
     .transaction-icon.loan_disbursement { background: #fef3c7; color: #92400e; }
     .transaction-icon.loan_repayment { background: #fef3c7; color: #92400e; }
     .transaction-info { flex: 1; min-width: 150px; }
@@ -106,6 +106,8 @@
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
     .status-active { background: #d1fae5; color: #065f46; }
     .status-overdue { background: #fee2e2; color: #991b1b; }
+    .recipient-preview { background: #d1fae5; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981; }
+    .recipient-notfound { background: #fee2e2; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #ef4444; }
   </style>
 </head>
 <body>
@@ -114,6 +116,7 @@
       <div class="nav-brand"><i class="fas fa-building-columns"></i> IBE Bank</div>
       <div class="nav-menu">
         <a class="nav-link active" data-section="dashboard">Dashboard</a>
+        <a class="nav-link" data-section="transfer">Transfer</a>
         <a class="nav-link" data-section="loan">Loan</a>
         <a class="nav-link" data-section="calculator">Calculator</a>
         <a class="nav-link" data-section="transactions">Transactions</a>
@@ -137,38 +140,40 @@
             <p id="userEmail">Loading...</p>
           </div>
         </div>
+        
+        <div class="account-number-box">
+          <div class="account-number-label">Account Number</div>
+          <div class="account-number-value" id="accountNumber">---</div>
+        </div>
+        
         <div class="balance-card">
           <div class="balance-label">Available Balance (Your Money)</div>
           <div class="balance-amount" id="balance">TSh 0</div>
           
           <div class="interest-stats">
             <div class="interest-stat-card">
-              <div class="interest-stat-label"><i class="fas fa-percent"></i> Monthly Interest (1%)</div>
-              <div class="interest-stat-value" id="monthlyInterest">TSh 0</div>
-              <div class="progress-bar">
-                <div class="progress-fill" id="interestProgress" style="width: 0%"></div>
-              </div>
-              <small id="daysUntilInterest">Next interest in 30 days</small>
+              <div class="interest-stat-label"><i class="fas fa-gift"></i> Profit Share Earned</div>
+              <div class="interest-stat-value" id="totalProfitShare">TSh 0</div>
+              <small>From loan interest distribution</small>
             </div>
             <div class="interest-stat-card">
-              <div class="interest-stat-label"><i class="fas fa-calendar"></i> Total Interest Earned</div>
-              <div class="interest-stat-value" id="totalInterestEarned">TSh 0</div>
-              <small>All time</small>
+              <div class="interest-stat-label"><i class="fas fa-chart-pie"></i> Your Pool Share</div>
+              <div class="interest-stat-value" id="poolPercentage">0%</div>
+              <small>Of total bank deposits</small>
             </div>
           </div>
           
-          <!-- Active Loan Debt Warning -->
           <div class="debt-warning" style="margin-top: 20px; background: rgba(239, 68, 68, 0.15);">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Active Loan Debt (Money You Owe):</strong></span>
+              <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Active Loan Debt:</strong></span>
               <span style="font-size: 1.5rem; font-weight: 700; color: #ef4444;" id="activeLoanDebt">TSh 0</span>
             </div>
-            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">This is debt to repay - NOT deducted from your balance. Pay on time to avoid 5% monthly penalty!</p>
+            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">This is debt to repay - Pay on time to avoid 10% monthly penalty!</p>
           </div>
           
           <div class="quick-actions">
-            <button class="btn-action" onclick="openRequestModal('deposit')"><i class="fas fa-plus"></i> Request Deposit</button>
-            <button class="btn-action" onclick="openRequestModal('withdraw')"><i class="fas fa-minus"></i> Request Withdrawal</button>
+            <button class="btn-action" onclick="openRequestModal('deposit')"><i class="fas fa-plus"></i> Deposit</button>
+            <button class="btn-action" onclick="openRequestModal('withdraw')"><i class="fas fa-minus"></i> Withdraw</button>
           </div>
         </div>
       </div>
@@ -185,6 +190,79 @@
       </div>
     </div>
 
+    <!-- Transfer Section -->
+    <div class="content-section" id="transfer-section">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-exchange-alt"></i> Transfer Money</h3>
+        </div>
+        
+        <div class="info-note">
+          <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
+          <strong>Your Account:</strong> <span id="transferAccountNumber">---</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Recipient Account Number</label>
+          <input type="text" id="recipientAccount" class="form-input" placeholder="Enter 10-digit account number" maxlength="10">
+        </div>
+        
+        <div id="recipientPreview" class="recipient-preview" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem;" id="recipientInitials">JD</div>
+            <div>
+              <h4 style="margin-bottom: 4px;" id="recipientName">John Doe</h4>
+              <p style="color: #065f46; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Account verified</p>
+            </div>
+          </div>
+        </div>
+        
+        <div id="recipientNotFound" class="recipient-notfound" style="display: none;">
+          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+          <strong style="color: #991b1b;"> Account not found!</strong>
+          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please check the account number and try again.</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Amount (TSh)</label>
+          <input type="number" id="transferAmount" class="form-input" placeholder="Enter amount" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note (Optional)</label>
+          <input type="text" id="transferNote" class="form-input" placeholder="Payment for...">
+        </div>
+        
+        <div id="transferSummary" style="display: none; background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+          <h4 style="margin-bottom: 15px;">Transfer Summary</h4>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>From:</span>
+            <span><strong id="summaryFrom">Your Account</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>To:</span>
+            <span><strong id="summaryTo">---</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Amount:</span>
+            <span><strong id="summaryAmount">TSh 0</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #e2e8f0;">
+            <span>Your Balance After Transfer:</span>
+            <span><strong id="summaryNewBalance">TSh 0</strong></span>
+          </div>
+        </div>
+        
+        <button class="btn-submit" id="sendTransferBtn" disabled>
+          <i class="fas fa-paper-plane"></i> Send Transfer
+        </button>
+        
+        <div class="info-note" style="margin-top: 20px;">
+          <i class="fas fa-shield-alt"></i>
+          <strong>Security Note:</strong> Always verify the recipient's name before confirming the transfer.
+        </div>
+      </div>
+    </div>
+
     <!-- Loan Section -->
     <div class="content-section" id="loan-section">
       <div class="card">
@@ -192,13 +270,12 @@
           <h3 class="card-title"><i class="fas fa-hand-holding-usd"></i> Loan Management</h3>
         </div>
         
-        <!-- Active Loan Debt Summary -->
         <div class="debt-warning">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Total Loan Debt:</strong></span>
             <span style="font-size: 1.8rem; font-weight: 700; color: #ef4444;" id="loanSectionDebt">TSh 0</span>
           </div>
-          <p style="font-size: 0.85rem; color: #92400e; margin-top: 8px;">This is money you owe. Pay on time to avoid 5% monthly penalty!</p>
+          <p style="font-size: 0.85rem; color: #92400e; margin-top: 8px;">10% interest per month. Pay on time to avoid 10% monthly penalty!</p>
         </div>
         
         <div class="loan-summary">
@@ -212,8 +289,7 @@
           </div>
         </div>
         
-        <!-- LOAN CALCULATOR -->
-        <h4 style="margin: 20px 0 15px;"><i class="fas fa-calculator"></i> Calculate Your Loan</h4>
+        <h4 style="margin: 20px 0 15px;"><i class="fas fa-calculator"></i> Calculate Your Loan (10% per month)</h4>
         <div style="background: #f8fafc; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
           <div class="calc-row">
             <div class="form-group">
@@ -223,10 +299,10 @@
             <div class="form-group">
               <label class="form-label">Duration</label>
               <select id="calcLoanDuration" class="form-select">
-                <option value="30">30 Days (1 Month) - 5%</option>
-                <option value="60">60 Days (2 Months) - 10%</option>
-                <option value="90" selected>90 Days (3 Months) - 15%</option>
-                <option value="180">180 Days (6 Months) - 30%</option>
+                <option value="30">30 Days (1 Month) - 10%</option>
+                <option value="60">60 Days (2 Months) - 20%</option>
+                <option value="90" selected>90 Days (3 Months) - 30%</option>
+                <option value="180">180 Days (6 Months) - 60%</option>
               </select>
             </div>
           </div>
@@ -251,12 +327,14 @@
               </div>
             </div>
             <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;" id="loanInterestRateDisplay">
-              <i class="fas fa-info-circle"></i> Interest: 5% per month. After due: +5% monthly penalty!
+              <i class="fas fa-info-circle"></i> Interest: 10% per month. After due: +10% monthly penalty!
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.9; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 8px;">
+              <i class="fas fa-users"></i> Interest paid is distributed to all depositors as profit share!
             </p>
           </div>
         </div>
         
-        <!-- Request Loan Form -->
         <h4 style="margin: 20px 0 15px;">Request New Loan</h4>
         <div class="form-group">
           <label class="form-label">Loan Amount (TSh)</label>
@@ -265,10 +343,10 @@
         <div class="form-group">
           <label class="form-label">Duration</label>
           <select id="loanDuration" class="form-select">
-            <option value="30">30 Days (1 Month) - 5%</option>
-            <option value="60">60 Days (2 Months) - 10%</option>
-            <option value="90">90 Days (3 Months) - 15%</option>
-            <option value="180">180 Days (6 Months) - 30%</option>
+            <option value="30">30 Days (1 Month) - 10%</option>
+            <option value="60">60 Days (2 Months) - 20%</option>
+            <option value="90">90 Days (3 Months) - 30%</option>
+            <option value="180">180 Days (6 Months) - 60%</option>
           </select>
         </div>
         <div class="form-group">
@@ -278,62 +356,55 @@
         </div>
         <button class="btn-submit" id="requestLoanBtn">Request Loan</button>
         
-        <!-- Important Note -->
         <div class="info-note">
           <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
-          <strong>Note:</strong> Approved loans are <strong>NOT added to your balance</strong>. The loan amount is tracked as debt that you must repay by the due date.
+          <strong>Note:</strong> Approved loans are <strong>NOT added to your balance</strong>. Interest paid is shared with all depositors!
         </div>
         
-        <!-- Active Loans List -->
         <h4 style="margin: 20px 0 15px;">Your Active Loans</h4>
         <div id="activeLoansList"></div>
       </div>
     </div>
 
-    <!-- Calculator Section (Savings) -->
+    <!-- Calculator Section -->
     <div class="content-section" id="calculator-section">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-calculator"></i> Savings Calculator</h3>
-          <p style="color: #718096; font-size: 0.9rem;">1% Monthly Compound Interest</p>
+          <h3 class="card-title"><i class="fas fa-calculator"></i> Profit Share Calculator</h3>
+          <p style="color: #718096; font-size: 0.9rem;">See how much you earn from loan interest distribution</p>
         </div>
         <div class="calculator-form">
           <div class="calc-row">
             <div class="form-group">
-              <label class="form-label">Initial Deposit (TSh)</label>
-              <input type="number" id="calcSavingsPrincipal" class="form-input" placeholder="500,000" value="500000">
+              <label class="form-label">Total Loan Interest Collected (TSh)</label>
+              <input type="number" id="calcTotalInterest" class="form-input" placeholder="500,000" value="500000">
             </div>
             <div class="form-group">
-              <label class="form-label">Monthly Deposit (TSh)</label>
-              <input type="number" id="calcSavingsMonthly" class="form-input" placeholder="0" value="0">
+              <label class="form-label">Your Balance (TSh)</label>
+              <input type="number" id="calcYourBalance" class="form-input" placeholder="1,000,000" value="1000000">
             </div>
           </div>
-          <div class="calc-row">
-            <div class="form-group">
-              <label class="form-label">Time Period</label>
-              <select id="calcSavingsTimeUnit" class="form-input">
-                <option value="months">Months</option>
-                <option value="years" selected>Years</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Duration</label>
-              <input type="number" id="calcSavingsDuration" class="form-input" placeholder="4" value="4">
-            </div>
+          <div class="form-group">
+            <label class="form-label">Total Bank Deposits (All Users Combined)</label>
+            <input type="number" id="calcTotalDeposits" class="form-input" placeholder="10,000,000" value="10000000">
           </div>
-          <button class="btn-calculate" id="calculateSavingsBtn"><i class="fas fa-chart-line"></i> Calculate</button>
+          <button class="btn-calculate" id="calculateProfitBtn"><i class="fas fa-chart-pie"></i> Calculate Your Share</button>
           
-          <div class="calc-result" id="savingsCalcResult" style="display: none;">
-            <p><i class="fas fa-chart-pie"></i> Future Value</p>
-            <div class="calc-result-value" id="savingsFutureValue">TSh 0</div>
+          <div class="calc-result" id="profitCalcResult" style="display: none;">
+            <p><i class="fas fa-gift"></i> Your Profit Share</p>
+            <div class="calc-result-value" id="profitShareAmount">TSh 0</div>
             <div class="calc-breakdown">
               <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Total Deposited</div>
-                <div class="calc-breakdown-value" id="savingsTotalDeposited">TSh 0</div>
+                <div class="calc-breakdown-label">Your Pool %</div>
+                <div class="calc-breakdown-value" id="profitPoolPercent">0%</div>
               </div>
               <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Interest Earned</div>
-                <div class="calc-breakdown-value" id="savingsInterestEarned">TSh 0</div>
+                <div class="calc-breakdown-label">Total Interest</div>
+                <div class="calc-breakdown-value" id="profitTotalInterest">TSh 0</div>
+              </div>
+              <div class="calc-breakdown-item">
+                <div class="calc-breakdown-label">Your Share</div>
+                <div class="calc-breakdown-value" id="profitYourShare">TSh 0</div>
               </div>
             </div>
           </div>
@@ -406,7 +477,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
@@ -426,8 +497,21 @@
     let chart = null;
     let currentRequestType = 'deposit';
     let allTransactions = [];
+    let foundRecipientData = null;
+    let transferValid = false;
+    let allUsers = [];
 
     const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
+
+    function generateAccountNumber(uid) {
+      if (!uid) return '---';
+      let num = '';
+      for (let i = 0; i < uid.length; i++) {
+        if (uid[i] >= '0' && uid[i] <= '9') num += uid[i];
+      }
+      while (num.length < 10) num += '0';
+      return num.substring(0, 10);
+    }
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.replace('index.html'); return; }
@@ -435,18 +519,45 @@
       console.log('✅ Logged in as:', user.email);
       await loadUserData();
       initRealtimeData();
+      loadAllUsers();
     });
+
+    async function loadAllUsers() {
+      const snapshot = await getDocs(collection(db, "users"));
+      allUsers = [];
+      snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
+      updatePoolPercentage();
+    }
+
+    function updatePoolPercentage() {
+      if (!userData) return;
+      const totalDeposits = allUsers.reduce((sum, u) => sum + (u.balance || 0), 0);
+      const userBalance = userData.balance || 0;
+      const percentage = totalDeposits > 0 ? ((userBalance / totalDeposits) * 100).toFixed(2) : 0;
+      document.getElementById('poolPercentage').textContent = percentage + '%';
+    }
 
     async function loadUserData() {
       try {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           userData = userDoc.data();
+          
+          if (!userData.accountNumber) {
+            const accountNumber = generateAccountNumber(currentUser.uid);
+            await updateDoc(doc(db, "users", currentUser.uid), { accountNumber });
+            userData.accountNumber = accountNumber;
+          }
+          
           document.getElementById('greeting').textContent = `Welcome, ${userData.name || 'Client'}!`;
           document.getElementById('userEmail').textContent = currentUser.email;
+          document.getElementById('accountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
+          document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
         } else {
           document.getElementById('greeting').textContent = 'Welcome!';
           document.getElementById('userEmail').textContent = currentUser.email;
+          document.getElementById('accountNumber').textContent = generateAccountNumber(currentUser.uid);
+          document.getElementById('transferAccountNumber').textContent = generateAccountNumber(currentUser.uid);
         }
       } catch (e) {
         console.error('Error loading user:', e);
@@ -454,11 +565,20 @@
     }
 
     function initRealtimeData() {
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        allUsers = [];
+        snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
+        if (userData) updatePoolPercentage();
+      });
+
       onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
         if (doc.exists()) {
           userData = doc.data();
           document.getElementById('balance').textContent = formatMoney(userData.balance || 0);
-          updateInterestStats();
+          document.getElementById('accountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
+          document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
+          updatePoolPercentage();
+          updateProfitShareStats();
         }
       });
 
@@ -468,7 +588,7 @@
         snapshot.forEach(doc => allTransactions.push({ id: doc.id, ...doc.data() }));
         renderTransactions(allTransactions);
         updateChart();
-        updateInterestStats();
+        updateProfitShareStats();
       });
 
       const notifQuery = query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
@@ -493,34 +613,9 @@
       });
     }
 
-    function updateInterestStats() {
-      const balance = userData?.balance || 0;
-      document.getElementById('monthlyInterest').textContent = formatMoney(balance * 0.01);
-      
-      const totalInterest = allTransactions.filter(t => t.type === 'interest').reduce((s, t) => s + t.amount, 0);
-      document.getElementById('totalInterestEarned').textContent = formatMoney(totalInterest);
-      
-      const now = new Date();
-      const lastInterest = allTransactions.filter(t => t.type === 'interest').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-      
-      let nextDate, daysPassed;
-      if (lastInterest) {
-        nextDate = new Date(lastInterest.timestamp);
-        nextDate.setDate(nextDate.getDate() + 30);
-        daysPassed = Math.min(30, Math.ceil((now - new Date(lastInterest.timestamp)) / (1000 * 60 * 60 * 24)));
-      } else if (userData?.createdAt) {
-        nextDate = new Date(userData.createdAt);
-        nextDate.setDate(nextDate.getDate() + 30);
-        daysPassed = Math.min(30, Math.ceil((now - new Date(userData.createdAt)) / (1000 * 60 * 60 * 24)));
-      } else {
-        nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + 30);
-        daysPassed = 15;
-      }
-      
-      const daysLeft = Math.max(0, Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24)));
-      document.getElementById('daysUntilInterest').textContent = daysLeft === 0 ? 'Interest due now!' : `Next interest in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-      document.getElementById('interestProgress').style.width = Math.min((daysPassed / 30) * 100, 100) + '%';
+    function updateProfitShareStats() {
+      const profitShareEarned = allTransactions.filter(t => t.type === 'profit_share').reduce((s, t) => s + t.amount, 0);
+      document.getElementById('totalProfitShare').textContent = formatMoney(profitShareEarned);
     }
 
     function renderTransactions(transactions) {
@@ -529,16 +624,22 @@
         let colorClass = 'amount-positive';
         let sign = '+';
         
-        if (t.type === 'withdrawal') { icon = 'minus'; colorClass = 'amount-negative'; sign = '-'; }
-        else if (t.type === 'interest') { icon = 'percent'; colorClass = 'amount-positive'; sign = '+'; }
+        if (t.type === 'withdrawal' || t.type === 'transfer_sent') { icon = 'minus'; colorClass = 'amount-negative'; sign = '-'; }
+        else if (t.type === 'profit_share') { icon = 'gift'; colorClass = 'amount-positive'; sign = '+'; }
+        else if (t.type === 'transfer_received') { icon = 'arrow-down'; colorClass = 'amount-positive'; sign = '+'; }
         else if (t.type === 'loan_disbursement') { icon = 'hand-holding-usd'; colorClass = 'amount-neutral'; sign = '📋'; }
         else if (t.type === 'loan_repayment') { icon = 'money-bill'; colorClass = 'amount-negative'; sign = '-'; }
+        
+        let title = t.type.replace('_', ' ').toUpperCase();
+        if (t.type === 'transfer_sent') title = `Transfer to ${t.recipientName || 'User'}`;
+        if (t.type === 'transfer_received') title = `Transfer from ${t.senderName || 'User'}`;
+        if (t.type === 'profit_share') title = `Profit Share (Loan Interest)`;
         
         return `<div class="transaction-item">
           <div style="display: flex; align-items: center;">
             <div class="transaction-icon ${t.type}"><i class="fas fa-${icon}"></i></div>
             <div class="transaction-info">
-              <div class="transaction-title">${t.type.replace('_', ' ').toUpperCase()}</div>
+              <div class="transaction-title">${title}</div>
               <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
             </div>
           </div>
@@ -609,21 +710,192 @@
       }).join('');
     }
 
-    // Helper function to calculate interest based on months
-    function calculateLoanInterest(amount, durationDays) {
-      const months = durationDays / 30;
-      const interestRate = 0.05 * months;
-      return amount * interestRate;
+    // Recipient Account Check
+    document.getElementById('recipientAccount').addEventListener('input', async (e) => {
+      const accountNumber = e.target.value.trim();
+      
+      if (accountNumber.length < 10) {
+        document.getElementById('recipientPreview').style.display = 'none';
+        document.getElementById('recipientNotFound').style.display = 'none';
+        document.getElementById('transferSummary').style.display = 'none';
+        document.getElementById('sendTransferBtn').disabled = true;
+        foundRecipientData = null;
+        transferValid = false;
+        return;
+      }
+      
+      if (accountNumber === userData?.accountNumber) {
+        document.getElementById('recipientPreview').style.display = 'none';
+        document.getElementById('recipientNotFound').style.display = 'block';
+        document.getElementById('recipientNotFound').innerHTML = `
+          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+          <strong style="color: #991b1b;"> Cannot transfer to yourself!</strong>
+          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please enter a different account number.</p>
+        `;
+        document.getElementById('sendTransferBtn').disabled = true;
+        foundRecipientData = null;
+        transferValid = false;
+        return;
+      }
+      
+      try {
+        const usersSnapshot = await getDocs(query(collection(db, "users"), where("accountNumber", "==", accountNumber)));
+        
+        if (usersSnapshot.empty) {
+          document.getElementById('recipientPreview').style.display = 'none';
+          document.getElementById('recipientNotFound').style.display = 'block';
+          document.getElementById('recipientNotFound').innerHTML = `
+            <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+            <strong style="color: #991b1b;"> Account not found!</strong>
+            <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please check the account number and try again.</p>
+          `;
+          document.getElementById('transferSummary').style.display = 'none';
+          document.getElementById('sendTransferBtn').disabled = true;
+          foundRecipientData = null;
+          transferValid = false;
+        } else {
+          const recipientDoc = usersSnapshot.docs[0];
+          foundRecipientData = { id: recipientDoc.id, ...recipientDoc.data() };
+          
+          const initials = (foundRecipientData.name || 'U').substring(0, 2).toUpperCase();
+          document.getElementById('recipientInitials').textContent = initials;
+          document.getElementById('recipientName').textContent = foundRecipientData.name || 'User';
+          document.getElementById('recipientPreview').style.display = 'block';
+          document.getElementById('recipientNotFound').style.display = 'none';
+          
+          transferValid = true;
+          updateTransferSummary();
+        }
+      } catch (error) {
+        console.error('Error finding recipient:', error);
+        document.getElementById('recipientNotFound').style.display = 'block';
+        document.getElementById('recipientNotFound').innerHTML = `
+          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+          <strong style="color: #991b1b;"> Error checking account!</strong>
+          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please try again later.</p>
+        `;
+      }
+    });
+
+    document.getElementById('transferAmount').addEventListener('input', updateTransferSummary);
+
+    function updateTransferSummary() {
+      const amount = parseFloat(document.getElementById('transferAmount').value) || 0;
+      const currentBalance = userData?.balance || 0;
+      
+      if (transferValid && amount > 0) {
+        document.getElementById('summaryFrom').textContent = `${userData?.name || 'You'} (${userData?.accountNumber})`;
+        document.getElementById('summaryTo').textContent = `${foundRecipientData.name} (${foundRecipientData.accountNumber})`;
+        document.getElementById('summaryAmount').textContent = formatMoney(amount);
+        
+        const newBalance = currentBalance - amount;
+        const balanceElement = document.getElementById('summaryNewBalance');
+        balanceElement.textContent = formatMoney(newBalance);
+        balanceElement.style.color = newBalance < 0 ? '#ef4444' : '#1a1a2e';
+        
+        document.getElementById('transferSummary').style.display = 'block';
+        
+        const hasEnoughBalance = amount <= currentBalance;
+        document.getElementById('sendTransferBtn').disabled = !hasEnoughBalance || amount <= 0;
+      } else {
+        document.getElementById('transferSummary').style.display = 'none';
+        document.getElementById('sendTransferBtn').disabled = true;
+      }
     }
 
-    // Loan Calculator - 5% PER MONTH
+    // Transfer Submit
+    document.getElementById('sendTransferBtn').addEventListener('click', async () => {
+      const recipientAccount = document.getElementById('recipientAccount').value.trim();
+      const amount = parseFloat(document.getElementById('transferAmount').value);
+      const note = document.getElementById('transferNote').value;
+      
+      if (!recipientAccount) { alert('Please enter recipient account number'); return; }
+      if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
+      if (amount > (userData?.balance || 0)) { alert('Insufficient balance!'); return; }
+      if (!foundRecipientData) { alert('Please verify the recipient account first'); return; }
+      
+      if (!confirm(`Confirm Transfer:\n━━━━━━━━━━━━━━━━━━━━\nTo: ${foundRecipientData.name}\nAccount: ${foundRecipientData.accountNumber}\nAmount: ${formatMoney(amount)}\n━━━━━━━━━━━━━━━━━━━━\n\nThis action cannot be undone.`)) return;
+      
+      const btn = document.getElementById('sendTransferBtn');
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+      
+      try {
+        const recipientId = foundRecipientData.id;
+        
+        await runTransaction(db, async (transaction) => {
+          const senderRef = doc(db, "users", currentUser.uid);
+          const recipientRef = doc(db, "users", recipientId);
+          
+          const senderDoc = await transaction.get(senderRef);
+          const recipientDocSnap = await transaction.get(recipientRef);
+          
+          if (!senderDoc.exists() || !recipientDocSnap.exists()) {
+            throw new Error("User not found!");
+          }
+          
+          const senderBalance = senderDoc.data().balance || 0;
+          const recipientBalance = recipientDocSnap.data().balance || 0;
+          
+          if (senderBalance < amount) {
+            throw new Error("Insufficient balance!");
+          }
+          
+          transaction.update(senderRef, { balance: senderBalance - amount });
+          transaction.update(recipientRef, { balance: recipientBalance + amount });
+        });
+        
+        await setDoc(doc(collection(db, "transactions")), {
+          userEmail: currentUser.email, userName: userData?.name || 'Client',
+          type: 'transfer_sent', amount, recipientAccount, recipientName: foundRecipientData.name,
+          recipientEmail: foundRecipientData.email, note, timestamp: new Date().toISOString()
+        });
+        
+        await setDoc(doc(collection(db, "transactions")), {
+          userEmail: foundRecipientData.email, userName: foundRecipientData.name,
+          type: 'transfer_received', amount, senderAccount: userData.accountNumber,
+          senderName: userData?.name || 'Client', senderEmail: currentUser.email,
+          note, timestamp: new Date().toISOString()
+        });
+        
+        await setDoc(doc(collection(db, "notifications")), {
+          userEmail: foundRecipientData.email,
+          message: `💰 You received ${formatMoney(amount)} from ${userData?.name || 'User'} (${userData.accountNumber})`,
+          timestamp: new Date().toISOString(), read: false
+        });
+        
+        await setDoc(doc(collection(db, "notifications")), {
+          userEmail: currentUser.email,
+          message: `✅ Transfer of ${formatMoney(amount)} to ${foundRecipientData.name} was successful.`,
+          timestamp: new Date().toISOString(), read: false
+        });
+        
+        document.getElementById('recipientAccount').value = '';
+        document.getElementById('transferAmount').value = '';
+        document.getElementById('transferNote').value = '';
+        document.getElementById('recipientPreview').style.display = 'none';
+        document.getElementById('transferSummary').style.display = 'none';
+        foundRecipientData = null;
+        transferValid = false;
+        
+        alert('✅ Transfer successful!');
+        
+      } catch (error) {
+        console.error('Transfer error:', error);
+        alert('❌ Transfer failed: ' + error.message);
+      } finally {
+        btn.textContent = 'Send Transfer';
+      }
+    });
+
+    // Loan Calculator - 10% PER MONTH
     document.getElementById('calculateLoanBtn').addEventListener('click', () => {
       const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
       const duration = parseInt(document.getElementById('calcLoanDuration').value) || 30;
       if (amount <= 0) { alert('Enter amount'); return; }
       
       const months = duration / 30;
-      const interestRate = 0.05 * months;
+      const interestRate = 0.10 * months;
       const interest = amount * interestRate;
       const total = amount + interest;
       const monthlyPayment = total / months;
@@ -633,7 +905,7 @@
       document.getElementById('loanCalcTotal').textContent = formatMoney(total);
       document.getElementById('loanCalcTotalRepayment').textContent = formatMoney(total);
       document.getElementById('loanInterestRateDisplay').innerHTML = 
-        `<i class="fas fa-info-circle"></i> Interest: ${interestRate * 100}% (5% × ${months} month${months !== 1 ? 's' : ''}). After due: +5% monthly penalty!`;
+        `<i class="fas fa-info-circle"></i> Interest: ${interestRate * 100}% (10% × ${months} month${months !== 1 ? 's' : ''}). After due: +10% monthly penalty!`;
       document.getElementById('loanCalcResult').style.display = 'block';
       
       document.getElementById('loanAmount').value = amount;
@@ -641,14 +913,13 @@
       updateEstimatedRepayment();
     });
 
-    // Update estimated repayment
     function updateEstimatedRepayment() {
       const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
       const duration = parseInt(document.getElementById('loanDuration').value) || 30;
       
       if (amount > 0) {
         const months = duration / 30;
-        const interestRate = 0.05 * months;
+        const interestRate = 0.10 * months;
         const interest = amount * interestRate;
         const total = amount + interest;
         const monthlyPayment = total / months;
@@ -673,43 +944,38 @@
       if (!amount || amount <= 0) { alert('Enter amount'); return; }
       
       const months = duration / 30;
-      const interestRate = 0.05 * months;
+      const interestRate = 0.10 * months;
       const interest = amount * interestRate;
       const total = amount + interest;
       
-      if (!confirm(`📋 Loan Summary:\n━━━━━━━━━━━━━━━━━━━━\n💰 Loan Amount: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total to Repay: ${formatMoney(total)}\n📅 Duration: ${duration} days (${months} month${months !== 1 ? 's' : ''})\n\n⚠️ Note: Loan is NOT added to your balance. It is debt you must repay.\n━━━━━━━━━━━━━━━━━━━━\n\nSubmit this loan request?`)) return;
+      if (!confirm(`📋 Loan Summary:\n━━━━━━━━━━━━━━━━━━━━\n💰 Loan Amount: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total to Repay: ${formatMoney(total)}\n📅 Duration: ${duration} days (${months} month${months !== 1 ? 's' : ''})\n\n⚠️ Note: Loan is NOT added to your balance. Interest paid is shared with depositors!\n━━━━━━━━━━━━━━━━━━━━\n\nSubmit this loan request?`)) return;
       
       await setDoc(doc(collection(db, "loanRequests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
-        amount, duration, interestRate: interestRate, interestAmount: interest, totalRepayment: total,
+        amount, duration, interestRate, interestAmount: interest, totalRepayment: total,
         status: 'pending', timestamp: new Date().toISOString()
       });
       
       document.getElementById('loanAmount').value = '';
       document.getElementById('estimatedRepayment').textContent = 'TSh 0';
       document.getElementById('monthlyPaymentHint').textContent = '';
-      alert('✅ Loan request submitted! Admin will review your request.');
+      alert('✅ Loan request submitted!');
     });
 
-    // Savings Calculator
-    document.getElementById('calculateSavingsBtn').addEventListener('click', () => {
-      const principal = parseFloat(document.getElementById('calcSavingsPrincipal').value) || 0;
-      const monthly = parseFloat(document.getElementById('calcSavingsMonthly').value) || 0;
-      const unit = document.getElementById('calcSavingsTimeUnit').value;
-      const duration = parseFloat(document.getElementById('calcSavingsDuration').value) || 0;
+    // Profit Share Calculator
+    document.getElementById('calculateProfitBtn').addEventListener('click', () => {
+      const totalInterest = parseFloat(document.getElementById('calcTotalInterest').value) || 0;
+      const yourBalance = parseFloat(document.getElementById('calcYourBalance').value) || 0;
+      const totalDeposits = parseFloat(document.getElementById('calcTotalDeposits').value) || 1;
       
-      const months = unit === 'years' ? duration * 12 : duration;
-      const rate = 0.01;
+      const poolPercent = (yourBalance / totalDeposits) * 100;
+      const yourShare = totalInterest * (poolPercent / 100);
       
-      let fv = principal * Math.pow(1 + rate, months);
-      if (monthly > 0) fv += monthly * ((Math.pow(1 + rate, months) - 1) / rate);
-      
-      const deposited = principal + (monthly * months);
-      
-      document.getElementById('savingsFutureValue').textContent = formatMoney(fv);
-      document.getElementById('savingsTotalDeposited').textContent = formatMoney(deposited);
-      document.getElementById('savingsInterestEarned').textContent = formatMoney(fv - deposited);
-      document.getElementById('savingsCalcResult').style.display = 'block';
+      document.getElementById('profitPoolPercent').textContent = poolPercent.toFixed(2) + '%';
+      document.getElementById('profitTotalInterest').textContent = formatMoney(totalInterest);
+      document.getElementById('profitYourShare').textContent = formatMoney(yourShare);
+      document.getElementById('profitShareAmount').textContent = formatMoney(yourShare);
+      document.getElementById('profitCalcResult').style.display = 'block';
     });
 
     // Navigation
@@ -750,6 +1016,11 @@
       const amount = parseFloat(document.getElementById('modalAmount').value);
       if (!amount || amount <= 0) { alert('Invalid amount'); return; }
       
+      if (currentRequestType === 'withdraw' && amount > (userData?.balance || 0)) {
+        alert('❌ Insufficient balance! You cannot withdraw more than your available balance.');
+        return;
+      }
+      
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
         type: currentRequestType, amount, note: document.getElementById('modalNote').value,
@@ -763,6 +1034,11 @@
       const type = document.getElementById('requestType').value;
       const amount = parseFloat(document.getElementById('requestAmount').value);
       if (!amount || amount <= 0) { alert('Invalid amount'); return; }
+      
+      if (type === 'withdraw' && amount > (userData?.balance || 0)) {
+        alert('❌ Insufficient balance! You cannot withdraw more than your available balance.');
+        return;
+      }
       
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
