@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Space Blaster - EduPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b0f1c 0%, #1a1f33 100%);
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Stars */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 60px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 10px 0 #0a0e1a;
+        }
+
+        h1 {
+            color: #ffe9a7;
+            text-shadow: 0 4px 0 #b45f06, 0 6px 10px black;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subject-badge {
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            padding: 10px 25px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #1a1f33;
+            box-shadow: 0 4px 0 #b45f06;
+        }
+
+        .score-board {
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #b45f06;
+        }
+
+        .score-board span {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a1f33;
+        }
+
+        .game-area {
+            background: rgba(20, 30, 50, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 60px;
+            padding: 40px;
+            box-shadow: inset 0 0 30px #000000, 0 15px 0 #0a0e1a;
+            border: 3px solid #4d7aff;
+        }
+
+        .progress-bar-bg {
+            background: #1e2842;
+            height: 25px;
+            border-radius: 50px;
+            box-shadow: inset 0 3px 8px black;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4ecdc4, #ffd700);
+            border-radius: 50px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .question-card {
+            background: linear-gradient(145deg, #2a3a6e, #1a2548);
+            padding: 35px 25px;
+            border-radius: 50px;
+            margin: 25px 0;
+            text-align: center;
+            border: 4px solid #ffd966;
+            box-shadow: inset 0 4px 10px black, 0 10px 0 #0f1625;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: inset 0 4px 10px black, 0 10px 0 #0f1625, 0 0 20px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: inset 0 4px 10px black, 0 10px 0 #0f1625, 0 0 40px rgba(255, 215, 0, 0.7); }
+        }
+
+        #questionDisplay {
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 3px 3px 0 #000;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .game-btn {
+            background: radial-gradient(circle at 30% 30%, #6b9fff, #1e3a6b);
+            border: 5px solid #aaccff;
+            color: white;
+            font-size: 1.8rem;
+            padding: 30px 15px;
+            border-radius: 60px;
+            font-weight: bold;
+            box-shadow: 0 10px 0 #0f1a2e, 0 5px 15px black;
+            cursor: pointer;
+            transition: all 0.08s;
+            text-shadow: 3px 3px 0 #000;
+            word-break: break-word;
+        }
+
+        .game-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #0f1a2e, 0 5px 15px black;
+        }
+
+        .game-btn.correct-animation {
+            animation: correctPop 0.6s ease;
+            background: radial-gradient(circle at 30% 30%, #7eff7e, #1e7e1e);
+            border-color: #e0ffb0;
+        }
+
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px #7eff7e; }
+            100% { transform: scale(1); }
+        }
+
+        .game-btn.wrong-animation {
+            animation: wrongShake 0.4s ease;
+            background: radial-gradient(circle at 30% 30%, #ff7e7e, #7e1e1e);
+            border-color: #ffb0b0;
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-12px); }
+            40% { transform: translateX(12px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+
+        .message-area {
+            min-height: 60px;
+            font-size: 1.8rem;
+            color: #ffe9a7;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #5f4b8b, #3d2b5e);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 7px 0 #2a1d42;
+            transition: all 0.1s;
+        }
+
+        .control-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 3px 0 #2a1d42;
+        }
+
+        .back-link {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .back-link a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-bg" id="starsBg"></div>
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="container">
+        <div class="game-header">
+            <h1>
+                <span>🚀</span>
+                SPACE BLASTER
+            </h1>
+            <span class="subject-badge" id="subjectDisplay">Loading...</span>
+            <div class="score-board">
+                <span>🏆 <span id="scoreDisplay">0</span></span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Loading questions...</div>
+
+            <div class="question-card">
+                <div id="questionDisplay">✨ 🚀 ✨</div>
+            </div>
+
+            <div class="options-grid">
+                <button class="game-btn" id="opt0">----</button>
+                <button class="game-btn" id="opt1">----</button>
+                <button class="game-btn" id="opt2">----</button>
+                <button class="game-btn" id="opt3">----</button>
+            </div>
+
+            <div class="message-area" id="messageDisplay">⭐ Choose your answer! ⭐</div>
+
+            <div class="control-buttons">
+                <button class="control-btn" id="restartBtn">🔄 New Game</button>
+                <button class="control-btn" id="backBtn">📚 Change Subject</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="student-dashboard.html">← Back to Subjects</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
+            authDomain: "qnbank.firebaseapp.com",
+            projectId: "qnbank",
+            storageBucket: "qnbank.firebasestorage.app",
+            messagingSenderId: "537142740445",
+            appId: "1:537142740445:web:989abf186086379b986234",
+            measurementId: "G-51VRLM2DGC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let studentData = null;
+        let selectedSubjectId = null;
+        let selectedSubjectName = '';
+        
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let gameActive = false;
+        let lockSelection = false;
+        let gameCompleted = false;
+
+        // DOM Elements
+        const questionDisplay = document.getElementById('questionDisplay');
+        const optBtns = [
+            document.getElementById('opt0'),
+            document.getElementById('opt1'),
+            document.getElementById('opt2'),
+            document.getElementById('opt3')
+        ];
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const messageDisplay = document.getElementById('messageDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const subjectDisplay = document.getElementById('subjectDisplay');
+
+        // Create stars
+        function createStars() {
+            const bg = document.getElementById('starsBg');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 4 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                bg.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Get subject from localStorage
+        selectedSubjectId = localStorage.getItem('selectedSubject');
+        selectedSubjectName = localStorage.getItem('selectedSubjectName');
+
+        if (!selectedSubjectId) {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        subjectDisplay.textContent = `📚 ${selectedSubjectName}`;
+
+        // Auth check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = user;
+            
+            const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+            if (!userSnapshot.empty) {
+                studentData = userSnapshot.docs[0].data();
+            }
+            
+            await loadQuestions();
+        });
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        async function loadQuestions() {
+            try {
+                const q = query(collection(db, "questions"), where("subjectId", "==", selectedSubjectId));
+                const snapshot = await getDocs(q);
+                const loaded = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    loaded.push({
+                        question: data.question,
+                        correct: data.correct,
+                        options: shuffleArray([data.correct, data.wrong1, data.wrong2, data.wrong3])
+                    });
+                });
+                
+                questions = shuffleArray(loaded);
+                
+                if (questions.length === 0) {
+                    questionDisplay.textContent = '📝 No questions yet!';
+                    messageDisplay.textContent = 'Ask your teacher to add some!';
+                } else {
+                    startGame();
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                messageDisplay.textContent = '❌ Error loading questions';
+            }
+        }
+
+        function startGame() {
+            currentIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            gameActive = true;
+            gameCompleted = false;
+            lockSelection = false;
+            updateScore();
+            
+            optBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('correct-animation', 'wrong-animation');
+            });
+            
+            displayQuestion(0);
+            messageDisplay.textContent = '🌟 Choose the right answer! 🌟';
+        }
+
+        function displayQuestion(index) {
+            if (!gameActive) return;
+            
+            if (index >= questions.length) {
+                gameComplete();
+                return;
+            }
+            
+            const q = questions[index];
+            questionDisplay.textContent = q.question;
+            
+            for (let i = 0; i < 4; i++) {
+                optBtns[i].textContent = q.options[i];
+                optBtns[i].disabled = false;
+                optBtns[i].classList.remove('correct-animation', 'wrong-animation');
+            }
+            
+            const progress = (index / questions.length) * 100;
+            progressFill.style.width = progress + '%';
+            progressText.textContent = `Question ${index + 1} of ${questions.length}`;
+            lockSelection = false;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        async function gameComplete() {
+            gameActive = false;
+            gameCompleted = true;
+            questionDisplay.textContent = '🎉🏆 GALACTIC VICTORY! 🏆🎉';
+            optBtns.forEach(btn => btn.disabled = true);
+            messageDisplay.textContent = `✨ Final Score: ${score}/${questions.length} ✨`;
+            progressFill.style.width = '100%';
+            progressText.textContent = 'Mission Complete! 🎖️';
+            
+            // Save activity to Firestore
+            if (currentUser && studentData) {
+                try {
+                    await addDoc(collection(db, "activities"), {
+                        studentId: currentUser.uid,
+                        studentName: studentData.name,
+                        studentGrade: studentData.grade,
+                        subjectId: selectedSubjectId,
+                        subject: selectedSubjectName,
+                        score: score,
+                        totalQuestions: questions.length,
+                        correctAnswers: correctAnswers,
+                        wrongAnswers: wrongAnswers,
+                        timestamp: new Date()
+                    });
+                    console.log('Activity saved!');
+                } catch (error) {
+                    console.error('Error saving activity:', error);
+                }
+            }
+            
+            startConfetti();
+        }
+
+        function handleAnswer(btnIndex) {
+            if (!gameActive || lockSelection || currentIndex >= questions.length) return;
+            
+            const currentQ = questions[currentIndex];
+            const selected = optBtns[btnIndex].textContent;
+            const isCorrect = (selected === currentQ.correct);
+            
+            lockSelection = true;
+            
+            if (isCorrect) {
+                score++;
+                correctAnswers++;
+                updateScore();
+                messageDisplay.textContent = `✅ CORRECT! +1 STAR! 🌟`;
+                optBtns[btnIndex].classList.add('correct-animation');
+                optBtns.forEach(btn => btn.disabled = true);
+                
+                setTimeout(() => {
+                    if (gameActive) {
+                        currentIndex++;
+                        optBtns.forEach(btn => {
+                            btn.disabled = false;
+                            btn.classList.remove('correct-animation', 'wrong-animation');
+                        });
+                        displayQuestion(currentIndex);
+                    }
+                }, 700);
+            } else {
+                wrongAnswers++;
+                messageDisplay.textContent = `❌ Oops! Try again! 🚀`;
+                optBtns[btnIndex].classList.add('wrong-animation');
+                
+                setTimeout(() => {
+                    optBtns[btnIndex].classList.remove('wrong-animation');
+                }, 400);
+                
+                lockSelection = false;
+            }
+        }
+
+        // Confetti
+        function startConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    speedY: Math.random() * 5 + 3,
+                    speedX: Math.random() * 4 - 2,
+                    color: `hsl(${Math.random() * 360}, 80%, 60%)`
+                });
+            }
+            
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let stillFalling = false;
+                
+                particles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    
+                    if (p.y < canvas.height) stillFalling = true;
+                    
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                });
+                
+                if (stillFalling) {
+                    requestAnimationFrame(draw);
+                }
+            }
+            
+            draw();
+        }
+
+        // Event listeners
+        optBtns.forEach((btn, idx) => {
+            btn.addEventListener('click', () => handleAnswer(idx));
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            startGame();
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'student-dashboard.html';
+        });
+    </script>
+</body>
+</html>

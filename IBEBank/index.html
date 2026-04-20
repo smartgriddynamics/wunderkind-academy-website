@@ -285,7 +285,7 @@
     .auth-container {
       position: relative;
       overflow: hidden;
-      min-height: 480px;
+      min-height: 520px;
     }
     
     .auth-slider {
@@ -326,6 +326,19 @@
       color: var(--dark);
     }
     
+    .password-wrapper {
+      position: relative;
+    }
+    
+    .password-wrapper input {
+      width: 100%;
+      padding: 14px 45px 14px 16px;
+      border: 2px solid var(--gray-light);
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    
     .form-group input {
       width: 100%;
       padding: 14px 16px;
@@ -338,6 +351,37 @@
     .form-group input:focus {
       outline: none;
       border-color: var(--primary);
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--gray);
+      transition: color 0.3s;
+    }
+    
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+    
+    .forgot-password {
+      text-align: right;
+      margin-top: 5px;
+    }
+    
+    .forgot-password a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .forgot-password a:hover {
+      text-decoration: underline;
     }
     
     .auth-footer {
@@ -557,6 +601,20 @@
       margin-bottom: 20px;
     }
     
+    .modal-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--gray-light);
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+    
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
     /* Notification */
     .notification {
       position: fixed;
@@ -587,6 +645,10 @@
       border-left: 4px solid var(--danger);
     }
     
+    .notification.info {
+      border-left: 4px solid var(--primary);
+    }
+    
     .notification i {
       font-size: 1.5rem;
     }
@@ -597,6 +659,10 @@
     
     .notification.error i {
       color: var(--danger);
+    }
+    
+    .notification.info i {
+      color: var(--primary);
     }
     
     .notification-content h4 {
@@ -633,7 +699,7 @@
       .footer-grid { grid-template-columns: 1fr; }
       section { padding: 60px 0; }
       .hero-card { padding: 25px; }
-      .auth-container { min-height: 520px; }
+      .auth-container { min-height: 580px; }
     }
     
     @media (max-width: 480px) {
@@ -733,7 +799,13 @@
                   </div>
                   <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    <div class="password-wrapper">
+                      <input type="password" id="loginPassword" placeholder="••••••••" required>
+                      <i class="far fa-eye password-toggle" onclick="togglePassword('loginPassword', this)"></i>
+                    </div>
+                    <div class="forgot-password">
+                      <a onclick="openResetPasswordModal()">Forgot Password?</a>
+                    </div>
                   </div>
                   <button type="submit" class="btn btn-primary" style="width: 100%;" id="loginBtn">Sign In</button>
                 </form>
@@ -748,7 +820,7 @@
                 <form id="registerForm" onsubmit="return false;">
                   <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" id="regName" placeholder="Hamdan Mahmoud" required>
+                    <input type="text" id="regName" placeholder="John Doe" required>
                   </div>
                   <div class="form-group">
                     <label>Email Address</label>
@@ -756,7 +828,17 @@
                   </div>
                   <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="regPassword" placeholder="••••••••" required>
+                    <div class="password-wrapper">
+                      <input type="password" id="regPassword" placeholder="••••••••" required>
+                      <i class="far fa-eye password-toggle" onclick="togglePassword('regPassword', this)"></i>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Confirm Password</label>
+                    <div class="password-wrapper">
+                      <input type="password" id="regConfirmPassword" placeholder="••••••••" required>
+                      <i class="far fa-eye password-toggle" onclick="togglePassword('regConfirmPassword', this)"></i>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>Initial Deposit (TSh)</label>
@@ -811,12 +893,12 @@
         <div class="service-card">
           <div class="service-icon"><i class="fas fa-piggy-bank"></i></div>
           <h3>Savings Accounts</h3>
-          <p>Earn 1% monthly interest on your savings with auto-compounding.</p>
+          <p>Earn profit share from loan interest distributions.</p>
         </div>
         <div class="service-card">
           <div class="service-icon"><i class="fas fa-hand-holding-usd"></i></div>
           <h3>Business Loans</h3>
-          <p>Flexible loans with competitive rates starting at 5% per month.</p>
+          <p>Flexible loans with competitive rates starting at 10% per month.</p>
         </div>
         <div class="service-card">
           <div class="service-icon"><i class="fas fa-chart-line"></i></div>
@@ -894,15 +976,29 @@
     </div>
   </footer>
 
-  <!-- Auth Modal -->
+  <!-- Registration Success Modal -->
   <div class="modal-overlay" id="authModal">
     <div class="modal">
       <div class="modal-icon">
         <i class="fas fa-clock"></i>
       </div>
-      <h3 id="modalTitle">Registration Pending</h3>
+      <h3 id="modalTitle">Registration Submitted!</h3>
       <p id="modalMessage">Your account has been created and is pending admin approval. You will be notified once approved.</p>
       <button class="btn btn-primary" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div class="modal-overlay" id="resetPasswordModal">
+    <div class="modal">
+      <div class="modal-icon">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h3>Reset Password</h3>
+      <p>Enter your email address and we'll send you a password reset link.</p>
+      <input type="email" id="resetEmail" class="modal-input" placeholder="your@email.com">
+      <button class="btn btn-primary" onclick="sendPasswordReset()" style="width: 100%;">Send Reset Link</button>
+      <button class="btn btn-outline" onclick="closeResetPasswordModal()" style="width: 100%; margin-top: 10px;">Cancel</button>
     </div>
   </div>
 
@@ -921,7 +1017,7 @@
   <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -962,6 +1058,48 @@
       document.getElementById('authModal').style.display = 'none';
     };
 
+    window.openResetPasswordModal = () => {
+      document.getElementById('resetPasswordModal').style.display = 'flex';
+    };
+
+    window.closeResetPasswordModal = () => {
+      document.getElementById('resetPasswordModal').style.display = 'none';
+    };
+
+    window.sendPasswordReset = async () => {
+      const email = document.getElementById('resetEmail').value.trim();
+      if (!email) {
+        showNotification('error', 'Error', 'Please enter your email address');
+        return;
+      }
+      
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showNotification('success', 'Email Sent', 'Password reset link has been sent to your email.');
+        closeResetPasswordModal();
+        document.getElementById('resetEmail').value = '';
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          showNotification('error', 'Error', 'No account found with this email address.');
+        } else {
+          showNotification('error', 'Error', error.message);
+        }
+      }
+    };
+
+    window.togglePassword = (inputId, icon) => {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    };
+
     function showNotification(type, title, message) {
       const notif = document.getElementById('notification');
       notif.className = `notification ${type} show`;
@@ -996,7 +1134,13 @@
           window.location.href = 'client-dashboard.html';
         }
       } catch (error) {
-        showNotification('error', 'Login Failed', error.message);
+        if (error.code === 'auth/user-not-found') {
+          showNotification('error', 'Login Failed', 'No account found with this email.');
+        } else if (error.code === 'auth/wrong-password') {
+          showNotification('error', 'Login Failed', 'Incorrect password. Please try again.');
+        } else {
+          showNotification('error', 'Login Failed', error.message);
+        }
         btn.textContent = 'Sign In';
         btn.disabled = false;
       }
@@ -1008,10 +1152,16 @@
       const name = document.getElementById('regName').value.trim();
       const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
       const balance = parseFloat(document.getElementById('regBalance').value) || 0;
       
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !confirmPassword) {
         showNotification('error', 'Error', 'All fields are required');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showNotification('error', 'Error', 'Passwords do not match');
         return;
       }
       

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Super Admin - EduPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            border-radius: 30px;
+            padding: 25px 35px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 0 #c0392b;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 3px 3px 0 #c0392b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 5px 0 #888;
+            transition: all 0.1s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #ee5a24;
+            box-shadow: 0 5px 0 #c0392b;
+        }
+
+        .btn-danger {
+            background: #2c3e50;
+            color: white;
+            box-shadow: 0 5px 0 #1a252f;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #888;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 0 #0f1419;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ee5a24;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 8px 0 #0f1419;
+        }
+
+        h2 {
+            color: #1a1a2e;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 10px;
+        }
+
+        .subject-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .subject-form input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .teacher-list, .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            padding: 18px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .badge {
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .badge-info {
+            background: #3498db;
+            color: white;
+        }
+
+        .activity-item {
+            padding: 12px;
+            background: #f0f4ff;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: #ecf0f1;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header>
+            <h1>👑 Super Admin Dashboard</h1>
+            <div class="header-actions">
+                <span style="color: white; margin-right: 20px;" id="adminName"></span>
+                <button class="btn btn-primary" onclick="window.open('index.html')">🏠 Home</button>
+                <button class="btn btn-danger" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalStudents">0</div>
+                <div class="stat-label">👨‍🎓 Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTeachers">0</div>
+                <div class="stat-label">👩‍🏫 Total Teachers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalSubjects">0</div>
+                <div class="stat-label">📚 Subjects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalActivities">0</div>
+                <div class="stat-label">🎮 Games Played</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Subject & Teacher Management -->
+            <div class="panel">
+                <div class="tabs">
+                    <button class="tab active" data-tab="subjects">📚 Subjects</button>
+                    <button class="tab" data-tab="teachers">👩‍🏫 Teachers</button>
+                </div>
+
+                <!-- Subjects Tab -->
+                <div class="tab-content active" id="subjectsTab">
+                    <h2>Manage Subjects</h2>
+                    <div class="subject-form">
+                        <input type="text" id="subjectNameInput" placeholder="e.g., Mathematics, Science...">
+                        <button class="btn btn-primary" id="addSubjectBtn">➕ Add</button>
+                    </div>
+                    <div class="teacher-list" id="subjectsList"></div>
+                </div>
+
+                <!-- Teachers Tab -->
+                <div class="tab-content" id="teachersTab">
+                    <h2>Teacher Approvals</h2>
+                    <div class="teacher-list" id="teachersList"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: All Activities -->
+            <div class="panel">
+                <h2>📊 All Student Activities</h2>
+                <div class="activity-list" id="allActivitiesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
+            authDomain: "qnbank.firebaseapp.com",
+            projectId: "qnbank",
+            storageBucket: "qnbank.firebasestorage.app",
+            messagingSenderId: "537142740445",
+            appId: "1:537142740445:web:989abf186086379b986234",
+            measurementId: "G-51VRLM2DGC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Auth Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = user;
+            document.getElementById('adminName').textContent = user.email;
+            
+            await loadAllData();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+            });
+        });
+
+        async function loadAllData() {
+            await loadStats();
+            await loadSubjects();
+            await loadTeachers();
+            await loadAllActivities();
+        }
+
+        async function loadStats() {
+            const usersSnapshot = await getDocs(collection(db, "users"));
+            let students = 0, teachers = 0;
+            usersSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.role === 'student') students++;
+                if (data.role === 'teacher') teachers++;
+            });
+            
+            document.getElementById('totalStudents').textContent = students;
+            document.getElementById('totalTeachers').textContent = teachers;
+            
+            const subjectsSnapshot = await getDocs(collection(db, "subjects"));
+            document.getElementById('totalSubjects').textContent = subjectsSnapshot.size;
+            
+            const activitiesSnapshot = await getDocs(collection(db, "activities"));
+            document.getElementById('totalActivities').textContent = activitiesSnapshot.size;
+        }
+
+        async function loadSubjects() {
+            const snapshot = await getDocs(collection(db, "subjects"));
+            const listDiv = document.getElementById('subjectsList');
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="list-item">No subjects added yet</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                html += `
+                    <div class="list-item">
+                        <span><strong>${data.name}</strong></span>
+                        <button class="badge badge-danger" onclick="deleteSubject('${doc.id}')">🗑️ Delete</button>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        async function loadTeachers() {
+            const q = query(collection(db, "users"), where("role", "==", "teacher"));
+            const snapshot = await getDocs(q);
+            const listDiv = document.getElementById('teachersList');
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="list-item">No teachers registered</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const status = data.status || 'pending';
+                html += `
+                    <div class="list-item">
+                        <div>
+                            <strong>${data.name}</strong><br>
+                            <small>${data.email} | Subject: ${data.subject || 'Not set'}</small>
+                        </div>
+                        <div>
+                            <span class="badge badge-${status === 'approved' ? 'success' : 'warning'}">${status}</span>
+                            ${status === 'pending' ? 
+                                `<button class="badge badge-success" onclick="approveTeacher('${doc.id}')">✅ Approve</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        async function loadAllActivities() {
+            const q = query(collection(db, "activities"), orderBy("timestamp", "desc"), limit(50));
+            const snapshot = await getDocs(q);
+            const listDiv = document.getElementById('allActivitiesList');
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="activity-item">No activities yet</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate().toLocaleString() || 'Just now';
+                html += `
+                    <div class="activity-item">
+                        <strong>${data.studentName || 'Student'}</strong> - ${data.subject || 'General'}<br>
+                        Score: ${data.score}/${data.totalQuestions} | ${data.correctAnswers} correct<br>
+                        <small>${date}</small>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        // Add Subject
+        document.getElementById('addSubjectBtn').addEventListener('click', async () => {
+            const name = document.getElementById('subjectNameInput').value.trim();
+            if (!name) return alert('Enter subject name');
+            
+            await addDoc(collection(db, "subjects"), {
+                name: name,
+                createdAt: new Date()
+            });
+            
+            document.getElementById('subjectNameInput').value = '';
+            await loadSubjects();
+            await loadStats();
+        });
+
+        // Global functions for buttons
+        window.deleteSubject = async (id) => {
+            if (confirm('Delete this subject?')) {
+                await deleteDoc(doc(db, "subjects", id));
+                await loadSubjects();
+                await loadStats();
+            }
+        };
+
+        window.approveTeacher = async (uid) => {
+            await updateDoc(doc(db, "users", uid), { status: 'approved' });
+            await loadTeachers();
+        };
+    </script>
+</body>
+</html>

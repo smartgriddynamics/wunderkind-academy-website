@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 EduPlay - Learn Through Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background blobs */
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            background: rgba(255, 215, 0, 0.15);
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            bottom: -50px;
+            right: -50px;
+            background: rgba(102, 126, 234, 0.2);
+            animation: float 20s infinite ease-in-out reverse;
+        }
+
+        .blob-3 {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 60%;
+            background: rgba(255, 107, 107, 0.15);
+            animation: float 18s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo Section */
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-icon {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .logo h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .logo p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Main Card */
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        /* Tab Switcher */
+        .tab-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 60px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Forms Wrapper - Fixed Height to prevent intersection */
+        .forms-wrapper {
+            position: relative;
+            min-height: 480px;
+        }
+
+        /* Form Container */
+        .form-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .form-container.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+        }
+
+        /* Role Selector */
+        .role-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: #f8fafc;
+            padding: 6px;
+            border-radius: 50px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .role-btn.super-admin-btn.active {
+            background: white;
+            color: #ef4444;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            outline: none;
+            transition: all 0.2s;
+            background: #fafbfc;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        select.input-field {
+            cursor: pointer;
+        }
+
+        /* Teacher specific fields */
+        .teacher-fields {
+            display: none;
+        }
+
+        .teacher-fields.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Google Sign-In Button */
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: white;
+            color: #334155;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .google-btn:active {
+            transform: translateY(0);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 12px;
+        }
+
+        /* Messages */
+        .message {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        .info-message {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            display: block;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px 20px;
+            }
+            
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+            
+            .role-btn {
+                font-size: 0.8rem;
+                padding: 8px 6px;
+            }
+
+            .forms-wrapper {
+                min-height: 520px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <span class="logo-icon">🎮📚</span>
+            <h1>EduPlay</h1>
+            <p>Learn Through Games!</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <!-- Tab Switcher -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="loginTab">🔐 Login</button>
+                <button class="tab-btn" id="registerTab">📝 Register</button>
+            </div>
+
+            <!-- Forms Wrapper -->
+            <div class="forms-wrapper">
+                <!-- Login Form -->
+                <div class="form-container active" id="loginForm">
+                    <!-- Role Selector -->
+                    <div class="role-selector">
+                        <button class="role-btn active" data-role="student">🎓 Student</button>
+                        <button class="role-btn" data-role="teacher">👩‍🏫 Teacher</button>
+                        <button class="role-btn super-admin-btn" data-role="superadmin">👑 Admin</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Email Address</label>
+                        <input type="email" class="input-field" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Password</label>
+                        <input type="password" class="input-field" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+
+                    <button class="submit-btn" id="loginSubmitBtn">
+                        <span id="loginBtnText">Sign In</span>
+                    </button>
+
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <button class="google-btn" id="googleLoginBtn">
+                        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Sign in with Google
+                    </button>
+
+                    <div id="loginMessage" class="message"></div>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-container" id="registerForm">
+                    <!-- Role Selector -->
+                    <div class="role-selector">
+                        <button class="role-btn active" data-reg-role="student">🎓 Student</button>
+                        <button class="role-btn" data-reg-role="teacher">👩‍🏫 Teacher</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Full Name</label>
+                        <input type="text" class="input-field" id="regName" placeholder="John Doe" autocomplete="name">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Email Address</label>
+                        <input type="email" class="input-field" id="regEmail" placeholder="your@email.com" autocomplete="email">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Password</label>
+                        <input type="password" class="input-field" id="regPassword" placeholder="Min 6 characters" autocomplete="new-password">
+                    </div>
+
+                    <!-- Teacher Fields -->
+                    <div class="teacher-fields" id="teacherFields">
+                        <div class="input-group">
+                            <label class="input-label">Subject</label>
+                            <select class="input-field" id="regSubject">
+                                <option value="">Select a subject</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Qualification</label>
+                            <input type="text" class="input-field" id="regQualification" placeholder="e.g., B.Ed Mathematics">
+                        </div>
+                    </div>
+
+                    <!-- Student Field -->
+                    <div class="input-group" id="studentGradeField">
+                        <label class="input-label">Grade / Class</label>
+                        <select class="input-field" id="regGrade">
+                            <option value="1">Grade 1</option>
+                            <option value="2">Grade 2</option>
+                            <option value="3">Grade 3</option>
+                            <option value="4">Grade 4</option>
+                            <option value="5">Grade 5</option>
+                            <option value="6">Grade 6</option>
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                        </select>
+                    </div>
+
+                    <button class="submit-btn" id="registerSubmitBtn">
+                        <span id="registerBtnText">Create Account</span>
+                    </button>
+
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <button class="google-btn" id="googleRegisterBtn">
+                        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Sign up with Google
+                    </button>
+
+                    <div id="registerMessage" class="message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getRedirectResult
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query, 
+            where, 
+            doc, 
+            setDoc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
+            authDomain: "qnbank.firebaseapp.com",
+            projectId: "qnbank",
+            storageBucket: "qnbank.firebasestorage.app",
+            messagingSenderId: "537142740445",
+            appId: "1:537142740445:web:989abf186086379b986234",
+            measurementId: "G-51VRLM2DGC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // DOM Elements
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const teacherFields = document.getElementById('teacherFields');
+        const studentGradeField = document.getElementById('studentGradeField');
+        const regSubject = document.getElementById('regSubject');
+        
+        // Buttons
+        const loginBtn = document.getElementById('loginSubmitBtn');
+        const registerBtn = document.getElementById('registerSubmitBtn');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const googleRegisterBtn = document.getElementById('googleRegisterBtn');
+        
+        // Messages
+        const loginMessage = document.getElementById('loginMessage');
+        const registerMessage = document.getElementById('registerMessage');
+
+        // State
+        let selectedLoginRole = 'student';
+        let selectedRegRole = 'student';
+
+        // Tab Switching - Using visibility instead of sliding
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+            hideMessages();
+        });
+
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.classList.add('active');
+            loginForm.classList.remove('active');
+            hideMessages();
+        });
+
+        // Role Selection - Login
+        document.querySelectorAll('[data-role]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-role]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedLoginRole = btn.dataset.role;
+            });
+        });
+
+        // Role Selection - Register
+        document.querySelectorAll('[data-reg-role]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-reg-role]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedRegRole = btn.dataset.regRole;
+                
+                if (selectedRegRole === 'teacher') {
+                    teacherFields.classList.add('show');
+                    studentGradeField.style.display = 'none';
+                    loadSubjects();
+                } else {
+                    teacherFields.classList.remove('show');
+                    studentGradeField.style.display = 'block';
+                }
+            });
+        });
+
+        // Helper Functions
+        function hideMessages() {
+            loginMessage.style.display = 'none';
+            registerMessage.style.display = 'none';
+            loginMessage.className = 'message';
+            registerMessage.className = 'message';
+        }
+
+        function showMessage(element, text, type) {
+            element.textContent = text;
+            element.className = `message ${type}-message`;
+            element.style.display = 'block';
+        }
+
+        function setLoading(button, text, loading) {
+            const btnText = button.querySelector('span');
+            if (loading) {
+                btnText.innerHTML = `<span class="spinner"></span>${text}`;
+                button.disabled = true;
+            } else {
+                btnText.textContent = text;
+                button.disabled = false;
+            }
+        }
+
+        // Load subjects for teacher registration
+        async function loadSubjects() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "subjects"));
+                regSubject.innerHTML = '<option value="">Select a subject</option>';
+                
+                if (querySnapshot.empty) {
+                    regSubject.innerHTML += '<option value="" disabled>No subjects available</option>';
+                } else {
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        regSubject.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading subjects:", error);
+            }
+        }
+
+        // Save user to Firestore
+        async function saveUserToFirestore(user, additionalData = {}) {
+            const userData = {
+                uid: user.uid,
+                email: user.email,
+                name: additionalData.name || user.displayName || 'User',
+                role: additionalData.role || 'student',
+                createdAt: new Date(),
+                ...additionalData
+            };
+
+            await setDoc(doc(db, "users", user.uid), userData, { merge: true });
+            return userData;
+        }
+
+        // Redirect based on role
+        function redirectBasedOnRole(role) {
+            switch(role) {
+                case 'superadmin':
+                    window.location.href = 'super-admin.html';
+                    break;
+                case 'teacher':
+                    window.location.href = 'teacher-dashboard.html';
+                    break;
+                case 'student':
+                    window.location.href = 'student-dashboard.html';
+                    break;
+                default:
+                    window.location.href = 'student-dashboard.html';
+            }
+        }
+
+        // Handle Google Sign-In
+        async function handleGoogleSignIn(isLogin = true) {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    redirectBasedOnRole(userData.role);
+                } else {
+                    if (isLogin) {
+                        await saveUserToFirestore(user, { role: 'student' });
+                        redirectBasedOnRole('student');
+                    } else {
+                        const additionalData = {
+                            role: selectedRegRole,
+                            name: user.displayName || 'User'
+                        };
+                        
+                        if (selectedRegRole === 'teacher') {
+                            additionalData.subject = regSubject.value || '';
+                            additionalData.status = 'pending';
+                        } else {
+                            additionalData.grade = document.getElementById('regGrade').value;
+                        }
+                        
+                        await saveUserToFirestore(user, additionalData);
+                        redirectBasedOnRole(selectedRegRole);
+                    }
+                }
+            } catch (error) {
+                console.error("Google Sign-In Error:", error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showMessage(loginMessage, 'Failed to sign in with Google. Please try again.', 'error');
+                }
+            }
+        }
+
+        // Email/Password Login
+        loginBtn.addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage(loginMessage, 'Please enter email and password', 'error');
+                return;
+            }
+
+            setLoading(loginBtn, 'Signing in...', true);
+            hideMessages();
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+                
+                if (!userDoc.empty) {
+                    const userData = userDoc.docs[0].data();
+                    redirectBasedOnRole(userData.role);
+                } else {
+                    await signOut(auth);
+                    showMessage(loginMessage, 'Account not found. Please register.', 'error');
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                let message = 'Login failed. Please check your credentials.';
+                if (error.code === 'auth/invalid-credential') {
+                    message = 'Invalid email or password';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'No account found with this email';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password';
+                }
+                showMessage(loginMessage, message, 'error');
+            } finally {
+                setLoading(loginBtn, 'Sign In', false);
+            }
+        });
+
+        // Email/Password Register
+        registerBtn.addEventListener('click', async () => {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            if (!name || !email || !password) {
+                showMessage(registerMessage, 'Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(registerMessage, 'Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (selectedRegRole === 'teacher') {
+                const subject = document.getElementById('regSubject').value;
+                if (!subject) {
+                    showMessage(registerMessage, 'Please select a subject', 'error');
+                    return;
+                }
+            }
+
+            setLoading(registerBtn, 'Creating account...', true);
+            hideMessages();
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const userData = {
+                    name: name,
+                    role: selectedRegRole
+                };
+
+                if (selectedRegRole === 'teacher') {
+                    userData.subject = document.getElementById('regSubject').value;
+                    userData.qualification = document.getElementById('regQualification').value.trim();
+                    userData.status = 'pending';
+                } else {
+                    userData.grade = document.getElementById('regGrade').value;
+                }
+
+                await saveUserToFirestore(user, userData);
+                
+                showMessage(registerMessage, 'Account created successfully! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    redirectBasedOnRole(selectedRegRole);
+                }, 1500);
+
+            } catch (error) {
+                console.error("Register Error:", error);
+                let message = 'Registration failed.';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'This email is already registered. Please login instead.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Please enter a valid email address';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password is too weak. Use at least 6 characters.';
+                }
+                showMessage(registerMessage, message, 'error');
+            } finally {
+                setLoading(registerBtn, 'Create Account', false);
+            }
+        });
+
+        // Google Sign-In Listeners
+        googleLoginBtn.addEventListener('click', () => handleGoogleSignIn(true));
+        googleRegisterBtn.addEventListener('click', () => handleGoogleSignIn(false));
+
+        // Load subjects on page load
+        loadSubjects();
+
+        // Handle redirect result (for mobile)
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                const user = result.user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (!userDoc.exists()) {
+                    await saveUserToFirestore(user, { role: 'student' });
+                }
+                
+                const userData = userDoc.exists() ? userDoc.data() : { role: 'student' };
+                redirectBasedOnRole(userData.role);
+            }
+        }).catch((error) => {
+            console.error("Redirect result error:", error);
+        });
+    </script>
+</body>
+</html>

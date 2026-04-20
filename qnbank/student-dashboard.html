@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Student Portal - EduPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 40px;
+            padding: 20px 35px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 0 #4a3a6e;
+            border-bottom: 4px solid #ffd700;
+        }
+
+        h1 {
+            color: #4a3a6e;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0 #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 5px 0 #888;
+            transition: all 0.1s;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 5px 0 #c0392b;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #888;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(145deg, #ffe9a7, #ffd700);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 0 #b45f06;
+        }
+
+        .welcome-banner h2 {
+            color: #4a3a6e;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 30px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: 0 10px 0 #4a3a6e;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 3px solid #ffd700;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 0 #4a3a6e;
+        }
+
+        .subject-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .subject-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a3a6e;
+            margin-bottom: 10px;
+        }
+
+        .question-count {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2c8e86;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .recent-activity {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 8px 0 #4a3a6e;
+        }
+
+        h3 {
+            color: #4a3a6e;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 3px dashed #ffd700;
+            padding-bottom: 10px;
+        }
+
+        .activity-item {
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-subject {
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .activity-score {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .emoji-large {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <span>🎮</span>
+                EduPlay
+                <span>🌟</span>
+            </h1>
+            <div class="student-info">
+                <span id="studentName" style="color: #555; font-weight: bold;"></span>
+                <span id="studentGrade" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 30px;"></span>
+                <button class="btn btn-danger" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </header>
+
+        <div class="welcome-banner">
+            <h2>👋 Welcome back, <span id="welcomeName">Student</span>!</h2>
+            <p style="font-size: 1.2rem; color: #4a3a6e;">Choose a subject and start playing! 🎮</p>
+        </div>
+
+        <h3 style="color: white; margin-bottom: 20px;">📚 Available Subjects</h3>
+        <div class="subjects-grid" id="subjectsGrid">
+            <div class="empty-state" style="background: white;">Loading subjects...</div>
+        </div>
+
+        <div class="recent-activity">
+            <h3>📊 Your Recent Games</h3>
+            <div id="recentActivities">
+                <div class="empty-state">No games played yet. Start playing! 🎮</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
+            authDomain: "qnbank.firebaseapp.com",
+            projectId: "qnbank",
+            storageBucket: "qnbank.firebasestorage.app",
+            messagingSenderId: "537142740445",
+            appId: "1:537142740445:web:989abf186086379b986234",
+            measurementId: "G-51VRLM2DGC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let studentData = null;
+
+        // Auth Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = user;
+            
+            // Get student data
+            const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+            if (!userSnapshot.empty) {
+                studentData = userSnapshot.docs[0].data();
+                document.getElementById('studentName').textContent = studentData.name;
+                document.getElementById('welcomeName').textContent = studentData.name.split(' ')[0];
+                document.getElementById('studentGrade').textContent = `Grade ${studentData.grade}`;
+            }
+            
+            await loadSubjects();
+            await loadRecentActivities();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        async function loadSubjects() {
+            const snapshot = await getDocs(collection(db, "subjects"));
+            const gridDiv = document.getElementById('subjectsGrid');
+            
+            if (snapshot.empty) {
+                gridDiv.innerHTML = '<div class="empty-state" style="background: white;">No subjects available yet. Check back later!</div>';
+                return;
+            }
+            
+            // Get question counts per subject
+            const questionsSnapshot = await getDocs(collection(db, "questions"));
+            const questionCounts = {};
+            questionsSnapshot.forEach(doc => {
+                const data = doc.data();
+                questionCounts[data.subjectId] = (questionCounts[data.subjectId] || 0) + 1;
+            });
+            
+            let html = '';
+            const icons = ['📐', '🔬', '📖', '🌍', '🧪', '🎨', '🎵', '💻'];
+            
+            snapshot.forEach((doc, index) => {
+                const data = doc.data();
+                const count = questionCounts[doc.id] || 0;
+                const icon = icons[index % icons.length];
+                
+                html += `
+                    <div class="subject-card" onclick="selectSubject('${doc.id}', '${data.name}')">
+                        <div class="subject-icon">${icon}</div>
+                        <div class="subject-name">${data.name}</div>
+                        <div class="question-count">📝 ${count} questions</div>
+                        <button class="play-btn">🎮 PLAY NOW</button>
+                    </div>
+                `;
+            });
+            
+            gridDiv.innerHTML = html;
+        }
+
+        async function loadRecentActivities() {
+            if (!currentUser) return;
+            
+            const q = query(collection(db, "activities"), where("studentId", "==", currentUser.uid), orderBy("timestamp", "desc"), limit(5));
+            const snapshot = await getDocs(q);
+            const div = document.getElementById('recentActivities');
+            
+            if (snapshot.empty) {
+                div.innerHTML = '<div class="empty-state">No games played yet. Start playing! 🎮</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate().toLocaleDateString() || 'Recently';
+                const percentage = Math.round((data.score / data.totalQuestions) * 100);
+                
+                html += `
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-subject">📚 ${data.subject}</span><br>
+                            <small>${date}</small>
+                        </div>
+                        <div class="activity-score">
+                            ${data.score}/${data.totalQuestions} (${percentage}%)
+                        </div>
+                    </div>
+                `;
+            });
+            
+            div.innerHTML = html;
+        }
+
+        // Global function for subject selection
+        window.selectSubject = (subjectId, subjectName) => {
+            localStorage.setItem('selectedSubject', subjectId);
+            localStorage.setItem('selectedSubjectName', subjectName);
+            window.location.href = 'game.html';
+        };
+    </script>
+</body>
+</html>

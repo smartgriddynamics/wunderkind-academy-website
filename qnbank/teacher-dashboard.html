@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👩‍🏫 Teacher Dashboard - EduPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Comic Sans MS', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 20px 35px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 0 #0f2440;
+            border-bottom: 4px solid #ffd700;
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 2.3rem;
+            text-shadow: 2px 2px 0 #ffd700;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .subject-badge {
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            padding: 10px 25px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #1e3c72;
+            box-shadow: 0 4px 0 #b45f06;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 5px 0 #888;
+            transition: all 0.1s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 5px 0 #2c8e86;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 5px 0 #c0392b;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #888;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 8px 0 #0f2440;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 8px 0 #0f2440;
+        }
+
+        h2 {
+            color: #1e3c72;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 3px dashed #ffd700;
+            padding-bottom: 10px;
+        }
+
+        /* Question Bank */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 1rem;
+            background: #f8f9ff;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .add-btn {
+            background: linear-gradient(145deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2c8e86;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .format-hint {
+            background: #e8f4fd;
+            padding: 12px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            border-left: 5px solid #4ecdc4;
+        }
+
+        .questions-list {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .question-card {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            border-left: 6px solid #667eea;
+        }
+
+        .question-text {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .answer-badge {
+            display: inline-block;
+            background: #4ecdc4;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            margin-right: 6px;
+            margin-bottom: 5px;
+        }
+
+        .answer-badge.correct {
+            background: #27ae60;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .activity-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 15px;
+            margin-bottom: 12px;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .student-name {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .activity-score {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .activity-time {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>👩‍🏫 Teacher Dashboard</h1>
+            <div class="teacher-info">
+                <span class="subject-badge" id="teacherSubject">Loading...</span>
+                <span id="teacherName" style="color: #555;"></span>
+                <button class="btn btn-primary" onclick="window.open('game.html', '_blank')">🎮 Preview Game</button>
+                <button class="btn btn-danger" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalQuestions">0</div>
+                <div class="stat-label">📝 Questions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalStudents">0</div>
+                <div class="stat-label">👨‍🎓 Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="gamesPlayed">0</div>
+                <div class="stat-label">🎮 Games Played</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgScore">0%</div>
+                <div class="stat-label">📊 Avg Score</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Question Management -->
+            <div class="panel">
+                <div class="tabs">
+                    <button class="tab active" data-tab="add">➕ Add Question</button>
+                    <button class="tab" data-tab="bulk">📋 Bulk Import</button>
+                    <button class="tab" data-tab="bank">📚 Question Bank</button>
+                </div>
+
+                <!-- Add Single Question -->
+                <div class="tab-content active" id="addTab">
+                    <h2>Add New Question</h2>
+                    <div class="input-group">
+                        <label>📝 Question</label>
+                        <input type="text" id="questionInput" placeholder="e.g., What is 2 + 2?">
+                    </div>
+                    <div class="input-group">
+                        <label>✅ Correct Answer</label>
+                        <input type="text" id="correctInput" placeholder="e.g., 4">
+                    </div>
+                    <div class="input-group">
+                        <label>❌ Wrong Answer 1</label>
+                        <input type="text" id="wrong1Input" placeholder="e.g., 3">
+                    </div>
+                    <div class="input-group">
+                        <label>❌ Wrong Answer 2</label>
+                        <input type="text" id="wrong2Input" placeholder="e.g., 5">
+                    </div>
+                    <div class="input-group">
+                        <label>❌ Wrong Answer 3</label>
+                        <input type="text" id="wrong3Input" placeholder="e.g., 6">
+                    </div>
+                    <button class="add-btn" id="addQuestionBtn">✨ Add to Bank</button>
+                    <div id="addMessage" style="margin-top: 15px; text-align: center;"></div>
+                </div>
+
+                <!-- Bulk Import -->
+                <div class="tab-content" id="bulkTab">
+                    <h2>Bulk Import Questions</h2>
+                    <div class="format-hint">
+                        <strong>📋 Format:</strong> Question || Correct || Wrong1 || Wrong2 || Wrong3<br>
+                        One question per line
+                    </div>
+                    <div class="input-group">
+                        <textarea id="bulkInput" rows="8" placeholder="What is 2+2?||4||3||5||6&#10;What color is the sky?||Blue||Green||Red||Yellow&#10;How many days in a week?||7||5||10||12"></textarea>
+                    </div>
+                    <button class="add-btn" id="bulkImportBtn">📤 Import All</button>
+                    <div id="bulkMessage" style="margin-top: 15px; text-align: center;"></div>
+                </div>
+
+                <!-- Question Bank -->
+                <div class="tab-content" id="bankTab">
+                    <h2>Your Question Bank</h2>
+                    <div class="questions-list" id="questionsList">
+                        <div class="empty-state">Loading questions...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Student Activities -->
+            <div class="panel">
+                <h2>📊 Student Activities (Your Subject)</h2>
+                <div class="activity-list" id="activitiesList">
+                    <div class="empty-state">Loading activities...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
+            authDomain: "qnbank.firebaseapp.com",
+            projectId: "qnbank",
+            storageBucket: "qnbank.firebasestorage.app",
+            messagingSenderId: "537142740445",
+            appId: "1:537142740445:web:989abf186086379b986234",
+            measurementId: "G-51VRLM2DGC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let teacherData = null;
+        let teacherSubjectId = null;
+        let teacherSubjectName = '';
+
+        // Auth Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = user;
+            
+            // Get teacher data
+            const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+            if (!userSnapshot.empty) {
+                teacherData = userSnapshot.docs[0].data();
+                teacherSubjectId = teacherData.subject;
+                document.getElementById('teacherName').textContent = teacherData.name;
+                
+                // Get subject name
+                if (teacherSubjectId) {
+                    const subjectDoc = await getDocs(doc(db, "subjects", teacherSubjectId));
+                    // Since we need to fetch, let's do a proper query
+                    const subjectSnapshot = await getDocs(collection(db, "subjects"));
+                    subjectSnapshot.forEach(doc => {
+                        if (doc.id === teacherSubjectId) {
+                            teacherSubjectName = doc.data().name;
+                        }
+                    });
+                    document.getElementById('teacherSubject').textContent = `📚 ${teacherSubjectName || 'Your Subject'}`;
+                }
+            }
+            
+            await loadAllData();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+            });
+        });
+
+        async function loadAllData() {
+            await loadStats();
+            await loadQuestions();
+            await loadActivities();
+        }
+
+        async function loadStats() {
+            if (!teacherSubjectId) return;
+            
+            // Count questions for this subject
+            const qSnapshot = await getDocs(query(collection(db, "questions"), where("subjectId", "==", teacherSubjectId)));
+            document.getElementById('totalQuestions').textContent = qSnapshot.size;
+            
+            // Count unique students who played this subject
+            const activitiesSnapshot = await getDocs(query(collection(db, "activities"), where("subjectId", "==", teacherSubjectId)));
+            const uniqueStudents = new Set();
+            let totalScore = 0;
+            let gameCount = 0;
+            
+            activitiesSnapshot.forEach(doc => {
+                const data = doc.data();
+                uniqueStudents.add(data.studentId);
+                totalScore += (data.score / data.totalQuestions) * 100;
+                gameCount++;
+            });
+            
+            document.getElementById('totalStudents').textContent = uniqueStudents.size;
+            document.getElementById('gamesPlayed').textContent = gameCount;
+            
+            const avg = gameCount > 0 ? Math.round(totalScore / gameCount) : 0;
+            document.getElementById('avgScore').textContent = avg + '%';
+        }
+
+        async function loadQuestions() {
+            if (!teacherSubjectId) return;
+            
+            const q = query(collection(db, "questions"), where("subjectId", "==", teacherSubjectId), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            const listDiv = document.getElementById('questionsList');
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="empty-state">📝 No questions yet. Add some above!</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                html += `
+                    <div class="question-card">
+                        <div class="question-text">${data.question}</div>
+                        <div>
+                            <span class="answer-badge correct">✅ ${data.correct}</span>
+                            <span class="answer-badge">${data.wrong1}</span>
+                            <span class="answer-badge">${data.wrong2}</span>
+                            <span class="answer-badge">${data.wrong3}</span>
+                        </div>
+                        <button class="delete-btn" data-id="${doc.id}">🗑️ Delete</button>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+            
+            // Attach delete listeners
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    if (confirm('Delete this question?')) {
+                        await deleteDoc(doc(db, "questions", id));
+                        await loadStats();
+                        await loadQuestions();
+                    }
+                });
+            });
+        }
+
+        async function loadActivities() {
+            if (!teacherSubjectId) return;
+            
+            const q = query(collection(db, "activities"), where("subjectId", "==", teacherSubjectId), orderBy("timestamp", "desc"), limit(30));
+            const snapshot = await getDocs(q);
+            const listDiv = document.getElementById('activitiesList');
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="empty-state">📊 No activities yet. Students will appear here after playing!</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate().toLocaleString() || 'Just now';
+                const percentage = Math.round((data.score / data.totalQuestions) * 100);
+                html += `
+                    <div class="activity-item">
+                        <div class="activity-header">
+                            <span class="student-name">👤 ${data.studentName || 'Student'}</span>
+                            <span class="activity-score">Score: ${data.score}/${data.totalQuestions} (${percentage}%)</span>
+                        </div>
+                        <div>✅ Correct: ${data.correctAnswers} | ❌ Wrong: ${data.wrongAnswers}</div>
+                        <div class="activity-time">🕐 ${date}</div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        // Add single question
+        document.getElementById('addQuestionBtn').addEventListener('click', async () => {
+            const question = document.getElementById('questionInput').value.trim();
+            const correct = document.getElementById('correctInput').value.trim();
+            const wrong1 = document.getElementById('wrong1Input').value.trim();
+            const wrong2 = document.getElementById('wrong2Input').value.trim();
+            const wrong3 = document.getElementById('wrong3Input').value.trim();
+            const msgDiv = document.getElementById('addMessage');
+            
+            if (!question || !correct || !wrong1 || !wrong2 || !wrong3) {
+                msgDiv.innerHTML = '<span style="color: red;">❌ Please fill all fields!</span>';
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, "questions"), {
+                    question,
+                    correct,
+                    wrong1,
+                    wrong2,
+                    wrong3,
+                    subjectId: teacherSubjectId,
+                    subjectName: teacherSubjectName,
+                    teacherId: currentUser.uid,
+                    teacherName: teacherData.name,
+                    createdAt: new Date()
+                });
+                
+                document.getElementById('questionInput').value = '';
+                document.getElementById('correctInput').value = '';
+                document.getElementById('wrong1Input').value = '';
+                document.getElementById('wrong2Input').value = '';
+                document.getElementById('wrong3Input').value = '';
+                
+                msgDiv.innerHTML = '<span style="color: green;">✅ Question added successfully!</span>';
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
+                
+                await loadStats();
+                await loadQuestions();
+            } catch (error) {
+                msgDiv.innerHTML = '<span style="color: red;">❌ Error adding question</span>';
+            }
+        });
+
+        // Bulk import
+        document.getElementById('bulkImportBtn').addEventListener('click', async () => {
+            const text = document.getElementById('bulkInput').value.trim();
+            const msgDiv = document.getElementById('bulkMessage');
+            
+            if (!text) {
+                msgDiv.innerHTML = '<span style="color: red;">❌ Paste some questions first!</span>';
+                return;
+            }
+            
+            const lines = text.split('\n');
+            let added = 0;
+            
+            for (const line of lines) {
+                const parts = line.split('||').map(s => s.trim());
+                if (parts.length >= 5) {
+                    await addDoc(collection(db, "questions"), {
+                        question: parts[0],
+                        correct: parts[1],
+                        wrong1: parts[2],
+                        wrong2: parts[3],
+                        wrong3: parts[4],
+                        subjectId: teacherSubjectId,
+                        subjectName: teacherSubjectName,
+                        teacherId: currentUser.uid,
+                        teacherName: teacherData.name,
+                        createdAt: new Date()
+                    });
+                    added++;
+                }
+            }
+            
+            document.getElementById('bulkInput').value = '';
+            msgDiv.innerHTML = `<span style="color: green;">✅ Imported ${added} questions successfully!</span>`;
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
+            
+            await loadStats();
+            await loadQuestions();
+        });
+    </script>
+</body>
+</html>
