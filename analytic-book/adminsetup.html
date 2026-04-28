@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Setup Admin - Office Analytics Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .setup-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            color: #4f46e5;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 25px 0;
+            color: #856404;
+        }
+
+        .warning h3 {
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 18px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #17a2b8;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border-left: 5px solid #4f46e5;
+            word-break: break-all;
+        }
+
+        .note {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .note ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .note ul li {
+            margin-bottom: 5px;
+        }
+
+        .icon-large {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="icon-large">📊</div>
+        <h1>
+            👑 Setup Admin
+            <span style="font-size: 1.5rem;">🔧</span>
+        </h1>
+        <p class="subtitle">Office Analytics Book - Initial Configuration</p>
+        
+        <div class="warning">
+            <h3>⚠️ SECURITY WARNING</h3>
+            <p>This page is for <strong>initial setup only</strong>. Delete this file from your server after creating the Admin account!</p>
+        </div>
+
+        <div class="input-group">
+            <label>👤 Full Name</label>
+            <input type="text" id="adminName" placeholder="Admin Name" value="Office Admin">
+        </div>
+
+        <div class="input-group">
+            <label>📧 Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@office.com" value="admin@office.com">
+        </div>
+
+        <div class="input-group">
+            <label>🔒 Password</label>
+            <input type="password" id="adminPassword" placeholder="Min 6 characters" value="admin123">
+        </div>
+
+        <div class="input-group">
+            <label>🔒 Confirm Password</label>
+            <input type="password" id="adminConfirmPassword" placeholder="Confirm password" value="admin123">
+        </div>
+
+        <button class="btn" id="createAdminBtn">
+            <span id="btnText">🚀 CREATE ADMIN ACCOUNT</span>
+            <span id="btnLoader" style="display:none;">⏳ Creating...</span>
+        </button>
+        
+        <div id="messageBox"></div>
+
+        <div class="code-block">
+            <strong>🔑 Admin UID:</strong><br>
+            <span id="uidDisplay">Not created yet</span>
+        </div>
+
+        <div class="note">
+            <strong>📌 After Setup:</strong>
+            <ul>
+                <li>Copy the Admin UID shown above</li>
+                <li>Admin can now login at <strong>index.html</strong></li>
+                <li>Admin manages departments, items, and approvals</li>
+                <li><strong>DELETE THIS FILE</strong> from production server</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1QVeGY7ZnUWirkKuudvPNUbYbthdyugE",
+            authDomain: "analyticsbook-c4e8f.firebaseapp.com",
+            projectId: "analyticsbook-c4e8f",
+            storageBucket: "analyticsbook-c4e8f.firebasestorage.app",
+            messagingSenderId: "847316888383",
+            appId: "1:847316888383:web:51585a3945cb7e0296818a",
+            measurementId: "G-PHGWTDDNTL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const createBtn = document.getElementById('createAdminBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+        const messageBox = document.getElementById('messageBox');
+        const uidDisplay = document.getElementById('uidDisplay');
+
+        function showLoading(loading) {
+            if (loading) {
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+                createBtn.disabled = true;
+            } else {
+                btnText.style.display = 'inline';
+                btnLoader.style.display = 'none';
+                createBtn.disabled = false;
+            }
+        }
+
+        function showMessage(text, type) {
+            messageBox.innerHTML = `<div class="message ${type}">${text}</div>`;
+        }
+
+        async function createAdmin() {
+            const name = document.getElementById('adminName').value.trim();
+            const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+            const password = document.getElementById('adminPassword').value;
+            const confirmPassword = document.getElementById('adminConfirmPassword').value;
+
+            // Validation
+            if (!name || !email || !password) {
+                showMessage('❌ Please fill all fields', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('❌ Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('❌ Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showMessage('❌ Please enter a valid email address', 'error');
+                return;
+            }
+
+            showLoading(true);
+            showMessage('', '');
+
+            try {
+                let userCredential;
+                
+                // Try to create new user
+                try {
+                    userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    showMessage('✅ Account created successfully!', 'success');
+                } catch (createError) {
+                    if (createError.code === 'auth/email-already-in-use') {
+                        // User exists, try to sign in
+                        showMessage('📧 Email already exists. Signing in to set admin role...', 'info');
+                        userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    } else {
+                        throw createError;
+                    }
+                }
+
+                const user = userCredential.user;
+                
+                // Create Admin document in Firestore (admins collection)
+                const adminData = {
+                    uid: user.uid,
+                    email: email,
+                    name: name,
+                    role: 'admin',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Save to admins collection
+                await setDoc(doc(db, "admins", user.uid), adminData, { merge: true });
+                
+                // Also save to users collection for reference
+                await setDoc(doc(db, "users", user.uid), adminData, { merge: true });
+
+                // Verify it was saved
+                const verifyDoc = await getDoc(doc(db, "admins", user.uid));
+                if (verifyDoc.exists()) {
+                    uidDisplay.textContent = user.uid;
+                    uidDisplay.style.color = '#28a745';
+                    
+                    showMessage(
+                        `✅ <strong>ADMIN CREATED SUCCESSFULLY!</strong><br><br>
+                        <strong>Name:</strong> ${name}<br>
+                        <strong>Email:</strong> ${email}<br>
+                        <strong>UID:</strong> ${user.uid}<br><br>
+                        🎉 You can now login to the Admin Dashboard!`,
+                        'success'
+                    );
+
+                    // Offer to go to login page
+                    setTimeout(() => {
+                        if (confirm('Admin account created successfully!\n\nGo to login page now?')) {
+                            window.location.href = 'index.html';
+                        }
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to verify admin creation');
+                }
+
+            } catch (error) {
+                console.error('Setup error:', error);
+                let errorMessage = error.message;
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Email already registered with a different password. Please use a different email or the correct password.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak. Please use a stronger password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email format.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many attempts. Please try again later.';
+                }
+                
+                showMessage(`❌ Error: ${errorMessage}`, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        createBtn.addEventListener('click', createAdmin);
+
+        // Check if Admin already exists on page load
+        async function checkExistingAdmin() {
+            try {
+                // Check if any admin exists
+                const adminsQuery = query(collection(db, "admins"), where("role", "==", "admin"));
+                const snapshot = await getDocs(adminsQuery);
+                
+                if (!snapshot.empty) {
+                    const adminData = snapshot.docs[0].data();
+                    uidDisplay.textContent = adminData.uid;
+                    uidDisplay.style.color = '#17a2b8';
+                    
+                    showMessage(
+                        `ℹ️ <strong>Admin already exists!</strong><br>
+                        <strong>Name:</strong> ${adminData.name}<br>
+                        <strong>Email:</strong> ${adminData.email}<br>
+                        <strong>UID:</strong> ${adminData.uid}<br><br>
+                        You can login at <strong>index.html</strong>`,
+                        'info'
+                    );
+                    
+                    // Disable the create button since admin exists
+                    createBtn.disabled = true;
+                    createBtn.style.opacity = '0.5';
+                    createBtn.style.cursor = 'not-allowed';
+                    btnText.textContent = '✅ Admin Already Exists';
+                }
+            } catch (error) {
+                console.log('No existing admin found or error checking:', error.message);
+            }
+        }
+
+        // Run check on page load
+        checkExistingAdmin();
+
+        // Also allow pressing Enter to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !createBtn.disabled) {
+                createAdmin();
+            }
+        });
+    </script>
+</body>
+</html>

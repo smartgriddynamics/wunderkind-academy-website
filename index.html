@@ -281,6 +281,30 @@
             background: var(--bank-dark);
         }
 
+        .btn-analytics {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-analytics:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.6);
+            background: #3730a3;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.6);
+            background: #d97706;
+        }
+
         /* ---------- MODAL (UNDER CONSTRUCTION) ---------- */
         .modal {
             display: none;
@@ -429,7 +453,6 @@
             filter: drop-shadow(0 5px 10px rgba(74, 123, 217, 0.2));
         }
 
-        /* BIGGER LOGO WITH MOUSE EFFECT */
         .logo:hover .logo-img {
             transform: scale(1.15) rotate(3deg);
             filter: drop-shadow(0 10px 20px rgba(74, 123, 217, 0.4));
@@ -621,7 +644,7 @@
         }
 
         .mobile-close-btn {
-            display: none; /* Hide the X button - we'll use overlay to close */
+            display: none;
         }
 
         /* ---------- HERO SECTION ---------- */
@@ -1035,6 +1058,13 @@
         }
 
         /* ---------- RESPONSIVE DESIGN ---------- */
+        @media (max-width: 1200px) {
+            .nav-cta .btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+        }
+
         @media (max-width: 992px) {
             .nav-links, .nav-cta {
                 display: none;
@@ -1171,7 +1201,7 @@
     <!-- Mobile Navigation Overlay (TAP TO CLOSE) -->
     <div class="mobile-nav-overlay" id="mobileOverlay"></div>
     
-    <!-- Mobile Navigation Panel (NO X BUTTON) -->
+    <!-- Mobile Navigation Panel -->
     <div class="mobile-nav-panel" id="mobileNavPanel">
         <div class="mobile-nav-header">
             <img src="wunderkindscho-logo.PNG" alt="Wunderkind Academy" class="mobile-logo-img">
@@ -1195,9 +1225,12 @@
             <button class="btn btn-success mobile-nav-cta" onclick="showModal()">
                 <i class="fas fa-chart-line"></i> Results
             </button>
-            <button class="btn btn-outline mobile-nav-cta" onclick="showModal()">
+            <a href="analytic-book/index.html" class="btn btn-analytics mobile-nav-cta">
+                <i class="fas fa-chart-bar"></i> Analytics Book
+            </a>
+            <a href="admin-panel.html" class="btn btn-admin mobile-nav-cta">
                 <i class="fas fa-crown"></i> Admin Portal
-            </button>
+            </a>
             <a href="IBEBank/index.html" class="btn btn-bank mobile-nav-cta">
                 <i class="fas fa-landmark"></i> IBE Bank
             </a>
@@ -1207,7 +1240,7 @@
         </div>
     </div>
 
-    <!-- Header - CLEAN & SMALL -->
+    <!-- Header -->
     <header id="header">
         <nav class="glass">
             <div class="logo">
@@ -1232,11 +1265,17 @@
                 <button class="btn btn-success" onclick="showModal()">
                     <i class="fas fa-chart-line"></i> Results
                 </button>
+                <a href="analytic-book/index.html" class="btn btn-analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="admin-panel.html" class="btn btn-admin">
+                    <i class="fas fa-crown"></i> Admin
+                </a>
                 <a href="IBEBank/index.html" class="btn btn-bank">
-                    <i class="fas fa-landmark"></i> IBE Bank
+                    <i class="fas fa-landmark"></i> Bank
                 </a>
                 <a href="/duty-book/" class="btn btn-primary">
-                    <i class="fas fa-clipboard-list"></i> Duty Book
+                    <i class="fas fa-clipboard-list"></i> Duty
                 </a>
             </div>
             
@@ -1270,6 +1309,12 @@
                     <button class="btn btn-success" onclick="showModal()">
                         <i class="fas fa-chart-line"></i> Check Results
                     </button>
+                    <a href="analytic-book/index.html" class="btn btn-analytics">
+                        <i class="fas fa-chart-bar"></i> Analytics Book
+                    </a>
+                    <a href="admin-panel.html" class="btn btn-admin">
+                        <i class="fas fa-crown"></i> Admin Portal
+                    </a>
                     <a href="IBEBank/index.html" class="btn btn-bank">
                         <i class="fas fa-landmark"></i> IBE Bank
                     </a>
@@ -1556,9 +1601,10 @@
                     <a href="#admissions">Admissions</a>
                     <button class="footer-link-btn" onclick="showModal()">Apply Now</button>
                     <button class="footer-link-btn" onclick="showModal()">Check Results</button>
-                    <button class="footer-link-btn" onclick="showModal()">Admin Portal</button>
-                    <a href="IBEBank/index.html">IBE Bank</a>
-                    <a href="/duty-book/">Duty Book</a>
+                    <a href="analytic-book/index.html" class="footer-link-btn">Analytics Book</a>
+                    <a href="admin-panel.html" class="footer-link-btn">Admin Portal</a>
+                    <a href="IBEBank/index.html" class="footer-link-btn">IBE Bank</a>
+                    <a href="/duty-book/" class="footer-link-btn">Duty Book</a>
                 </div>
             </div>
             
@@ -1569,7 +1615,6 @@
     </footer>
 
     <style>
-        /* Footer button styles */
         .footer-link-btn {
             background: none;
             border: none;
@@ -1582,6 +1627,8 @@
             transition: var(--transition);
             width: fit-content;
             font-family: 'Inter', sans-serif;
+            display: block;
+            text-decoration: none;
         }
         
         .footer-link-btn:hover {
@@ -1604,14 +1651,13 @@
             document.body.style.overflow = '';
         }
         
-        // Close modal when clicking outside
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
                 closeModal();
             }
         });
 
-        // Mobile menu functionality - TAP TO CLOSE
+        // Mobile menu functionality
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileNavPanel = document.getElementById('mobileNavPanel');
         const mobileOverlay = document.getElementById('mobileOverlay');
@@ -1621,26 +1667,20 @@
             mobileNavPanel.classList.add('active');
             mobileOverlay.classList.add('active');
             body.style.overflow = 'hidden';
-            console.log('Menu opened'); // Debug
         });
 
         function closeMobileMenu() {
             mobileNavPanel.classList.remove('active');
             mobileOverlay.classList.remove('active');
             body.style.overflow = '';
-            console.log('Menu closed'); // Debug
         }
 
-        // Close when clicking overlay (TAP TO CLOSE)
-        mobileOverlay.addEventListener('click', (e) => {
-            console.log('Overlay clicked'); // Debug
+        mobileOverlay.addEventListener('click', () => {
             closeMobileMenu();
         });
 
-        // Close when clicking any mobile nav link
         document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                console.log('Link clicked'); // Debug
+            link.addEventListener('click', () => {
                 closeMobileMenu();
             });
         });
@@ -1655,14 +1695,13 @@
             }
         });
 
-        // Mouse glow effect - BIGGER
+        // Mouse glow effect
         const cursorGlow = document.getElementById('cursorGlow');
         
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.left = e.clientX + 'px';
             cursorGlow.style.top = e.clientY + 'px';
             
-            // Make glow bigger near logo
             const logo = document.querySelector('.logo-img');
             if (logo) {
                 const rect = logo.getBoundingClientRect();
@@ -1748,7 +1787,6 @@
                 closeMobileMenu();
             }
             
-            // Close modal on escape
             if (e.key === 'Escape' && modal.classList.contains('active')) {
                 closeModal();
             }

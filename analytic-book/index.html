@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Office Analytics Book · Smart Office Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --accent: #06b6d4;
+      --accent-light: #67e8f9;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --white: #ffffff;
+      --gray: #64748b;
+      --gray-light: #e2e8f0;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .animated-bg .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 20s infinite ease-in-out;
+    }
+    
+    .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; animation-delay: 0s; }
+    .circle:nth-child(2) { width: 200px; height: 200px; bottom: -50px; right: -50px; animation-delay: -5s; }
+    .circle:nth-child(3) { width: 150px; height: 150px; top: 50%; left: 50%; animation-delay: -10s; }
+    .circle:nth-child(4) { width: 250px; height: 250px; top: 20%; right: 10%; animation-delay: -15s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-30px) rotate(120deg); }
+      66% { transform: translateY(20px) rotate(240deg); }
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .header {
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+    
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 15px 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .logo-text span { color: var(--accent-light); }
+    
+    .nav-links { display: flex; gap: 30px; align-items: center; }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      transition: all 0.3s;
+      padding: 8px 16px;
+      border-radius: 12px;
+    }
+    
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .nav-buttons { display: flex; gap: 12px; }
+    
+    .btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+    
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: white;
+      box-shadow: 0 5px 20px rgba(6, 182, 212, 0.4);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(6, 182, 212, 0.6);
+    }
+    
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      min-height: calc(100vh - 200px);
+    }
+    
+    .hero-text {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 50px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero-text h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .hero-text h1 span {
+      background: linear-gradient(135deg, var(--accent-light), #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-text p {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 30px;
+    }
+    
+    .hero-stats {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .stat-item h3 {
+      font-size: 2rem;
+      color: var(--accent-light);
+    }
+    
+    .stat-item p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); margin: 0; }
+    
+    .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .auth-container {
+      position: relative;
+      overflow: hidden;
+      min-height: 450px;
+    }
+    
+    .auth-slider {
+      display: flex;
+      width: 200%;
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    .auth-slider.login-active { transform: translateX(0); }
+    .auth-slider.register-active { transform: translateX(-50%); }
+    
+    .auth-form {
+      width: 50%;
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .auth-form h2 {
+      margin-bottom: 25px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-group { margin-bottom: 20px; }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--gray-light);
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s;
+      background: white;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .password-wrapper { position: relative; }
+    
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--gray);
+      transition: color 0.3s;
+    }
+    
+    .password-toggle:hover { color: var(--primary); }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .auth-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .auth-footer a:hover { text-decoration: underline; }
+    
+    .notification {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+      max-width: 350px;
+    }
+    
+    .notification.show { transform: translateX(0); }
+    .notification.success { border-left: 4px solid var(--success); }
+    .notification.error { border-left: 4px solid var(--danger); }
+    .notification.info { border-left: 4px solid var(--primary); }
+    
+    .notification i { font-size: 1.5rem; }
+    .notification.success i { color: var(--success); }
+    .notification.error i { color: var(--danger); }
+    .notification.info i { color: var(--primary); }
+    
+    .notification-content h4 { margin-bottom: 4px; }
+    .notification-content p { font-size: 0.85rem; color: var(--gray); }
+    
+    .notification-close { margin-left: auto; cursor: pointer; color: var(--gray); }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-icon { font-size: 3rem; color: var(--warning); margin-bottom: 20px; }
+    .modal h3 { margin-bottom: 10px; }
+    .modal p { color: var(--gray); margin-bottom: 20px; }
+    
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(30, 41, 59, 0.98);
+      backdrop-filter: blur(20px);
+      z-index: 2000;
+      padding: 20px;
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+    }
+    
+    .mobile-menu.active { transform: translateX(0); }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .mobile-menu-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .mobile-menu-links a {
+      text-decoration: none;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 992px) {
+      .nav-links, .nav-buttons { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-text h1 { font-size: 2.5rem; }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-text h1 { font-size: 2rem; }
+      .hero-text { padding: 30px; }
+      .auth-card { padding: 25px; }
+      .hero-stats { gap: 20px; }
+    }
+    
+    @media (max-width: 480px) {
+      .hero-text h1 { font-size: 1.8rem; }
+      .btn { width: 100%; }
+      .hero-stats { justify-content: center; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="animated-bg">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <nav class="nav">
+        <div class="logo">
+          <div class="logo-icon">📊</div>
+          <div class="logo-text"><span>Office</span> Analytics</div>
+        </div>
+        <div class="nav-links">
+          <a href="#home">Home</a>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-glass" onclick="slideToLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+          <button class="btn btn-primary" onclick="slideToRegister()"><i class="fas fa-user-plus"></i> Register</button>
+        </div>
+        <button class="mobile-menu-btn" onclick="openMobileMenu()"><i class="fas fa-bars"></i></button>
+      </nav>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-header">
+        <div class="logo">
+          <div class="logo-icon">📊</div>
+          <div class="logo-text">Office Analytics</div>
+        </div>
+        <button class="mobile-menu-close" onclick="closeMobileMenu()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="mobile-menu-links">
+        <a href="#home" onclick="closeMobileMenu()">Home</a>
+        <a href="#features" onclick="closeMobileMenu()">Features</a>
+        <a href="#about" onclick="closeMobileMenu()">About</a>
+        <button class="btn btn-glass" onclick="closeMobileMenu(); slideToLogin();" style="margin-top:20px;">Login</button>
+        <button class="btn btn-primary" onclick="closeMobileMenu(); slideToRegister();">Register</button>
+      </div>
+    </div>
+
+    <div id="home" class="hero">
+      <div class="hero-text">
+        <h1>Smart Office <span>Analytics & Management</span></h1>
+        <p>Streamline department expenses, manage purchases, and track spending with our powerful analytics platform.</p>
+        <div class="hero-stats">
+          <div class="stat-item"><h3>5+</h3><p>Departments</p></div>
+          <div class="stat-item"><h3>100%</h3><p>Digital Tracking</p></div>
+          <div class="stat-item"><h3>24/7</h3><p>Access</p></div>
+        </div>
+      </div>
+      
+      <div class="auth-card">
+        <div class="auth-container">
+          <div class="auth-slider" id="authSlider">
+            <div class="auth-form">
+              <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+              <form id="loginForm" onsubmit="return false;">
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                  <label>Password</label>
+                  <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    <i class="far fa-eye password-toggle" onclick="togglePassword('loginPassword', this)"></i>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Sign In</button>
+              </form>
+              <div class="auth-footer">
+                Don't have an account? <a onclick="slideToRegister()">Register here</a>
+              </div>
+            </div>
+            
+            <div class="auth-form">
+              <h2><i class="fas fa-user-plus"></i> Register as Labour</h2>
+              <form id="registerForm" onsubmit="return false;">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="regName" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" id="regEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                  <label>Password</label>
+                  <div class="password-wrapper">
+                    <input type="password" id="regPassword" placeholder="••••••••" required>
+                    <i class="far fa-eye password-toggle" onclick="togglePassword('regPassword', this)"></i>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Confirm Password</label>
+                  <div class="password-wrapper">
+                    <input type="password" id="regConfirmPassword" placeholder="••••••••" required>
+                    <i class="far fa-eye password-toggle" onclick="togglePassword('regConfirmPassword', this)"></i>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Select Department</label>
+                  <select id="regDepartment" required>
+                    <option value="">-- Select Department --</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" id="registerBtn">Register</button>
+              </form>
+              <div class="auth-footer">
+                Already have an account? <a onclick="slideToLogin()">Login here</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="pendingModal">
+    <div class="modal">
+      <div class="modal-icon"><i class="fas fa-clock"></i></div>
+      <h3>Registration Submitted!</h3>
+      <p>Your account has been created and is pending admin approval. You will be notified once approved.</p>
+      <button class="btn btn-primary" onclick="closePendingModal()">Got it</button>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <div class="notification-content">
+      <h4 id="notifTitle">Success</h4>
+      <p id="notifMessage">Operation completed successfully.</p>
+    </div>
+    <div class="notification-close" onclick="hideNotification()"><i class="fas fa-times"></i></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1QVeGY7ZnUWirkKuudvPNUbYbthdyugE",
+      authDomain: "analyticsbook-c4e8f.firebaseapp.com",
+      projectId: "analyticsbook-c4e8f",
+      storageBucket: "analyticsbook-c4e8f.firebasestorage.app",
+      messagingSenderId: "847316888383",
+      appId: "1:847316888383:web:51585a3945cb7e0296818a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    async function loadDepartments() {
+      const select = document.getElementById('regDepartment');
+      const snapshot = await getDocs(collection(db, 'departments'));
+      snapshot.forEach(doc => {
+        const dept = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = dept.name;
+        select.appendChild(option);
+      });
+    }
+    loadDepartments();
+
+    window.openMobileMenu = () => {
+      document.getElementById('mobileMenu').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeMobileMenu = () => {
+      document.getElementById('mobileMenu').classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    window.slideToLogin = () => {
+      document.getElementById('authSlider').classList.add('login-active');
+      document.getElementById('authSlider').classList.remove('register-active');
+    };
+
+    window.slideToRegister = () => {
+      document.getElementById('authSlider').classList.add('register-active');
+      document.getElementById('authSlider').classList.remove('login-active');
+    };
+
+    window.closePendingModal = () => {
+      document.getElementById('pendingModal').classList.remove('active');
+    };
+
+    window.togglePassword = (inputId, icon) => {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    };
+
+    function showNotification(type, title, message) {
+      const notif = document.getElementById('notification');
+      notif.className = `notification ${type} show`;
+      document.getElementById('notifTitle').textContent = title;
+      document.getElementById('notifMessage').textContent = message;
+      setTimeout(() => notif.classList.remove('show'), 5000);
+    }
+
+    window.hideNotification = () => {
+      document.getElementById('notification').classList.remove('show');
+    };
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      
+      const btn = document.getElementById('loginBtn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+      btn.disabled = true;
+      
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+        
+        const adminDoc = await getDoc(doc(db, "admins", user.uid));
+        if (adminDoc.exists()) {
+          window.location.href = 'admin.html';
+          return;
+        }
+        
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().status === 'approved') {
+          window.location.href = 'labour.html';
+          return;
+        }
+        
+        const pendingDoc = await getDoc(doc(db, "pendingRegistrations", user.uid));
+        if (pendingDoc.exists()) {
+          await signOut(auth);
+          document.getElementById('pendingModal').classList.add('active');
+        } else {
+          await signOut(auth);
+          showNotification('error', 'Access Denied', 'Your account is not approved yet.');
+        }
+      } catch (error) {
+        showNotification('error', 'Login Failed', error.message);
+      } finally {
+        btn.innerHTML = 'Sign In';
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+      const department = document.getElementById('regDepartment').value;
+      
+      if (!name || !email || !password || !confirmPassword || !department) {
+        showNotification('error', 'Error', 'All fields are required');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showNotification('error', 'Error', 'Passwords do not match');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showNotification('error', 'Error', 'Password must be at least 6 characters');
+        return;
+      }
+      
+      const btn = document.getElementById('registerBtn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+      btn.disabled = true;
+      
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+        
+        await setDoc(doc(db, "pendingRegistrations", uid), {
+          name, email, department,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          uid
+        });
+        
+        await signOut(auth);
+        document.getElementById('pendingModal').classList.add('active');
+        document.getElementById('registerForm').reset();
+        slideToLogin();
+      } catch (error) {
+        showNotification('error', 'Registration Failed', error.message);
+      } finally {
+        btn.innerHTML = 'Register';
+        btn.disabled = false;
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const adminDoc = await getDoc(doc(db, "admins", user.uid));
+        if (adminDoc.exists()) {
+          window.location.href = 'admin.html';
+          return;
+        }
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().status === 'approved') {
+          window.location.href = 'labour.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

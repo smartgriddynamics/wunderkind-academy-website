@@ -2,282 +2,845 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 Super Admin - EduPlay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>👑 Super Admin - Full Control</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 12px;
         }
 
         .admin-container {
-            max-width: 1600px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
+        /* Header */
         header {
             background: linear-gradient(145deg, #ff6b6b, #ee5a24);
-            border-radius: 30px;
-            padding: 25px 35px;
-            margin-bottom: 30px;
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 0 #c0392b;
+            gap: 12px;
+            box-shadow: 0 6px 0 #c0392b;
         }
 
         h1 {
             color: white;
-            font-size: 2.5rem;
-            text-shadow: 3px 3px 0 #c0392b;
+            font-size: clamp(1.4rem, 5vw, 2rem);
+            font-weight: 700;
+            text-shadow: 2px 2px 0 #c0392b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .header-actions {
             display: flex;
-            gap: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .admin-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 3vw, 0.9rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 10px 16px;
             border: none;
             border-radius: 40px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 5px 0 #888;
-            transition: all 0.1s;
-        }
-
-        .btn-primary {
+            font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
             background: white;
             color: #ee5a24;
-            box-shadow: 0 5px 0 #c0392b;
+            box-shadow: 0 4px 0 #c0392b;
         }
 
         .btn-danger {
             background: #2c3e50;
             color: white;
-            box-shadow: 0 5px 0 #1a252f;
+            box-shadow: 0 4px 0 #1a252f;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+            box-shadow: none;
         }
 
         .btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #888;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1a252f;
         }
 
+        /* Stats Grid - Responsive */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 8px 0 #0f1419;
+            border-radius: 16px;
+            padding: 16px 12px;
+            box-shadow: 0 4px 0 #0f1419;
             text-align: center;
         }
 
+        .stat-icon {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            margin-bottom: 4px;
+        }
+
         .stat-value {
-            font-size: 3.5rem;
-            font-weight: bold;
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            font-weight: 700;
             color: #ee5a24;
+            line-height: 1.2;
         }
 
         .stat-label {
-            color: #666;
-            font-size: 1.1rem;
-            margin-top: 10px;
+            color: #64748b;
+            font-size: clamp(0.7rem, 3vw, 0.85rem);
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+        /* Main Tabs - Scrollable on mobile */
+        .main-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
 
+        .main-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .main-tab {
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .main-tab.active {
+            background: white;
+            color: #ee5a24;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Tab Content */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Panels */
         .panel {
             background: white;
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 8px 0 #0f1419;
+            border-radius: 20px;
+            padding: 20px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 0 #0f1419;
+        }
+
+        .panel-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
         }
 
         h2 {
             color: #1a1a2e;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            border-bottom: 3px solid #ff6b6b;
-            padding-bottom: 10px;
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: 700;
         }
 
-        .subject-form {
+        .panel-actions {
             display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .subject-form input {
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
             flex: 1;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 20px;
-            font-size: 1rem;
+            min-width: 180px;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            outline: none;
+            background: white;
         }
 
-        .teacher-list, .activity-list {
-            max-height: 400px;
+        .search-input:focus {
+            border-color: #ee5a24;
+        }
+
+        select.search-input {
+            cursor: pointer;
+        }
+
+        /* Lists */
+        .list-container {
+            max-height: 500px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .list-item {
-            padding: 18px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            margin-bottom: 12px;
+        .teacher-item, .student-item, .subject-item, .activity-item {
+            padding: 14px;
+            background: #f8fafc;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ee5a24;
+        }
+
+        .item-header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
-            align-items: center;
-            border-left: 5px solid #ff6b6b;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 1rem;
+            word-break: break-word;
+        }
+
+        .item-subtitle {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .badge {
-            padding: 5px 15px;
+            padding: 4px 10px;
             border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-success { background: #d1fae5; color: #059669; }
+        .badge-warning { background: #fef3c7; color: #d97706; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+        .badge-info { background: #dbeafe; color: #2563eb; }
+        .badge-purple { background: #e9d5ff; color: #7c3aed; }
+
+        .item-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
             font-size: 0.85rem;
-            font-weight: bold;
         }
 
-        .badge-success {
-            background: #27ae60;
-            color: white;
+        .stat-number {
+            font-weight: 700;
+            color: #1a1a2e;
         }
 
-        .badge-warning {
-            background: #f39c12;
-            color: white;
+        .item-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .badge-info {
-            background: #3498db;
-            color: white;
+        .icon-btn {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            flex: 0 1 auto;
         }
 
-        .activity-item {
+        .icon-btn.danger {
+            color: #dc2626;
+        }
+
+        .icon-btn.danger:hover {
+            background: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .icon-btn.success {
+            color: #059669;
+        }
+
+        .icon-btn.success:hover {
+            background: #d1fae5;
+            border-color: #059669;
+        }
+
+        /* Subject Form */
+        .subject-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .subject-input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+        }
+
+        /* Modal - Mobile Friendly */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
             padding: 12px;
-            background: #f0f4ff;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            max-width: 700px;
+            margin: 12px auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 50%;
+            background: #f1f5f9;
+        }
+
+        .student-profile {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .student-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .student-info h3 {
+            font-size: 1.3rem;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .performance-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .subject-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8fafc;
             border-radius: 12px;
             margin-bottom: 10px;
-            font-size: 0.9rem;
         }
 
-        .tabs {
+        .subject-name {
+            min-width: 100px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            flex: 1;
+            min-width: 120px;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .subject-score {
+            font-weight: 700;
+            color: #1a1a2e;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        /* Action Bar for bulk operations */
+        .action-bar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #fef3c7;
+            border-radius: 14px;
+            align-items: center;
         }
 
-        .tab {
-            padding: 12px 25px;
-            background: #ecf0f1;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+        .action-bar.warning {
+            background: #fee2e2;
         }
 
-        .tab.active {
-            background: #ff6b6b;
-            color: white;
+        /* Grid layout for overview */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
 
-        .tab-content {
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+            .admin-container { max-width: 1800px; }
+            header { padding: 20px 28px; }
+            .stats-grid { grid-template-columns: repeat(5, 1fr); }
+            .overview-grid { grid-template-columns: 1fr 1fr; }
+            .performance-summary { grid-template-columns: repeat(4, 1fr); }
+            .btn { padding: 12px 24px; }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid { gap: 20px; }
+            .stat-card { padding: 24px 20px; }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(238, 90, 36, 0.2);
+            border-radius: 50%;
+            border-top-color: #ee5a24;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
             display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div style="background: white; padding: 24px; border-radius: 20px; display: flex; align-items: center; gap: 16px;">
+            <div class="spinner"></div>
+            <span style="font-weight: 600;">Processing...</span>
+        </div>
+    </div>
+
     <div class="admin-container">
+        <!-- Header -->
         <header>
-            <h1>👑 Super Admin Dashboard</h1>
+            <h1>
+                <span>👑</span>
+                Super Admin
+            </h1>
             <div class="header-actions">
-                <span style="color: white; margin-right: 20px;" id="adminName"></span>
-                <button class="btn btn-primary" onclick="window.open('index.html')">🏠 Home</button>
-                <button class="btn btn-danger" id="logoutBtn">🚪 Logout</button>
+                <span class="admin-badge" id="adminEmail">admin@eduplay.com</span>
+                <button class="btn btn-sm" onclick="window.location.href='index.html'">🏠 Home</button>
+                <button class="btn btn-danger btn-sm" id="logoutBtn">🚪 Logout</button>
             </div>
         </header>
 
+        <!-- Stats Overview -->
         <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
                 <div class="stat-value" id="totalStudents">0</div>
-                <div class="stat-label">👨‍🎓 Total Students</div>
+                <div class="stat-label">Students</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">👩‍🏫</div>
                 <div class="stat-value" id="totalTeachers">0</div>
-                <div class="stat-label">👩‍🏫 Total Teachers</div>
+                <div class="stat-label">Teachers</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">📚</div>
                 <div class="stat-value" id="totalSubjects">0</div>
-                <div class="stat-label">📚 Subjects</div>
+                <div class="stat-label">Subjects</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="totalActivities">0</div>
-                <div class="stat-label">🎮 Games Played</div>
+                <div class="stat-icon">🎮</div>
+                <div class="stat-value" id="totalGames">0</div>
+                <div class="stat-label">Games</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value" id="avgScore">0%</div>
+                <div class="stat-label">Avg Score</div>
             </div>
         </div>
 
-        <div class="main-grid">
-            <!-- Left Panel: Subject & Teacher Management -->
-            <div class="panel">
-                <div class="tabs">
-                    <button class="tab active" data-tab="subjects">📚 Subjects</button>
-                    <button class="tab" data-tab="teachers">👩‍🏫 Teachers</button>
-                </div>
+        <!-- Main Tabs -->
+        <div class="main-tabs">
+            <button class="main-tab active" data-tab="overview">📊 Overview</button>
+            <button class="main-tab" data-tab="teachers">👩‍🏫 Teachers</button>
+            <button class="main-tab" data-tab="students">👨‍🎓 Students</button>
+            <button class="main-tab" data-tab="subjects">📚 Subjects</button>
+            <button class="main-tab" data-tab="activities">🎮 Activities</button>
+            <button class="main-tab" data-tab="danger">⚠️ Danger Zone</button>
+        </div>
 
-                <!-- Subjects Tab -->
-                <div class="tab-content active" id="subjectsTab">
-                    <h2>Manage Subjects</h2>
-                    <div class="subject-form">
-                        <input type="text" id="subjectNameInput" placeholder="e.g., Mathematics, Science...">
-                        <button class="btn btn-primary" id="addSubjectBtn">➕ Add</button>
+        <!-- Overview Tab -->
+        <div class="tab-pane active" id="overviewTab">
+            <div class="overview-grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>👩‍🏫 Pending Teacher Approvals</h2>
+                        <button class="btn btn-sm btn-outline" onclick="switchTab('teachers')">Manage All →</button>
                     </div>
-                    <div class="teacher-list" id="subjectsList"></div>
+                    <div class="list-container" id="pendingTeachersList"></div>
                 </div>
 
-                <!-- Teachers Tab -->
-                <div class="tab-content" id="teachersTab">
-                    <h2>Teacher Approvals</h2>
-                    <div class="teacher-list" id="teachersList"></div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>👨‍🎓 Recent Students</h2>
+                        <button class="btn btn-sm btn-outline" onclick="switchTab('students')">View All →</button>
+                    </div>
+                    <div class="list-container" id="recentStudentsList"></div>
+                </div>
+
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <div class="panel-header">
+                        <h2>🏆 Top Performing Students</h2>
+                    </div>
+                    <div class="list-container" id="topStudentsList"></div>
+                </div>
+
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <div class="panel-header">
+                        <h2>🎮 Recent Activities</h2>
+                    </div>
+                    <div class="list-container" id="recentActivitiesList"></div>
                 </div>
             </div>
+        </div>
 
-            <!-- Right Panel: All Activities -->
+        <!-- Teachers Tab -->
+        <div class="tab-pane" id="teachersTab">
             <div class="panel">
-                <h2>📊 All Student Activities</h2>
-                <div class="activity-list" id="allActivitiesList"></div>
+                <div class="panel-header">
+                    <h2>👩‍🏫 All Teachers</h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="approveAllTeachersBtn">✅ Approve All Pending</button>
+                        <button class="btn btn-sm btn-outline" id="refreshTeachersBtn">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="teacherSearch" placeholder="Search by name or email...">
+                    <select class="search-input" id="teacherFilter" style="max-width: 140px;">
+                        <option value="all">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <div class="list-container" id="allTeachersList"></div>
             </div>
+        </div>
+
+        <!-- Students Tab -->
+        <div class="tab-pane" id="studentsTab">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>👨‍🎓 All Students</h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="refreshStudentsBtn">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="studentSearch" placeholder="Search by name or email...">
+                    <select class="search-input" id="gradeFilter" style="max-width: 140px;">
+                        <option value="all">All Grades</option>
+                        <option value="1">Grade 1</option>
+                        <option value="2">Grade 2</option>
+                        <option value="3">Grade 3</option>
+                        <option value="4">Grade 4</option>
+                        <option value="5">Grade 5</option>
+                        <option value="6">Grade 6</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                    </select>
+                </div>
+                <div class="list-container" id="allStudentsList"></div>
+            </div>
+        </div>
+
+        <!-- Subjects Tab -->
+        <div class="tab-pane" id="subjectsTab">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>📚 Manage Subjects</h2>
+                </div>
+                <div class="subject-form">
+                    <input type="text" class="subject-input" id="subjectNameInput" placeholder="Enter subject name...">
+                    <button class="btn" id="addSubjectBtn">➕ Add Subject</button>
+                </div>
+                <div class="list-container" id="subjectsList"></div>
+            </div>
+        </div>
+
+        <!-- Activities Tab -->
+        <div class="tab-pane" id="activitiesTab">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>🎮 All Game Activities</h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="refreshActivitiesBtn">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="list-container" id="allActivitiesList"></div>
+            </div>
+        </div>
+
+        <!-- Danger Zone Tab -->
+        <div class="tab-pane" id="dangerTab">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>⚠️ Danger Zone - Irreversible Actions</h2>
+                </div>
+                
+                <div class="action-bar warning">
+                    <span style="flex: 1; font-weight: 600; color: #dc2626;">⚠️ These actions cannot be undone!</span>
+                </div>
+
+                <div style="display: grid; gap: 20px;">
+                    <div style="padding: 20px; background: #fef2f2; border-radius: 16px; border: 2px solid #fecaca;">
+                        <h3 style="color: #dc2626; margin-bottom: 12px;">🗑️ Delete ALL Students</h3>
+                        <p style="color: #7f1d1d; margin-bottom: 16px;">This will permanently delete ALL student accounts and their activity data.</p>
+                        <button class="icon-btn danger" id="deleteAllStudentsBtn" style="background: #dc2626; color: white; border: none;">🗑️ Delete All Students</button>
+                    </div>
+
+                    <div style="padding: 20px; background: #fef2f2; border-radius: 16px; border: 2px solid #fecaca;">
+                        <h3 style="color: #dc2626; margin-bottom: 12px;">🗑️ Delete ALL Teachers</h3>
+                        <p style="color: #7f1d1d; margin-bottom: 16px;">This will permanently delete ALL teacher accounts. Super Admin remains unaffected.</p>
+                        <button class="icon-btn danger" id="deleteAllTeachersBtn" style="background: #dc2626; color: white; border: none;">🗑️ Delete All Teachers</button>
+                    </div>
+
+                    <div style="padding: 20px; background: #fef2f2; border-radius: 16px; border: 2px solid #fecaca;">
+                        <h3 style="color: #dc2626; margin-bottom: 12px;">🗑️ Delete ALL Activities</h3>
+                        <p style="color: #7f1d1d; margin-bottom: 16px;">This will clear all game history and statistics.</p>
+                        <button class="icon-btn danger" id="deleteAllActivitiesBtn" style="background: #dc2626; color: white; border: none;">🗑️ Clear All Activities</button>
+                    </div>
+
+                    <div style="padding: 20px; background: #fef2f2; border-radius: 16px; border: 2px solid #fecaca;">
+                        <h3 style="color: #dc2626; margin-bottom: 12px;">🗑️ Delete ALL Questions</h3>
+                        <p style="color: #7f1d1d; margin-bottom: 16px;">This will delete all questions from all subjects.</p>
+                        <button class="icon-btn danger" id="deleteAllQuestionsBtn" style="background: #dc2626; color: white; border: none;">🗑️ Delete All Questions</button>
+                    </div>
+
+                    <div style="padding: 20px; background: #7f1d1d; border-radius: 16px; border: 2px solid #450a0a;">
+                        <h3 style="color: white; margin-bottom: 12px;">💀 RESET ENTIRE DATABASE</h3>
+                        <p style="color: #fecaca; margin-bottom: 16px;">This will delete EVERYTHING except the Super Admin account. All users, questions, activities, and subjects will be permanently removed.</p>
+                        <button class="icon-btn danger" id="resetDatabaseBtn" style="background: #450a0a; color: white; border: 2px solid #991b1b;">💀 RESET EVERYTHING</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Detail Modal -->
+    <div class="modal-overlay" id="studentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalStudentName">Student Details</h3>
+                <span class="modal-close" onclick="closeModal()">✕</span>
+            </div>
+            <div id="modalContent"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            doc, 
+            query, 
+            where, 
+            orderBy, 
+            limit,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGx6wyoUjEwLpqFpjAY1M0c6E6Yqq-BKk",
@@ -294,6 +857,19 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let allTeachers = [];
+        let allStudents = [];
+        let allActivities = [];
+        let allSubjects = [];
+        let allQuestions = [];
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
 
         // Auth Check
         onAuthStateChanged(auth, async (user) => {
@@ -302,8 +878,7 @@
                 return;
             }
             currentUser = user;
-            document.getElementById('adminName').textContent = user.email;
-            
+            document.getElementById('adminEmail').textContent = user.email;
             await loadAllData();
         });
 
@@ -313,26 +888,40 @@
             window.location.href = 'index.html';
         });
 
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
+        // Tab Switching
+        document.querySelectorAll('.main-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
             });
         });
 
+        window.switchTab = (tabName) => {
+            document.querySelector(`[data-tab="${tabName}"]`).click();
+        };
+
         async function loadAllData() {
-            await loadStats();
-            await loadSubjects();
-            await loadTeachers();
-            await loadAllActivities();
+            showLoading();
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadSubjects(),
+                    loadTeachers(),
+                    loadStudents(),
+                    loadActivities(),
+                    loadQuestions()
+                ]);
+            } finally {
+                hideLoading();
+            }
         }
 
         async function loadStats() {
             const usersSnapshot = await getDocs(collection(db, "users"));
             let students = 0, teachers = 0;
+            
             usersSnapshot.forEach(doc => {
                 const data = doc.data();
                 if (data.role === 'student') students++;
@@ -346,25 +935,46 @@
             document.getElementById('totalSubjects').textContent = subjectsSnapshot.size;
             
             const activitiesSnapshot = await getDocs(collection(db, "activities"));
-            document.getElementById('totalActivities').textContent = activitiesSnapshot.size;
+            document.getElementById('totalGames').textContent = activitiesSnapshot.size;
+            
+            let totalScore = 0;
+            activitiesSnapshot.forEach(doc => {
+                const data = doc.data();
+                totalScore += (data.score / data.totalQuestions) * 100;
+            });
+            
+            const avg = activitiesSnapshot.size > 0 ? Math.round(totalScore / activitiesSnapshot.size) : 0;
+            document.getElementById('avgScore').textContent = avg + '%';
         }
 
         async function loadSubjects() {
             const snapshot = await getDocs(collection(db, "subjects"));
+            allSubjects = [];
+            snapshot.forEach(doc => {
+                allSubjects.push({ id: doc.id, ...doc.data() });
+            });
+            renderSubjects();
+        }
+
+        function renderSubjects() {
             const listDiv = document.getElementById('subjectsList');
             
-            if (snapshot.empty) {
-                listDiv.innerHTML = '<div class="list-item">No subjects added yet</div>';
+            if (allSubjects.length === 0) {
+                listDiv.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div>No subjects added yet</div>';
                 return;
             }
             
             let html = '';
-            snapshot.forEach(doc => {
-                const data = doc.data();
+            allSubjects.forEach(subject => {
                 html += `
-                    <div class="list-item">
-                        <span><strong>${data.name}</strong></span>
-                        <button class="badge badge-danger" onclick="deleteSubject('${doc.id}')">🗑️ Delete</button>
+                    <div class="subject-item">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">${subject.name}</div>
+                                <div class="item-subtitle">Created: ${subject.createdAt?.toDate().toLocaleDateString() || 'N/A'}</div>
+                            </div>
+                            <button class="icon-btn danger" onclick="deleteSubject('${subject.id}')">🗑️ Delete</button>
+                        </div>
                     </div>
                 `;
             });
@@ -372,89 +982,602 @@
         }
 
         async function loadTeachers() {
-            const q = query(collection(db, "users"), where("role", "==", "teacher"));
+            const q = query(collection(db, "users"), where("role", "==", "teacher"), orderBy("createdAt", "desc"));
             const snapshot = await getDocs(q);
-            const listDiv = document.getElementById('teachersList');
+            allTeachers = [];
             
-            if (snapshot.empty) {
-                listDiv.innerHTML = '<div class="list-item">No teachers registered</div>';
-                return;
+            for (const docSnap of snapshot.docs) {
+                const teacherData = { id: docSnap.id, ...docSnap.data() };
+                if (teacherData.subject) {
+                    const subjectDoc = allSubjects.find(s => s.id === teacherData.subject);
+                    teacherData.subjectName = subjectDoc?.name || 'Unknown Subject';
+                }
+                allTeachers.push(teacherData);
             }
-            
-            let html = '';
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const status = data.status || 'pending';
-                html += `
-                    <div class="list-item">
-                        <div>
-                            <strong>${data.name}</strong><br>
-                            <small>${data.email} | Subject: ${data.subject || 'Not set'}</small>
-                        </div>
-                        <div>
-                            <span class="badge badge-${status === 'approved' ? 'success' : 'warning'}">${status}</span>
-                            ${status === 'pending' ? 
-                                `<button class="badge badge-success" onclick="approveTeacher('${doc.id}')">✅ Approve</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            listDiv.innerHTML = html;
+            renderTeachers();
         }
 
-        async function loadAllActivities() {
-            const q = query(collection(db, "activities"), orderBy("timestamp", "desc"), limit(50));
-            const snapshot = await getDocs(q);
-            const listDiv = document.getElementById('allActivitiesList');
+        function renderTeachers() {
+            const searchTerm = document.getElementById('teacherSearch')?.value.toLowerCase() || '';
+            const filterStatus = document.getElementById('teacherFilter')?.value || 'all';
             
-            if (snapshot.empty) {
-                listDiv.innerHTML = '<div class="activity-item">No activities yet</div>';
+            let filteredTeachers = allTeachers.filter(t => {
+                const matchesSearch = (t.name || '').toLowerCase().includes(searchTerm) || 
+                                     (t.email || '').toLowerCase().includes(searchTerm);
+                const matchesStatus = filterStatus === 'all' || t.status === filterStatus;
+                return matchesSearch && matchesStatus;
+            });
+            
+            const pendingTeachers = allTeachers.filter(t => t.status === 'pending');
+            
+            // Pending teachers list
+            const pendingList = document.getElementById('pendingTeachersList');
+            if (pendingList) {
+                if (pendingTeachers.length === 0) {
+                    pendingList.innerHTML = '<div class="empty-state">No pending approvals</div>';
+                } else {
+                    let html = '';
+                    pendingTeachers.slice(0, 5).forEach(teacher => {
+                        html += renderTeacherItem(teacher);
+                    });
+                    pendingList.innerHTML = html;
+                }
+            }
+            
+            // All teachers
+            const allList = document.getElementById('allTeachersList');
+            if (allList) {
+                if (filteredTeachers.length === 0) {
+                    allList.innerHTML = '<div class="empty-state"><div class="empty-icon">👩‍🏫</div>No teachers found</div>';
+                } else {
+                    let html = '';
+                    filteredTeachers.forEach(teacher => {
+                        html += renderTeacherItem(teacher);
+                    });
+                    allList.innerHTML = html;
+                }
+            }
+        }
+
+        function renderTeacherItem(teacher) {
+            const statusBadge = teacher.status === 'approved' ? 
+                '<span class="badge badge-success">✅ Approved</span>' : 
+                '<span class="badge badge-warning">⏳ Pending</span>';
+            
+            const approveBtn = teacher.status === 'pending' ? 
+                `<button class="icon-btn success" onclick="approveTeacher('${teacher.id}')">✅ Approve</button>` : '';
+            
+            return `
+                <div class="teacher-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${teacher.name || 'Unknown'}</div>
+                            <div class="item-subtitle">${teacher.email}</div>
+                        </div>
+                        <div class="badge-group">
+                            ${statusBadge}
+                            <span class="badge badge-info">${teacher.subjectName || 'No Subject'}</span>
+                        </div>
+                    </div>
+                    <div class="item-stats">
+                        <div class="stat-item">
+                            <span>📚 ${teacher.qualification || 'N/A'}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>📅 Joined: ${teacher.createdAt?.toDate().toLocaleDateString() || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        ${approveBtn}
+                        <button class="icon-btn danger" onclick="deleteTeacher('${teacher.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadStudents() {
+            const q = query(collection(db, "users"), where("role", "==", "student"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            allStudents = [];
+            
+            for (const docSnap of snapshot.docs) {
+                const studentData = { id: docSnap.id, ...docSnap.data() };
+                
+                const activitiesQuery = query(collection(db, "activities"), where("studentId", "==", studentData.uid));
+                const activitiesSnapshot = await getDocs(activitiesQuery);
+                
+                let totalScore = 0;
+                let gamesPlayed = activitiesSnapshot.size;
+                activitiesSnapshot.forEach(act => {
+                    totalScore += (act.data().score / act.data().totalQuestions) * 100;
+                });
+                
+                studentData.gamesPlayed = gamesPlayed;
+                studentData.avgScore = gamesPlayed > 0 ? Math.round(totalScore / gamesPlayed) : 0;
+                studentData.activities = activitiesSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                allStudents.push(studentData);
+            }
+            
+            allStudents.sort((a, b) => b.avgScore - a.avgScore);
+            renderStudents();
+        }
+
+        function renderStudents() {
+            const searchTerm = document.getElementById('studentSearch')?.value.toLowerCase() || '';
+            const filterGrade = document.getElementById('gradeFilter')?.value || 'all';
+            
+            let filteredStudents = allStudents.filter(s => {
+                const matchesSearch = (s.name || '').toLowerCase().includes(searchTerm) || 
+                                     (s.email || '').toLowerCase().includes(searchTerm);
+                const matchesGrade = filterGrade === 'all' || s.grade === filterGrade;
+                return matchesSearch && matchesGrade;
+            });
+            
+            // Recent students
+            const recentList = document.getElementById('recentStudentsList');
+            if (recentList) {
+                const recent = filteredStudents.slice(0, 5);
+                if (recent.length === 0) {
+                    recentList.innerHTML = '<div class="empty-state">No students yet</div>';
+                } else {
+                    let html = '';
+                    recent.forEach(student => {
+                        html += renderStudentItem(student);
+                    });
+                    recentList.innerHTML = html;
+                }
+            }
+            
+            // All students
+            const allList = document.getElementById('allStudentsList');
+            if (allList) {
+                if (filteredStudents.length === 0) {
+                    allList.innerHTML = '<div class="empty-state"><div class="empty-icon">👨‍🎓</div>No students found</div>';
+                } else {
+                    let html = '';
+                    filteredStudents.forEach(student => {
+                        html += renderStudentItem(student);
+                    });
+                    allList.innerHTML = html;
+                }
+            }
+            
+            // Top students
+            const topStudents = [...allStudents].sort((a, b) => b.avgScore - a.avgScore).slice(0, 10);
+            const topList = document.getElementById('topStudentsList');
+            if (topList) {
+                if (topStudents.length === 0) {
+                    topList.innerHTML = '<div class="empty-state">No data yet</div>';
+                } else {
+                    let html = '';
+                    topStudents.forEach((student, index) => {
+                        html += `
+                            <div class="student-item" style="border-left-color: ${index < 3 ? '#fbbf24' : '#ee5a24'};">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">
+                                            ${index + 1}. ${student.name || 'Unknown'}
+                                            ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : ''}
+                                        </div>
+                                        <div class="item-subtitle">Grade ${student.grade || 'N/A'}</div>
+                                    </div>
+                                    <div class="badge-group">
+                                        <span class="badge badge-purple">🏆 ${student.avgScore}%</span>
+                                        <span class="badge badge-info">${student.gamesPlayed} games</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    topList.innerHTML = html;
+                }
+            }
+        }
+
+        function renderStudentItem(student) {
+            return `
+                <div class="student-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${student.name || 'Unknown'}</div>
+                            <div class="item-subtitle">${student.email}</div>
+                        </div>
+                        <div class="badge-group">
+                            <span class="badge badge-info">Grade ${student.grade || 'N/A'}</span>
+                            <span class="badge badge-purple">${student.avgScore}%</span>
+                        </div>
+                    </div>
+                    <div class="item-stats">
+                        <div class="stat-item">
+                            <span>🎮 Games: <span class="stat-number">${student.gamesPlayed}</span></span>
+                        </div>
+                        <div class="stat-item">
+                            <span>📅 Joined: ${student.createdAt?.toDate().toLocaleDateString() || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-btn" onclick="viewStudentDetails('${student.id}')">📊 Details</button>
+                        <button class="icon-btn danger" onclick="deleteStudent('${student.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadActivities() {
+            const q = query(collection(db, "activities"), orderBy("timestamp", "desc"), limit(100));
+            const snapshot = await getDocs(q);
+            allActivities = [];
+            snapshot.forEach(doc => {
+                allActivities.push({ id: doc.id, ...doc.data() });
+            });
+            renderActivities();
+        }
+
+        function renderActivities() {
+            const allList = document.getElementById('allActivitiesList');
+            const recentList = document.getElementById('recentActivitiesList');
+            
+            if (allActivities.length === 0) {
+                const emptyHtml = '<div class="empty-state"><div class="empty-icon">🎮</div>No activities yet</div>';
+                if (allList) allList.innerHTML = emptyHtml;
+                if (recentList) recentList.innerHTML = emptyHtml;
                 return;
             }
             
             let html = '';
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const date = data.timestamp?.toDate().toLocaleString() || 'Just now';
+            allActivities.slice(0, 50).forEach(activity => {
+                const date = activity.timestamp?.toDate().toLocaleString() || 'N/A';
+                const percentage = Math.round((activity.score / activity.totalQuestions) * 100);
+                
                 html += `
                     <div class="activity-item">
-                        <strong>${data.studentName || 'Student'}</strong> - ${data.subject || 'General'}<br>
-                        Score: ${data.score}/${data.totalQuestions} | ${data.correctAnswers} correct<br>
-                        <small>${date}</small>
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">${activity.studentName || 'Unknown'}</div>
+                                <div class="item-subtitle">${activity.subject || 'General'}</div>
+                            </div>
+                            <div class="badge-group">
+                                <span class="badge badge-success">${activity.score}/${activity.totalQuestions}</span>
+                                <span class="badge badge-info">${percentage}%</span>
+                            </div>
+                        </div>
+                        <div class="item-stats">
+                            <div class="stat-item">✅ ${activity.correctAnswers} correct</div>
+                            <div class="stat-item">❌ ${activity.wrongAnswers} wrong</div>
+                            <div class="stat-item">🕐 ${date}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="icon-btn danger" onclick="deleteActivity('${activity.id}')">🗑️ Delete</button>
+                        </div>
                     </div>
                 `;
             });
-            listDiv.innerHTML = html;
+            
+            if (allList) allList.innerHTML = html;
+            if (recentList) recentList.innerHTML = html;
         }
 
-        // Add Subject
-        document.getElementById('addSubjectBtn').addEventListener('click', async () => {
-            const name = document.getElementById('subjectNameInput').value.trim();
-            if (!name) return alert('Enter subject name');
+        async function loadQuestions() {
+            const snapshot = await getDocs(collection(db, "questions"));
+            allQuestions = [];
+            snapshot.forEach(doc => {
+                allQuestions.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        // Student Detail Modal
+        window.viewStudentDetails = (studentId) => {
+            const student = allStudents.find(s => s.id === studentId);
+            if (!student) return;
             
-            await addDoc(collection(db, "subjects"), {
-                name: name,
-                createdAt: new Date()
+            document.getElementById('modalStudentName').textContent = student.name || 'Student Details';
+            
+            const subjectStats = {};
+            student.activities.forEach(act => {
+                if (!subjectStats[act.subject]) {
+                    subjectStats[act.subject] = { totalScore: 0, totalQuestions: 0, correct: 0, wrong: 0, games: 0 };
+                }
+                subjectStats[act.subject].totalScore += act.score;
+                subjectStats[act.subject].totalQuestions += act.totalQuestions;
+                subjectStats[act.subject].correct += act.correctAnswers;
+                subjectStats[act.subject].wrong += act.wrongAnswers;
+                subjectStats[act.subject].games++;
             });
             
-            document.getElementById('subjectNameInput').value = '';
-            await loadSubjects();
-            await loadStats();
-        });
+            let subjectHtml = '';
+            for (const [subject, stats] of Object.entries(subjectStats)) {
+                const percentage = Math.round((stats.totalScore / stats.totalQuestions) * 100);
+                subjectHtml += `
+                    <div class="subject-row">
+                        <span class="subject-name">${subject}</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%;"></div>
+                        </div>
+                        <span class="subject-score">${percentage}%</span>
+                    </div>
+                `;
+            }
+            
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="student-profile">
+                    <div class="student-avatar">${student.name?.charAt(0) || 'S'}</div>
+                    <div class="student-info">
+                        <h3>${student.name}</h3>
+                        <p style="color: #64748b;">${student.email}</p>
+                        <p style="color: #64748b;">Grade ${student.grade} • Joined ${student.createdAt?.toDate().toLocaleDateString() || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <div class="performance-summary">
+                    <div class="summary-card">
+                        <div style="font-size: 1.8rem; color: #ee5a24;">${student.gamesPlayed}</div>
+                        <div style="color: #64748b;">Games</div>
+                    </div>
+                    <div class="summary-card">
+                        <div style="font-size: 1.8rem; color: #059669;">${student.avgScore}%</div>
+                        <div style="color: #64748b;">Avg Score</div>
+                    </div>
+                    <div class="summary-card">
+                        <div style="font-size: 1.8rem; color: #2563eb;">${Object.keys(subjectStats).length}</div>
+                        <div style="color: #64748b;">Subjects</div>
+                    </div>
+                    <div class="summary-card">
+                        <div style="font-size: 1.8rem; color: #7c3aed;">${student.activities?.length || 0}</div>
+                        <div style="color: #64748b;">Sessions</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 16px; color: #1a1a2e;">📊 Subject Performance</h3>
+                ${subjectHtml || '<p style="color: #94a3b8;">No subject data available</p>'}
+                
+                <h3 style="margin: 24px 0 16px; color: #1a1a2e;">🎮 Recent Games</h3>
+                ${student.activities.slice(0, 5).map(act => `
+                    <div style="padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <span><strong>${act.subject}</strong></span>
+                            <span>Score: ${act.score}/${act.totalQuestions} (${Math.round((act.score/act.totalQuestions)*100)}%)</span>
+                        </div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
+                            ${act.timestamp?.toDate().toLocaleString() || 'N/A'}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+            
+            document.getElementById('studentModal').style.display = 'flex';
+        };
 
-        // Global functions for buttons
-        window.deleteSubject = async (id) => {
-            if (confirm('Delete this subject?')) {
-                await deleteDoc(doc(db, "subjects", id));
-                await loadSubjects();
-                await loadStats();
+        window.closeModal = () => {
+            document.getElementById('studentModal').style.display = 'none';
+        };
+
+        // Teacher Actions
+        window.approveTeacher = async (teacherId) => {
+            showLoading();
+            try {
+                await updateDoc(doc(db, "users", teacherId), { status: 'approved' });
+                await loadTeachers();
+            } finally {
+                hideLoading();
             }
         };
 
-        window.approveTeacher = async (uid) => {
-            await updateDoc(doc(db, "users", uid), { status: 'approved' });
-            await loadTeachers();
+        window.deleteTeacher = async (teacherId) => {
+            if (!confirm('Delete this teacher? This cannot be undone.')) return;
+            showLoading();
+            try {
+                await deleteDoc(doc(db, "users", teacherId));
+                await loadTeachers();
+                await loadStats();
+            } finally {
+                hideLoading();
+            }
         };
+
+        // Student Actions
+        window.deleteStudent = async (studentId) => {
+            if (!confirm('Delete this student and all their data? This cannot be undone.')) return;
+            showLoading();
+            try {
+                const student = allStudents.find(s => s.id === studentId);
+                if (student) {
+                    for (const activity of student.activities) {
+                        await deleteDoc(doc(db, "activities", activity.id));
+                    }
+                }
+                await deleteDoc(doc(db, "users", studentId));
+                await loadStudents();
+                await loadStats();
+                await loadActivities();
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // Activity Actions
+        window.deleteActivity = async (activityId) => {
+            if (!confirm('Delete this activity record?')) return;
+            showLoading();
+            try {
+                await deleteDoc(doc(db, "activities", activityId));
+                await loadActivities();
+                await loadStats();
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // Subject Actions
+        window.deleteSubject = async (subjectId) => {
+            if (!confirm('Delete this subject? Teachers using it will be affected.')) return;
+            showLoading();
+            try {
+                await deleteDoc(doc(db, "subjects", subjectId));
+                await loadSubjects();
+                await loadStats();
+            } finally {
+                hideLoading();
+            }
+        };
+
+        document.getElementById('addSubjectBtn')?.addEventListener('click', async () => {
+            const name = document.getElementById('subjectNameInput')?.value.trim();
+            if (!name) return alert('Enter a subject name');
+            
+            showLoading();
+            try {
+                await addDoc(collection(db, "subjects"), { name, createdAt: new Date() });
+                document.getElementById('subjectNameInput').value = '';
+                await loadSubjects();
+                await loadStats();
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Approve all pending teachers
+        document.getElementById('approveAllTeachersBtn')?.addEventListener('click', async () => {
+            const pending = allTeachers.filter(t => t.status === 'pending');
+            if (pending.length === 0) return alert('No pending teachers to approve');
+            if (!confirm(`Approve ${pending.length} teacher(s)?`)) return;
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                pending.forEach(t => {
+                    batch.update(doc(db, "users", t.id), { status: 'approved' });
+                });
+                await batch.commit();
+                await loadTeachers();
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Danger Zone Actions
+        document.getElementById('deleteAllStudentsBtn')?.addEventListener('click', async () => {
+            if (!confirm('DELETE ALL STUDENTS? Type "DELETE" to confirm.')) return;
+            const confirmInput = prompt('Type "DELETE ALL STUDENTS" to confirm:');
+            if (confirmInput !== 'DELETE ALL STUDENTS') return alert('Cancelled');
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                for (const student of allStudents) {
+                    for (const activity of student.activities) {
+                        batch.delete(doc(db, "activities", activity.id));
+                    }
+                    batch.delete(doc(db, "users", student.id));
+                }
+                await batch.commit();
+                await loadAllData();
+                alert('All students deleted');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        document.getElementById('deleteAllTeachersBtn')?.addEventListener('click', async () => {
+            if (!confirm('DELETE ALL TEACHERS? Type "DELETE" to confirm.')) return;
+            const confirmInput = prompt('Type "DELETE ALL TEACHERS" to confirm:');
+            if (confirmInput !== 'DELETE ALL TEACHERS') return alert('Cancelled');
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                allTeachers.forEach(t => batch.delete(doc(db, "users", t.id)));
+                await batch.commit();
+                await loadAllData();
+                alert('All teachers deleted');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        document.getElementById('deleteAllActivitiesBtn')?.addEventListener('click', async () => {
+            if (!confirm('DELETE ALL ACTIVITIES? Type "DELETE" to confirm.')) return;
+            const confirmInput = prompt('Type "DELETE ALL ACTIVITIES" to confirm:');
+            if (confirmInput !== 'DELETE ALL ACTIVITIES') return alert('Cancelled');
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                allActivities.forEach(a => batch.delete(doc(db, "activities", a.id)));
+                await batch.commit();
+                await loadAllData();
+                alert('All activities deleted');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        document.getElementById('deleteAllQuestionsBtn')?.addEventListener('click', async () => {
+            if (!confirm('DELETE ALL QUESTIONS? Type "DELETE" to confirm.')) return;
+            const confirmInput = prompt('Type "DELETE ALL QUESTIONS" to confirm:');
+            if (confirmInput !== 'DELETE ALL QUESTIONS') return alert('Cancelled');
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                allQuestions.forEach(q => batch.delete(doc(db, "questions", q.id)));
+                await batch.commit();
+                await loadQuestions();
+                alert('All questions deleted');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        document.getElementById('resetDatabaseBtn')?.addEventListener('click', async () => {
+            if (!confirm('💀 RESET ENTIRE DATABASE? Everything except Super Admin will be deleted!')) return;
+            const confirmInput = prompt('Type "RESET EVERYTHING" to confirm:');
+            if (confirmInput !== 'RESET EVERYTHING') return alert('Cancelled');
+            
+            showLoading();
+            try {
+                const batch = writeBatch(db);
+                
+                // Delete all students
+                allStudents.forEach(s => {
+                    s.activities?.forEach(a => batch.delete(doc(db, "activities", a.id)));
+                    batch.delete(doc(db, "users", s.id));
+                });
+                
+                // Delete all teachers
+                allTeachers.forEach(t => batch.delete(doc(db, "users", t.id)));
+                
+                // Delete all activities (in case any orphaned)
+                allActivities.forEach(a => batch.delete(doc(db, "activities", a.id)));
+                
+                // Delete all questions
+                allQuestions.forEach(q => batch.delete(doc(db, "questions", q.id)));
+                
+                // Delete all subjects
+                allSubjects.forEach(s => batch.delete(doc(db, "subjects", s.id)));
+                
+                await batch.commit();
+                await loadAllData();
+                alert('Database has been reset. Only Super Admin remains.');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Search and Filter Listeners
+        document.getElementById('teacherSearch')?.addEventListener('input', renderTeachers);
+        document.getElementById('teacherFilter')?.addEventListener('change', renderTeachers);
+        document.getElementById('studentSearch')?.addEventListener('input', renderStudents);
+        document.getElementById('gradeFilter')?.addEventListener('change', renderStudents);
+        
+        document.getElementById('refreshTeachersBtn')?.addEventListener('click', loadTeachers);
+        document.getElementById('refreshStudentsBtn')?.addEventListener('click', loadStudents);
+        document.getElementById('refreshActivitiesBtn')?.addEventListener('click', loadActivities);
+
+        document.getElementById('studentModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
     </script>
 </body>
 </html>

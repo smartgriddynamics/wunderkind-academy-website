@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labour Dashboard · Office Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1e293b;
+      --gray: #64748b;
+      --gray-light: #e2e8f0;
+      --sidebar-width: 260px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    
+    .sidebar-title { font-size: 1.2rem; font-weight: 700; }
+    .sidebar-title span { color: var(--accent); }
+    
+    .sidebar-user {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    
+    .user-details h4 { font-size: 0.95rem; margin-bottom: 2px; }
+    .user-details p { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+    
+    .sidebar-nav { flex: 1; padding: 15px 0; }
+    
+    .nav-section { padding: 0 15px; margin-bottom: 20px; }
+    
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.4);
+      padding: 0 10px;
+      margin-bottom: 10px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 3px;
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: white;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+    }
+    
+    .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+    
+    .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    
+    .topbar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--dark);
+    }
+    
+    .topbar-right { display: flex; align-items: center; gap: 20px; }
+    
+    .topbar-info { text-align: right; }
+    .topbar-info h4 { font-size: 0.9rem; }
+    .topbar-info p { font-size: 0.8rem; color: var(--gray); }
+    
+    .content-area { padding: 30px; }
+    
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid var(--gray-light);
+      margin-bottom: 25px;
+    }
+    
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    /* Grids */
+    .dept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    
+    .dept-card {
+      background: white;
+      border: 2px solid var(--gray-light);
+      border-radius: 15px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .dept-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(79,70,229,0.15);
+    }
+    
+    .dept-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
+    .dept-card h3 { color: var(--dark); }
+    
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .item-card {
+      background: white;
+      border: 1px solid var(--gray-light);
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .item-card h4 { margin-bottom: 10px; }
+    .item-card p { color: var(--gray); margin-bottom: 15px; }
+    
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-block { width: 100%; justify-content: center; }
+    
+    /* Forms */
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--gray-light);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    /* Status */
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #d1fae5; color: #065f46; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .badge-completed { background: #dbeafe; color: #1e40af; }
+    .badge-receipt { background: #e0e7ff; color: #3730a3; }
+    
+    .request-card {
+      background: white;
+      border: 1px solid var(--gray-light);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .hidden { display: none !important; }
+    .empty-state { text-align: center; padding: 40px; color: var(--gray); }
+    .empty-state i { font-size: 3rem; margin-bottom: 15px; }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .notification.show { transform: translateX(0); }
+    .notification.success { border-left: 4px solid var(--success); }
+    .notification.error { border-left: 4px solid var(--danger); }
+    
+    .notification i { font-size: 1.5rem; }
+    .notification-close { margin-left: auto; cursor: pointer; }
+    
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .menu-toggle { display: block; }
+    }
+    
+    @media (max-width: 768px) {
+      .content-area { padding: 20px; }
+      .dept-grid { grid-template-columns: 1fr; }
+      .item-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">📊</div>
+      <div class="sidebar-title"><span>Office</span> Analytics</div>
+    </div>
+    
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">L</div>
+      <div class="user-details">
+        <h4 id="sidebarName">Labour</h4>
+        <p id="sidebarDept">Department</p>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Menu</div>
+        <div class="nav-item active" onclick="navigateTo('browse', this)">
+          <i class="fas fa-store"></i> Browse Items
+        </div>
+        <div class="nav-item" onclick="navigateTo('requests', this)">
+          <i class="fas fa-list-check"></i> My Requests
+        </div>
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="btn btn-danger btn-block" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="topbar-right">
+        <div class="topbar-info">
+          <h4 id="topbarName">Labour</h4>
+          <p id="topbarDept">Department</p>
+        </div>
+        <button class="btn btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+    
+    <div class="content-area" id="contentArea"></div>
+  </main>
+
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <div><h4 id="notifTitle">Success</h4><p id="notifMessage"></p></div>
+    <i class="fas fa-times notification-close" onclick="hideNotification()"></i>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1QVeGY7ZnUWirkKuudvPNUbYbthdyugE",
+      authDomain: "analyticsbook-c4e8f.firebaseapp.com",
+      projectId: "analyticsbook-c4e8f",
+      storageBucket: "analyticsbook-c4e8f.firebasestorage.app",
+      messagingSenderId: "847316888383",
+      appId: "1:847316888383:web:51585a3945cb7e0296818a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+    let userData = null;
+    let currentPage = 'browse';
+    let selectedDept = null;
+    let departmentCache = {};
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists() || userDoc.data().status !== 'approved') {
+        window.location.href = 'index.html';
+        return;
+      }
+      userData = userDoc.data();
+      updateUI();
+      await loadDepartmentCache();
+      navigateTo('browse');
+    });
+
+    function updateUI() {
+      const name = userData?.name || 'Labour';
+      const dept = departmentCache[userData?.department] || userData?.department || 'N/A';
+      const initial = name.charAt(0).toUpperCase();
+      
+      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('sidebarDept').textContent = dept;
+      document.getElementById('sidebarAvatar').textContent = initial;
+      document.getElementById('topbarName').textContent = name;
+      document.getElementById('topbarDept').textContent = dept;
+    }
+
+    window.toggleSidebar = () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      const overlay = document.getElementById('sidebarOverlay');
+      overlay.style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
+    };
+
+    document.getElementById('sidebarOverlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').style.display = 'none';
+    });
+
+    window.logout = () => signOut(auth);
+
+    async function loadDepartmentCache() {
+      const snap = await getDocs(collection(db, 'departments'));
+      departmentCache = {};
+      snap.docs.forEach(d => { departmentCache[d.id] = d.data().name; });
+    }
+
+    function showNotification(title, message, type = 'success') {
+      const notif = document.getElementById('notification');
+      notif.className = `notification ${type} show`;
+      document.getElementById('notifTitle').textContent = title;
+      document.getElementById('notifMessage').textContent = message;
+      setTimeout(() => notif.classList.remove('show'), 4000);
+    }
+
+    window.hideNotification = () => document.getElementById('notification').classList.remove('show');
+
+    window.navigateTo = (page, element) => {
+      currentPage = page;
+      selectedDept = null;
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      if (element) element.classList.add('active');
+      if (window.innerWidth <= 1024) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').style.display = 'none';
+      }
+      loadPage(page);
+    };
+
+    async function loadPage(page) {
+      const area = document.getElementById('contentArea');
+      
+      if (page === 'browse') {
+        if (!selectedDept) {
+          const deptsSnap = await getDocs(collection(db, 'departments'));
+          area.innerHTML = `
+            <div class="card">
+              <h2 class="card-title"><i class="fas fa-building"></i> Select Department</h2>
+              <div class="dept-grid">
+                ${deptsSnap.docs.map(d => `
+                  <div class="dept-card" onclick="selectDept('${d.id}', '${d.data().name}')">
+                    <i class="fas fa-building"></i>
+                    <h3>${d.data().name}</h3>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          const itemsSnap = await getDocs(collection(db, 'departments', selectedDept, 'items'));
+          area.innerHTML = `
+            <div class="card">
+              <button class="btn btn-outline" onclick="selectedDept=null;loadPage('browse');" style="margin-bottom:20px;">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <h2 class="card-title"><i class="fas fa-box"></i> Items in ${departmentCache[selectedDept] || selectedDept}</h2>
+              <div class="item-grid">
+                ${itemsSnap.docs.map(d => {
+                  const item = d.data();
+                  return `
+                    <div class="item-card">
+                      <h4>📦 ${item.name}</h4>
+                      <p>💰 Estimated: TSh ${(item.estimatedPrice||0).toLocaleString()}</p>
+                      <button class="btn btn-primary" onclick="requestItem('${d.id}', '${item.name}', ${item.estimatedPrice||0})">
+                        Request Money
+                      </button>
+                    </div>
+                  `;
+                }).join('') || '<div class="empty-state"><i class="fas fa-box-open"></i><p>No items yet</p></div>'}
+              </div>
+            </div>
+          `;
+        }
+      } else if (page === 'requests') {
+        const reqSnap = await getDocs(query(collection(db, 'requests'), where('userId', '==', currentUser.uid), orderBy('createdAt', 'desc')));
+        area.innerHTML = `
+          <div class="card">
+            <h2 class="card-title"><i class="fas fa-list-check"></i> My Requests</h2>
+            ${reqSnap.empty ? '<div class="empty-state"><i class="fas fa-inbox"></i><p>No requests</p></div>' :
+              reqSnap.docs.map(d => {
+                const r = d.data();
+                return `
+                  <div class="request-card">
+                    <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
+                      <div>
+                        <strong>📦 ${r.itemName}</strong>
+                        <p>Qty: ${r.quantity} | Total: TSh ${r.totalAmount?.toLocaleString()}</p>
+                        <span class="badge badge-${r.status}">${r.status.replace('_',' ').toUpperCase()}</span>
+                        ${r.receiptUrl ? `<img src="${r.receiptUrl}" style="width:60px;height:60px;border-radius:8px;margin-top:10px;cursor:pointer;" onclick="window.open('${r.receiptUrl}')">` : ''}
+                      </div>
+                      ${r.status === 'approved' ? `
+                        <div>
+                          <input type="file" id="receipt_${d.id}" accept="image/*" style="margin-bottom:5px;display:block;">
+                          <button class="btn btn-success" onclick="uploadReceipt('${d.id}')">
+                            <i class="fas fa-upload"></i> Upload Receipt
+                          </button>
+                        </div>
+                      ` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')
+            }
+          </div>
+        `;
+      }
+    }
+
+    window.selectDept = (deptId, deptName) => {
+      selectedDept = deptId;
+      loadPage('browse');
+    };
+
+    window.requestItem = (itemId, itemName, estimatedPrice) => {
+      const area = document.getElementById('contentArea');
+      area.innerHTML = `
+        <div class="card">
+          <h2 class="card-title"><i class="fas fa-hand-holding-usd"></i> Request: ${itemName}</h2>
+          <div class="form-group">
+            <label>Price (TSh)</label>
+            <input type="number" id="reqPrice" value="${estimatedPrice}" min="1">
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="reqQty" value="1" min="1">
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="reqNotes" placeholder="Any notes..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="submitRequest('${itemId}', '${itemName}')">Submit Request</button>
+          <button class="btn btn-outline" onclick="selectedDept=null;loadPage('browse');" style="margin-left:10px;">Cancel</button>
+        </div>
+      `;
+    };
+
+    window.submitRequest = async (itemId, itemName) => {
+      const price = parseFloat(document.getElementById('reqPrice').value);
+      const qty = parseInt(document.getElementById('reqQty').value);
+      const notes = document.getElementById('reqNotes').value;
+      if (!price || price <= 0) return showNotification('Error', 'Enter valid price', 'error');
+      
+      await addDoc(collection(db, 'requests'), {
+        deptId: selectedDept,
+        itemId, itemName, price, quantity: qty,
+        totalAmount: price * qty, notes,
+        userId: currentUser.uid,
+        userName: userData.name,
+        userEmail: userData.email,
+        status: 'pending',
+        receiptUrl: null,
+        createdAt: new Date().toISOString()
+      });
+      
+      showNotification('Success', 'Request submitted!');
+      navigateTo('requests');
+    };
+
+    window.uploadReceipt = async (requestId) => {
+      const file = document.getElementById(`receipt_${requestId}`).files[0];
+      if (!file) return showNotification('Error', 'Select a file', 'error');
+      
+      const storageRef = ref(storage, `receipts/${requestId}_${Date.now()}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      
+      await updateDoc(doc(db, 'requests', requestId), {
+        receiptUrl: url,
+        status: 'receipt_uploaded'
+      });
+      
+      showNotification('Success', 'Receipt uploaded! Waiting verification.');
+      navigateTo('requests');
+    };
+  </script>
+</body>
+</html>

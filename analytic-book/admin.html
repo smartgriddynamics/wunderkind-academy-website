@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard · Office Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --white: #ffffff;
+      --gray: #64748b;
+      --gray-light: #e2e8f0;
+      --sidebar-width: 280px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    
+    .sidebar-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    
+    .sidebar-title span { color: var(--accent); }
+    
+    .sidebar-user {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    
+    .user-details h4 {
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+    
+    .user-details p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      padding: 15px 0;
+    }
+    
+    .nav-section {
+      padding: 0 15px;
+      margin-bottom: 20px;
+    }
+    
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.4);
+      padding: 0 10px;
+      margin-bottom: 10px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 3px;
+      position: relative;
+      white-space: nowrap;
+    }
+    
+    .nav-item:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+    
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: white;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+    }
+    
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    
+    .nav-badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .sidebar-footer {
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    
+    .topbar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--dark);
+    }
+    
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .topbar-info {
+      text-align: right;
+    }
+    
+    .topbar-info h4 {
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+    
+    .topbar-info p {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+    
+    .content-area {
+      padding: 30px;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+      border: 1px solid var(--gray-light);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .stat-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    
+    .stat-card h3 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+    
+    .stat-card p {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid var(--gray-light);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Forms */
+    .form-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--gray-light);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-1px); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn-block { width: 100%; justify-content: center; }
+    
+    /* Tables & Lists */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid var(--gray-light);
+      gap: 15px;
+      transition: background 0.2s;
+    }
+    
+    .list-item:hover { background: #f8fafc; }
+    .list-item:last-child { border-bottom: none; }
+    
+    .list-item-info { flex: 1; }
+    .list-item-info strong { color: var(--dark); }
+    .list-item-info p { color: var(--gray); font-size: 0.85rem; margin-top: 3px; }
+    .list-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    
+    /* Status Badges */
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #d1fae5; color: #065f46; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .badge-completed { background: #dbeafe; color: #1e40af; }
+    .badge-receipt { background: #e0e7ff; color: #3730a3; }
+    
+    /* User Grid */
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .user-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--gray-light);
+      transition: all 0.2s;
+    }
+    
+    .user-card:hover { border-color: var(--primary); box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
+    
+    .user-card-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .user-avatar-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    
+    /* Search */
+    .search-box {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 45px;
+      border: 2px solid var(--gray-light);
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+    
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(5px);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal img {
+      width: 100%;
+      border-radius: 12px;
+      margin: 15px 0;
+      border: 2px solid var(--gray-light);
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 400px;
+    }
+    
+    .notification.show { transform: translateX(0); }
+    .notification.success { border-left: 4px solid var(--success); }
+    .notification.error { border-left: 4px solid var(--danger); }
+    
+    .notification i { font-size: 1.5rem; }
+    .notification.success i { color: var(--success); }
+    .notification.error i { color: var(--danger); }
+    
+    .notification-close { margin-left: auto; cursor: pointer; color: var(--gray); }
+    
+    .hidden { display: none !important; }
+    .empty-state { text-align: center; padding: 40px; color: var(--gray); }
+    .empty-state i { font-size: 3rem; margin-bottom: 15px; }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+      
+      .sidebar-overlay.active {
+        display: block;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .user-grid { grid-template-columns: 1fr; }
+      .content-area { padding: 20px; }
+      .form-row { flex-direction: column; }
+      .list-item { flex-direction: column; align-items: flex-start; }
+      .list-item-actions { width: 100%; justify-content: flex-end; margin-top: 10px; }
+      .card-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">📊</div>
+      <div class="sidebar-title"><span>Office</span> Analytics</div>
+    </div>
+    
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">A</div>
+      <div class="user-details">
+        <h4 id="sidebarName">Admin</h4>
+        <p id="sidebarEmail">admin@office.com</p>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Main Menu</div>
+        <div class="nav-item active" onclick="navigateTo('dashboard', this)">
+          <i class="fas fa-th-large"></i> Dashboard
+        </div>
+        <div class="nav-item" onclick="navigateTo('departments', this)">
+          <i class="fas fa-building"></i> Departments
+        </div>
+        <div class="nav-item" onclick="navigateTo('items', this)">
+          <i class="fas fa-box"></i> Manage Items
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">User Management</div>
+        <div class="nav-item" onclick="navigateTo('users', this)">
+          <i class="fas fa-users"></i> All Users
+        </div>
+        <div class="nav-item" onclick="navigateTo('approvals', this)">
+          <i class="fas fa-user-check"></i> Pending Approvals
+          <span class="nav-badge" id="approvalBadge">0</span>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">Finance</div>
+        <div class="nav-item" onclick="navigateTo('requests', this)">
+          <i class="fas fa-file-invoice"></i> All Requests
+        </div>
+        <div class="nav-item" onclick="navigateTo('receipts', this)">
+          <i class="fas fa-receipt"></i> Verify Receipts
+          <span class="nav-badge" id="receiptBadge">0</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('balance', this)">
+          <i class="fas fa-coins"></i> Office Balance
+        </div>
+        <div class="nav-item" onclick="navigateTo('analytics', this)">
+          <i class="fas fa-chart-bar"></i> Analytics
+        </div>
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="btn btn-danger btn-block" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="topbar-right">
+        <div class="topbar-info">
+          <h4 id="topbarName">Admin</h4>
+          <p id="topbarEmail">admin@office.com</p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+    
+    <div class="content-area" id="contentArea">
+      <!-- Dynamic content loaded here -->
+    </div>
+  </main>
+
+  <!-- Receipt Modal -->
+  <div class="modal-overlay" id="receiptModal">
+    <div class="modal" id="receiptModalContent"></div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <div>
+      <h4 id="notifTitle">Success</h4>
+      <p id="notifMessage"></p>
+    </div>
+    <i class="fas fa-times notification-close" onclick="hideNotification()"></i>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1QVeGY7ZnUWirkKuudvPNUbYbthdyugE",
+      authDomain: "analyticsbook-c4e8f.firebaseapp.com",
+      projectId: "analyticsbook-c4e8f",
+      storageBucket: "analyticsbook-c4e8f.firebasestorage.app",
+      messagingSenderId: "847316888383",
+      appId: "1:847316888383:web:51585a3945cb7e0296818a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentPage = 'dashboard';
+    let selectedDept = null;
+    let currentAdminData = null;
+    let departmentCache = {};
+
+    // Auth
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      const adminDoc = await getDoc(doc(db, "admins", user.uid));
+      if (!adminDoc.exists()) { window.location.href = 'index.html'; return; }
+      
+      currentAdminData = adminDoc.data();
+      updateAdminUI();
+      await loadDepartmentCache();
+      navigateTo('dashboard');
+      loadStats();
+      updateBadges();
+    });
+
+    function updateAdminUI() {
+      const name = currentAdminData?.name || 'Admin';
+      const email = currentAdminData?.email || 'admin@office.com';
+      const initial = name.charAt(0).toUpperCase();
+      
+      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('sidebarEmail').textContent = email;
+      document.getElementById('sidebarAvatar').textContent = initial;
+      document.getElementById('topbarName').textContent = name;
+      document.getElementById('topbarEmail').textContent = email;
+    }
+
+    window.toggleSidebar = () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    };
+
+    window.logout = () => signOut(auth);
+
+    async function loadDepartmentCache() {
+      const deptsSnap = await getDocs(collection(db, 'departments'));
+      departmentCache = {};
+      deptsSnap.docs.forEach(d => { departmentCache[d.id] = d.data().name; });
+    }
+
+    async function updateBadges() {
+      const pendingSnap = await getDocs(query(collection(db, 'pendingRegistrations'), where('status', '==', 'pending')));
+      document.getElementById('approvalBadge').textContent = pendingSnap.size || '0';
+      
+      const receiptSnap = await getDocs(query(collection(db, 'requests'), where('status', '==', 'receipt_uploaded')));
+      document.getElementById('receiptBadge').textContent = receiptSnap.size || '0';
+    }
+
+    function showNotification(title, message, type = 'success') {
+      const notif = document.getElementById('notification');
+      notif.className = `notification ${type} show`;
+      document.getElementById('notifTitle').textContent = title;
+      document.getElementById('notifMessage').textContent = message;
+      const icon = notif.querySelector('i:first-child');
+      icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle';
+      setTimeout(() => notif.classList.remove('show'), 4000);
+    }
+
+    window.hideNotification = () => document.getElementById('notification').classList.remove('show');
+
+    async function getOfficeBalance() {
+      const balanceDoc = await getDoc(doc(db, 'settings', 'officeBalance'));
+      return balanceDoc.exists() ? (balanceDoc.data().balance || 0) : 0;
+    }
+
+    async function loadStats() {
+      const [requestsSnap, pendingSnap, usersSnap, deptsSnap] = await Promise.all([
+        getDocs(collection(db, 'requests')),
+        getDocs(query(collection(db, 'pendingRegistrations'), where('status', '==', 'pending'))),
+        getDocs(collection(db, 'users')),
+        getDocs(collection(db, 'departments'))
+      ]);
+      
+      const requests = requestsSnap.docs.map(d => d.data());
+      const balance = await getOfficeBalance();
+      const totalSpent = requests.filter(r => r.status === 'completed').reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+      
+      document.getElementById('statsGrid') && (document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#e0e7ff;color:#4f46e5;"><i class="fas fa-building"></i></div>
+          </div>
+          <h3>${deptsSnap.size}</h3><p>Departments</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#d1fae5;color:#10b981;"><i class="fas fa-users"></i></div>
+          </div>
+          <h3>${usersSnap.docs.filter(d => d.data().status === 'approved').length}</h3><p>Approved Users</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#dbeafe;color:#06b6d4;"><i class="fas fa-coins"></i></div>
+          </div>
+          <h3>TSh ${balance.toLocaleString()}</h3><p>Office Balance</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#fef3c7;color:#f59e0b;"><i class="fas fa-clock"></i></div>
+          </div>
+          <h3>${pendingSnap.size}</h3><p>Pending Registrations</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#fee2e2;color:#ef4444;"><i class="fas fa-file-invoice"></i></div>
+          </div>
+          <h3>${requests.filter(r => r.status === 'pending').length}</h3><p>Pending Requests</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-icon" style="background:#e0e7ff;color:#3730a3;"><i class="fas fa-check-circle"></i></div>
+          </div>
+          <h3>TSh ${totalSpent.toLocaleString()}</h3><p>Total Spent</p>
+        </div>
+      `);
+    }
+
+    window.navigateTo = (page, element) => {
+      currentPage = page;
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      if (element) element.classList.add('active');
+      
+      // Close sidebar on mobile
+      if (window.innerWidth <= 1024) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+      }
+      
+      loadPage(page);
+    };
+
+    async function loadPage(page) {
+      const area = document.getElementById('contentArea');
+      
+      switch(page) {
+        case 'dashboard':
+          await loadStats();
+          area.innerHTML = `<div id="statsGrid" class="stats-grid"></div>`;
+          await loadStats();
+          break;
+          
+        case 'departments':
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-building"></i> Manage Departments</h2>
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="flex:2;">
+                  <input type="text" id="deptName" placeholder="Department Name (e.g., Transport, Education)">
+                </div>
+                <button class="btn btn-primary" onclick="addDepartment()" style="align-self:flex-end;">
+                  <i class="fas fa-plus"></i> Add Department
+                </button>
+              </div>
+              <div id="deptList"></div>
+            </div>
+          `;
+          loadDeptList();
+          break;
+          
+        case 'items':
+          const deptsSnap = await getDocs(collection(db, 'departments'));
+          const depts = deptsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-box"></i> Manage Items</h2>
+              </div>
+              <div class="form-group">
+                <label>Select Department</label>
+                <select id="itemDept" onchange="loadItemsForDept()">
+                  <option value="">-- Select Department --</option>
+                  ${depts.map(d => `<option value="${d.id}">🏢 ${d.name}</option>`).join('')}
+                </select>
+              </div>
+              <div id="itemForm" class="hidden">
+                <div class="form-row">
+                  <div class="form-group">
+                    <input type="text" id="itemName" placeholder="Item Name">
+                  </div>
+                  <div class="form-group">
+                    <input type="number" id="itemPrice" placeholder="Estimated Price (TSh)">
+                  </div>
+                  <button class="btn btn-primary" onclick="addItem()" style="align-self:flex-end;">
+                    <i class="fas fa-plus"></i> Add Item
+                  </button>
+                </div>
+                <div id="itemList"></div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'users':
+          const usersSnap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+          const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-users"></i> All Users (${users.length})</h2>
+              </div>
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()">
+              </div>
+              <div class="user-grid" id="userGrid">
+                ${users.length === 0 ? '<div class="empty-state"><i class="fas fa-users"></i><p>No users yet</p></div>' :
+                  users.map(user => `
+                    <div class="user-card" data-search="${user.name} ${user.email}">
+                      <div class="user-card-header">
+                        <div class="user-avatar-circle" style="background:linear-gradient(135deg, #4f46e5, #06b6d4);">
+                          ${user.name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                        <div>
+                          <strong>${user.name}</strong>
+                          <p style="font-size:0.8rem;color:#64748b;">${user.email}</p>
+                        </div>
+                      </div>
+                      <p>🏢 ${departmentCache[user.department] || user.department || 'N/A'}</p>
+                      <span class="badge badge-${user.status || 'pending'}">${(user.status || 'pending').toUpperCase()}</span>
+                      <div style="margin-top:10px;">
+                        ${user.status === 'approved' ? 
+                          `<button class="btn btn-danger btn-sm" onclick="toggleUserStatus('${user.id}', 'deactivated', '${user.name}')"><i class="fas fa-ban"></i> Deactivate</button>` :
+                          `<button class="btn btn-success btn-sm" onclick="toggleUserStatus('${user.id}', 'approved', '${user.name}')"><i class="fas fa-check"></i> Activate</button>`
+                        }
+                      </div>
+                    </div>
+                  `).join('')
+                }
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'approvals':
+          const pendingSnap = await getDocs(query(collection(db, 'pendingRegistrations'), where('status', '==', 'pending')));
+          const pending = pendingSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-user-check"></i> Pending Approvals (${pending.length})</h2>
+              </div>
+              ${pending.length === 0 ? '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No pending registrations</p></div>' :
+                pending.map(reg => `
+                  <div class="list-item">
+                    <div class="list-item-info">
+                      <strong>👤 ${reg.name}</strong>
+                      <p>📧 ${reg.email} | 🏢 ${departmentCache[reg.department] || reg.department}</p>
+                      <p style="font-size:0.8rem;">📅 ${new Date(reg.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="list-item-actions">
+                      <button class="btn btn-success btn-sm" onclick="approveLabour('${reg.id}', '${reg.name}', '${reg.email}', '${reg.department}')"><i class="fas fa-check"></i> Approve</button>
+                      <button class="btn btn-danger btn-sm" onclick="rejectLabour('${reg.id}', '${reg.name}')"><i class="fas fa-times"></i> Reject</button>
+                    </div>
+                  </div>
+                `).join('')
+              }
+            </div>
+          `;
+          break;
+          
+        case 'requests':
+          const reqSnap = await getDocs(query(collection(db, 'requests'), orderBy('createdAt', 'desc')));
+          const requests = reqSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-file-invoice"></i> All Requests</h2>
+              </div>
+              ${requests.length === 0 ? '<div class="empty-state"><i class="fas fa-inbox"></i><p>No requests</p></div>' :
+                requests.map(r => `
+                  <div class="list-item">
+                    <div class="list-item-info">
+                      <strong>📦 ${r.itemName}</strong>
+                      <p>👤 ${r.userName} | 🏢 ${departmentCache[r.deptId] || r.deptId} | Qty: ${r.quantity} | TSh ${r.totalAmount?.toLocaleString()}</p>
+                      <span class="badge badge-${r.status}">${r.status.replace('_',' ').toUpperCase()}</span>
+                    </div>
+                    <div class="list-item-actions">
+                      ${r.receiptUrl ? `<button class="btn btn-outline btn-sm" onclick="viewReceipt('${r.receiptUrl}', '${r.itemName}', '${r.userName}', ${r.totalAmount||0})"><i class="fas fa-image"></i> Receipt</button>` : ''}
+                      ${r.status === 'pending' ? `
+                        <button class="btn btn-success btn-sm" onclick="updateRequest('${r.id}', 'approved')"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="updateRequest('${r.id}', 'rejected')"><i class="fas fa-times"></i></button>
+                      ` : ''}
+                    </div>
+                  </div>
+                `).join('')
+              }
+            </div>
+          `;
+          break;
+          
+        case 'receipts':
+          const receiptSnap = await getDocs(query(collection(db, 'requests'), where('status', 'in', ['receipt_uploaded', 'completed']), orderBy('status'), orderBy('createdAt', 'desc')));
+          const receipts = receiptSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          const pendingReceipts = receipts.filter(r => r.status === 'receipt_uploaded');
+          const verifiedReceipts = receipts.filter(r => r.status === 'completed');
+          area.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-receipt"></i> Receipt Verification</h2>
+              </div>
+              <h4 style="color:#f97316;margin-bottom:15px;">🔴 Pending (${pendingReceipts.length})</h4>
+              ${pendingReceipts.map(r => `
+                <div class="list-item" style="background:#fff7ed;border-radius:10px;margin-bottom:10px;">
+                  <div class="list-item-info">
+                    <strong>📦 ${r.itemName}</strong>
+                    <p>👤 ${r.userName} | TSh ${r.totalAmount?.toLocaleString()}</p>
+                  </div>
+                  <div class="list-item-actions">
+                    <button class="btn btn-outline btn-sm" onclick="viewReceipt('${r.receiptUrl}', '${r.itemName}', '${r.userName}', ${r.totalAmount||0})"><i class="fas fa-search"></i> View</button>
+                    <button class="btn btn-success btn-sm" onclick="verifyReceipt('${r.id}', ${r.totalAmount||0})"><i class="fas fa-check-double"></i> Verify</button>
+                    <button class="btn btn-danger btn-sm" onclick="rejectReceipt('${r.id}')"><i class="fas fa-times"></i> Reject</button>
+                  </div>
+                </div>
+              `).join('')}
+              <h4 style="color:#10b981;margin:20px 0 15px;">✅ Verified (${verifiedReceipts.length})</h4>
+              ${verifiedReceipts.map(r => `
+                <div class="list-item">
+                  <div class="list-item-info">
+                    <strong>📦 ${r.itemName}</strong>
+                    <p>👤 ${r.userName} | TSh ${r.totalAmount?.toLocaleString()}</p>
+                    <span class="badge badge-completed">VERIFIED</span>
+                  </div>
+                  <button class="btn btn-outline btn-sm" onclick="viewReceipt('${r.receiptUrl}', '${r.itemName}', '${r.userName}', ${r.totalAmount||0})"><i class="fas fa-image"></i> View</button>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          break;
+          
+        case 'balance':
+          const balance = await getOfficeBalance();
+          area.innerHTML = `
+            <div class="card" style="text-align:center;">
+              <h2 class="card-title" style="justify-content:center;"><i class="fas fa-coins"></i> Office Balance</h2>
+              <div style="font-size:3rem;margin:20px 0;">💰</div>
+              <h1 style="color:${balance < 100000 ? 'var(--danger)' : 'var(--success)'};">TSh ${balance.toLocaleString()}</h1>
+              <div class="form-row" style="margin-top:30px;justify-content:center;">
+                <div class="form-group" style="max-width:300px;">
+                  <label>Add Funds</label>
+                  <input type="number" id="addBalance" placeholder="Amount (TSh)">
+                </div>
+                <button class="btn btn-success" onclick="addBalance()" style="align-self:flex-end;"><i class="fas fa-plus"></i> Add</button>
+              </div>
+              <div class="form-row" style="justify-content:center;">
+                <div class="form-group" style="max-width:300px;">
+                  <label>Set Exact Balance</label>
+                  <input type="number" id="setBalance" placeholder="Exact amount (TSh)">
+                </div>
+                <button class="btn btn-primary" onclick="setBalance()" style="align-self:flex-end;"><i class="fas fa-save"></i> Set</button>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'analytics':
+          const allReqs = await getDocs(collection(db, 'requests'));
+          const reqs = allReqs.docs.map(d => d.data()).filter(r => r.status === 'completed');
+          const deptSpending = {};
+          reqs.forEach(r => {
+            const deptName = departmentCache[r.deptId] || r.deptId;
+            if (!deptSpending[deptName]) deptSpending[deptName] = { total: 0, count: 0 };
+            deptSpending[deptName].total += r.totalAmount || 0;
+            deptSpending[deptName].count++;
+          });
+          const totalSpending = reqs.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+          area.innerHTML = `
+            <div class="card" style="background:linear-gradient(135deg, #4f46e5, #06b6d4);color:white;text-align:center;">
+              <h3>Total Verified Spending</h3>
+              <h1 style="font-size:3rem;">TSh ${totalSpending.toLocaleString()}</h1>
+            </div>
+            <div class="card">
+              <h2 class="card-title"><i class="fas fa-chart-bar"></i> Department-wise Spending</h2>
+              ${Object.entries(deptSpending).map(([dept, data]) => `
+                <div class="list-item">
+                  <div><strong>🏢 ${dept}</strong><p>${data.count} purchases</p></div>
+                  <strong>TSh ${data.total.toLocaleString()}</strong>
+                </div>
+              `).join('') || '<div class="empty-state"><i class="fas fa-chart-pie"></i><p>No spending data</p></div>'}
+            </div>
+          `;
+          break;
+      }
+    }
+
+    // Receipt Modal
+    window.viewReceipt = (url, itemName, userName, amount) => {
+      const modal = document.getElementById('receiptModal');
+      document.getElementById('receiptModalContent').innerHTML = `
+        <h3>🧾 ${itemName}</h3>
+        <p><strong>By:</strong> ${userName} | <strong>TSh</strong> ${amount.toLocaleString()}</p>
+        <img src="${url}" alt="Receipt">
+        <button class="btn btn-primary" onclick="document.getElementById('receiptModal').classList.remove('active')">Close</button>
+      `;
+      modal.classList.add('active');
+    };
+    document.getElementById('receiptModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+
+    // CRUD Operations
+    window.addDepartment = async () => {
+      const name = document.getElementById('deptName')?.value.trim();
+      if (!name) return showNotification('Error', 'Enter department name', 'error');
+      await addDoc(collection(db, 'departments'), { name, createdAt: new Date().toISOString() });
+      document.getElementById('deptName').value = '';
+      await loadDepartmentCache();
+      loadDeptList();
+      loadStats();
+      showNotification('Success', `"${name}" added!`);
+    };
+
+    async function loadDeptList() {
+      const snap = await getDocs(collection(db, 'departments'));
+      const list = document.getElementById('deptList');
+      if (!list) return;
+      list.innerHTML = snap.docs.map(d => `
+        <div class="list-item">
+          <div class="list-item-info"><strong>🏢 ${d.data().name}</strong></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteDept('${d.id}', '${d.data().name}')"><i class="fas fa-trash"></i></button>
+        </div>
+      `).join('');
+    }
+
+    window.deleteDept = async (id, name) => {
+      if (!confirm(`Delete "${name}"?`)) return;
+      const itemsSnap = await getDocs(collection(db, 'departments', id, 'items'));
+      await Promise.all([...itemsSnap.docs.map(d => deleteDoc(d.ref)), deleteDoc(doc(db, 'departments', id))]);
+      await loadDepartmentCache();
+      loadDeptList();
+      loadStats();
+    };
+
+    window.loadItemsForDept = () => {
+      const deptId = document.getElementById('itemDept')?.value;
+      if (deptId) { document.getElementById('itemForm').classList.remove('hidden'); selectedDept = deptId; loadItems(); }
+      else { document.getElementById('itemForm').classList.add('hidden'); selectedDept = null; }
+    };
+
+    async function loadItems() {
+      if (!selectedDept) return;
+      const snap = await getDocs(collection(db, 'departments', selectedDept, 'items'));
+      document.getElementById('itemList').innerHTML = snap.docs.map(d => `
+        <div class="list-item">
+          <div class="list-item-info"><strong>📦 ${d.data().name}</strong> - TSh ${(d.data().estimatedPrice||0).toLocaleString()}</div>
+          <button class="btn btn-danger btn-sm" onclick="deleteItem('${d.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      `).join('') || '<p>No items</p>';
+    }
+
+    window.addItem = async () => {
+      if (!selectedDept) return;
+      const name = document.getElementById('itemName')?.value.trim();
+      const price = parseFloat(document.getElementById('itemPrice')?.value) || 0;
+      if (!name) return showNotification('Error', 'Enter item name', 'error');
+      await addDoc(collection(db, 'departments', selectedDept, 'items'), { name, estimatedPrice: price });
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemPrice').value = '';
+      loadItems();
+    };
+
+    window.deleteItem = async (itemId) => {
+      await deleteDoc(doc(db, 'departments', selectedDept, 'items', itemId));
+      loadItems();
+    };
+
+    window.filterUsers = () => {
+      const term = document.getElementById('userSearch')?.value.toLowerCase() || '';
+      document.querySelectorAll('.user-card').forEach(card => {
+        card.style.display = (card.getAttribute('data-search')||'').toLowerCase().includes(term) ? '' : 'none';
+      });
+    };
+
+    window.toggleUserStatus = async (uid, status, name) => {
+      await updateDoc(doc(db, 'users', uid), { status });
+      navigateTo('users');
+      showNotification(status === 'approved' ? 'Activated' : 'Deactivated', name);
+    };
+
+    window.approveLabour = async (uid, name, email, deptId) => {
+      const snap = await getDoc(doc(db, 'pendingRegistrations', uid));
+      if (!snap.exists()) return showNotification('Error', 'Not found', 'error');
+      const data = snap.data();
+      await setDoc(doc(db, 'users', uid), { uid, name, email, department: deptId, role: 'labour', status: 'approved', createdAt: data.createdAt, approvedAt: new Date().toISOString() });
+      await updateDoc(doc(db, 'pendingRegistrations', uid), { status: 'approved' });
+      await loadDepartmentCache();
+      navigateTo('approvals');
+      loadStats();
+      updateBadges();
+      showNotification('Approved!', `${name} (${email})`);
+    };
+
+    window.rejectLabour = async (uid, name) => {
+      if (!confirm(`Reject ${name}?`)) return;
+      await updateDoc(doc(db, 'pendingRegistrations', uid), { status: 'rejected' });
+      navigateTo('approvals');
+      updateBadges();
+    };
+
+    window.updateRequest = async (reqId, status) => {
+      await updateDoc(doc(db, 'requests', reqId), { status, updatedAt: new Date().toISOString() });
+      navigateTo('requests');
+      loadStats();
+    };
+
+    window.verifyReceipt = async (reqId, amount) => {
+      try {
+        await runTransaction(db, async (transaction) => {
+          const reqRef = doc(db, 'requests', reqId);
+          const balRef = doc(db, 'settings', 'officeBalance');
+          const reqDoc = await transaction.get(reqRef);
+          const balDoc = await transaction.get(balRef);
+          const balance = balDoc.exists() ? (balDoc.data().balance||0) : 0;
+          const deduct = reqDoc.data().totalAmount || amount;
+          if (balance < deduct) throw new Error(`Insufficient balance! Need TSh ${deduct.toLocaleString()}`);
+          transaction.update(balRef, { balance: balance - deduct, updatedAt: new Date().toISOString() });
+          transaction.update(reqRef, { status: 'completed', verifiedAt: new Date().toISOString(), verifiedBy: currentAdminData?.name });
+        });
+        showNotification('Verified!', `TSh ${amount.toLocaleString()} deducted`);
+        navigateTo('receipts');
+        loadStats();
+        updateBadges();
+      } catch (e) { showNotification('Error', e.message, 'error'); }
+    };
+
+    window.rejectReceipt = async (reqId) => {
+      await updateDoc(doc(db, 'requests', reqId), { status: 'approved', receiptUrl: null });
+      navigateTo('receipts');
+      updateBadges();
+    };
+
+    window.addBalance = async () => {
+      const amount = parseFloat(document.getElementById('addBalance')?.value);
+      if (!amount || amount <= 0) return showNotification('Error', 'Enter amount', 'error');
+      await runTransaction(db, async (t) => {
+        const ref = doc(db, 'settings', 'officeBalance');
+        const docSnap = await t.get(ref);
+        t.set(ref, { balance: (docSnap.exists() ? docSnap.data().balance||0 : 0) + amount, updatedAt: new Date().toISOString() }, { merge: true });
+      });
+      document.getElementById('addBalance').value = '';
+      navigateTo('balance');
+      loadStats();
+    };
+
+    window.setBalance = async () => {
+      const balance = parseFloat(document.getElementById('setBalance')?.value);
+      if (isNaN(balance)) return showNotification('Error', 'Enter valid amount', 'error');
+      await setDoc(doc(db, 'settings', 'officeBalance'), { balance, updatedAt: new Date().toISOString() });
+      document.getElementById('setBalance').value = '';
+      navigateTo('balance');
+      loadStats();
+    };
+  </script>
+</body>
+</html>
