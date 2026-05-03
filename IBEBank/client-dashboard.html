@@ -10,184 +10,625 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 100%); min-height: 100vh; }
-    .client-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .navbar { background: white; border-radius: 20px; padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 15px; }
-    .nav-brand { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #1a3a5c, #c9a23d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-menu { display: flex; gap: 30px; flex-wrap: wrap; }
-    .nav-link { color: #4a5568; text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 2px solid transparent; cursor: pointer; }
-    .nav-link:hover, .nav-link.active { color: #1a3a5c; border-bottom-color: #c9a23d; }
-    .nav-actions { display: flex; align-items: center; gap: 20px; }
-    .notification-icon { position: relative; cursor: pointer; }
-    .badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .logout-btn:hover { background: #dc2626; }
-    .welcome-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .user-greeting h1 { font-size: 2rem; color: #1a1a2e; }
-    .user-greeting p { color: #718096; }
-    .account-number-box { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 15px; padding: 15px 20px; margin-bottom: 20px; display: inline-block; }
-    .account-number-label { font-size: 0.8rem; opacity: 0.8; color: white; }
-    .account-number-value { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: 2px; }
-    .balance-card { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
-    .balance-label { font-size: 1rem; opacity: 0.9; }
-    .balance-amount { font-size: 3.5rem; font-weight: 700; margin: 10px 0; }
-    .net-balance-label { font-size: 0.85rem; opacity: 0.8; margin-top: 5px; }
-    .net-balance-amount { font-size: 1.8rem; font-weight: 600; }
-    .net-balance-amount.negative { color: #ef4444; }
-    .interest-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    @media (max-width: 480px) { .interest-stats { grid-template-columns: 1fr; } }
-    .interest-stat-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
-    .interest-stat-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
-    .interest-stat-value { font-size: 1.5rem; font-weight: 700; }
-    .progress-bar { background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
-    .progress-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; }
-    .quick-actions { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
-    .btn-action { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
-    .btn-action:hover { background: rgba(255,255,255,0.3); }
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-    @media (max-width: 768px) { 
-      .dashboard-grid { grid-template-columns: 1fr; } 
-      .navbar { flex-direction: column; text-align: center; }
-      .nav-menu { justify-content: center; }
-      .balance-amount { font-size: 2.5rem; }
+    :root {
+      --primary: #1a3a5c;
+      --primary-light: #2a5a8c;
+      --primary-dark: #0f2842;
+      --accent: #c9a23d;
+      --accent-light: #e0c06c;
+      --accent-dark: #a07f2a;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1e1e2e;
+      --light: #f8fafc;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --gray-light: #e5e7eb;
+      --sidebar-width: 260px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
-    .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    .card-title { font-size: 1.2rem; font-weight: 600; color: #1a1a2e; }
-    .chart-container { position: relative; height: 250px; }
-    .transaction-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
-    .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 12px; flex-wrap: wrap; gap: 10px; }
-    .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
-    .transaction-icon.deposit { background: #d1fae5; color: #10b981; }
-    .transaction-icon.withdrawal { background: #fee2e2; color: #ef4444; }
-    .transaction-icon.transfer_sent { background: #fee2e2; color: #ef4444; }
-    .transaction-icon.transfer_received { background: #d1fae5; color: #10b981; }
-    .transaction-icon.profit_share { background: #d1fae5; color: #10b981; }
-    .transaction-icon.loan_disbursement { background: #fef3c7; color: #92400e; }
-    .transaction-icon.loan_repayment { background: #fef3c7; color: #92400e; }
-    .transaction-icon.loan_auto_deduct { background: #fee2e2; color: #ef4444; }
-    .transaction-info { flex: 1; min-width: 150px; }
-    .transaction-title { font-weight: 600; margin-bottom: 4px; }
-    .transaction-date { font-size: 0.8rem; color: #718096; }
-    .transaction-note { font-size: 0.8rem; color: #a0aec0; font-style: italic; margin-top: 2px; }
-    .transaction-amount { font-weight: 600; white-space: nowrap; }
-    .amount-positive { color: #10b981; }
-    .amount-negative { color: #ef4444; }
-    .amount-neutral { color: #92400e; }
     
-    /* Calculator & Loan Styles */
-    .calculator-form { margin-top: 20px; }
-    .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-    @media (max-width: 480px) { .calc-row { grid-template-columns: 1fr; } }
-    .calc-result { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 15px; padding: 20px; color: white; margin-top: 20px; text-align: center; }
-    .calc-result-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
-    .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
-    .calc-breakdown-item { text-align: center; }
-    .calc-breakdown-label { font-size: 0.75rem; opacity: 0.8; }
-    .calc-breakdown-value { font-size: 1rem; font-weight: 600; }
-    .loan-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-    .loan-stat { background: rgba(26, 58, 92, 0.1); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(26, 58, 92, 0.2); }
-    .loan-stat .value { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
-    .loan-stat .label { font-size: 0.8rem; color: #718096; }
-    .debt-warning { background: #fef3c7; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #ef4444; }
-    .info-note { background: #dbeafe; border-radius: 12px; padding: 15px; margin: 20px 0; }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568; }
-    .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
-    .form-input:focus, .form-select:focus { outline: none; border-color: #1a3a5c; }
-    .btn-submit { width: 100%; padding: 14px; background: #1a3a5c; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-submit:hover { background: #0f2842; }
-    .btn-calculate { width: 100%; padding: 14px; background: #c9a23d; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-    .btn-calculate:hover { background: #a07f2a; }
-    .notifications-panel { position: fixed; top: 100px; right: 20px; width: 350px; max-height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; display: none; z-index: 1000; }
-    @media (max-width: 768px) { .notifications-panel { width: 90%; right: 5%; } }
-    .notifications-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
-    .notifications-body { max-height: 400px; overflow-y: auto; }
-    .notification-item { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-    .notification-item:hover { background: #f7fafc; }
-    .notification-item.unread { background: #e0e7ff; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: #f0f2f5; 
+      color: #1a1a1a; 
+      min-height: 100vh; 
+      display: flex; 
+    }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #1a1f2e 0%, #151a26 100%);
+      color: white;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      transition: var(--transition);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-header {
+      padding: 28px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    
+    .sidebar-logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+    
+    .sidebar-logo-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    
+    .sidebar-logo-text span { color: var(--accent); }
+    
+    .sidebar-user {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .sidebar-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .sidebar-user-info h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 2px;
+    }
+    
+    .sidebar-user-info p {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .sidebar-account {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .sidebar-account-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 4px;
+    }
+    
+    .sidebar-account-number {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+    
+    .sidebar-nav {
+      padding: 16px 12px;
+      flex: 1;
+    }
+    
+    .nav-section {
+      margin-bottom: 8px;
+    }
+    
+    .nav-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.3);
+      padding: 8px 16px 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 2px;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: left;
+    }
+    
+    .nav-item i {
+      width: 22px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+    
+    .nav-item:hover {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+    
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(26, 58, 92, 0.4);
+    }
+    
+    .nav-badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: white;
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .logout-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      border-radius: 10px;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: left;
+    }
+    
+    .logout-nav-item:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+    
+    .logout-nav-item i { width: 22px; font-size: 1.1rem; text-align: center; }
+    
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 24px;
+      min-height: 100vh;
+    }
+    
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .icon-btn {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: var(--transition);
+    }
+    
+    .icon-btn:hover { color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    .icon-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    
+    .menu-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      color: white;
+      font-size: 1.2rem;
+    }
+    
+    /* CONTENT SECTIONS */
     .content-section { display: none; }
     .content-section.active { display: block; }
+    
+    /* CARDS & GRIDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
+    }
+    
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+    
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+    
+    .stat-icon.blue { background: #dbeafe; color: var(--primary); }
+    .stat-icon.green { background: #d1fae5; color: var(--success); }
+    .stat-icon.red { background: #fee2e2; color: var(--danger); }
+    .stat-icon.gold { background: #fef3c7; color: var(--accent); }
+    .stat-icon.purple { background: #e0e7ff; color: #8b5cf6; }
+    
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
+    .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .chart-container { position: relative; height: 250px; }
+    
+    .table-card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      overflow-x: auto;
+      margin-bottom: 28px;
+    }
+    
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f3f4f6;
+      padding: 10px 16px;
+      border-radius: 10px;
+    }
+    
+    .search-box i { color: #9ca3af; }
+    .search-box input {
+      border: none; background: none; outline: none;
+      font-size: 0.9rem; width: 200px;
+    }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px; color: var(--gray); font-weight: 500; font-size: 0.8rem; border-bottom: 1px solid var(--gray-light); }
+    td { padding: 14px 12px; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; }
+    
+    /* TRANSACTIONS */
+    .transaction-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
+    .transaction-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; background: #f8fafc; border-radius: 12px; gap: 12px;
+    }
+    .transaction-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .transaction-icon.incoming { background: #d1fae5; color: var(--success); }
+    .transaction-icon.outgoing { background: #fee2e2; color: var(--danger); }
+    .transaction-icon.neutral { background: #fef3c7; color: #92400e; }
+    .transaction-info { flex: 1; min-width: 120px; }
+    .transaction-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+    .transaction-date { font-size: 0.75rem; color: var(--gray); }
+    .transaction-note { font-size: 0.75rem; color: #a0aec0; font-style: italic; margin-top: 2px; }
+    .transaction-amount { font-weight: 600; white-space: nowrap; font-size: 0.9rem; }
+    .amount-positive { color: var(--success); }
+    .amount-negative { color: var(--danger); }
+    .amount-neutral { color: #92400e; }
+    
+    /* FORMS */
+    .form-card {
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      margin-bottom: 28px;
+    }
+    
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark); font-size: 0.9rem; }
+    .form-input, .form-select {
+      width: 100%; padding: 12px 16px;
+      border: 2px solid var(--gray-light); border-radius: 10px;
+      font-size: 0.95rem; transition: border 0.2s;
+    }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); }
+    
+    .btn {
+      padding: 10px 22px; border-radius: 10px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; border: none; font-size: 0.9rem;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-accent { background: var(--accent); color: var(--dark); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-block { width: 100%; justify-content: center; }
+    
+    /* LOAN CARDS */
+    .debt-warning-card {
+      background: #fef3c7; border-radius: 14px; padding: 18px;
+      border-left: 4px solid var(--danger); margin-bottom: 20px;
+    }
+    
+    .info-card {
+      background: #dbeafe; border-radius: 14px; padding: 18px;
+      border-left: 4px solid var(--primary); margin-bottom: 20px;
+    }
+    
+    .loan-stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;
+    }
+    
+    .loan-stat-card {
+      background: #f8fafc; border-radius: 14px; padding: 18px; text-align: center;
+    }
+    
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-    .modal { background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 90%; }
-    .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-    .modal-close { cursor: pointer; font-size: 1.5rem; }
-    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .modal { background: white; border-radius: 20px; padding: 30px; max-width: 440px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-close { cursor: pointer; font-size: 1.3rem; color: var(--gray); }
+    
+    /* CALCULATOR */
+    .calc-result-card {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 16px; padding: 24px; color: white; margin-top: 20px; text-align: center;
+    }
+    
+    /* NOTIFICATIONS */
+    .notif-panel {
+      position: fixed; top: 90px; right: 20px; width: 340px; max-height: 480px;
+      background: white; border-radius: 18px; box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      overflow: hidden; display: none; z-index: 1000;
+    }
+    
+    /* STATUS BADGES */
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
     .status-active { background: #d1fae5; color: #065f46; }
     .status-overdue { background: #fee2e2; color: #991b1b; }
-    .recipient-preview { background: #d1fae5; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981; }
-    .recipient-notfound { background: #fee2e2; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #ef4444; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .menu-toggle { display: flex; align-items: center; justify-content: center; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .loan-stats-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="client-container">
-    <nav class="navbar">
-      <div class="nav-brand"><i class="fas fa-building-columns"></i> IBE Bank</div>
-      <div class="nav-menu">
-        <a class="nav-link active" data-section="dashboard">Dashboard</a>
-        <a class="nav-link" data-section="transfer">Transfer</a>
-        <a class="nav-link" data-section="loan">Loan</a>
-        <a class="nav-link" data-section="calculator">Calculator</a>
-        <a class="nav-link" data-section="transactions">Transactions</a>
-        <a class="nav-link" data-section="request">Request</a>
-      </div>
-      <div class="nav-actions">
-        <div class="notification-icon" id="notificationBell">
-          <i class="fas fa-bell"></i>
-          <span class="badge" id="notificationBadge">0</span>
-        </div>
-        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      </div>
-    </nav>
+  <button class="menu-toggle" id="menuToggle" style="position:fixed;top:20px;left:20px;z-index:200;">
+    <i class="fas fa-bars"></i>
+  </button>
 
-    <!-- Dashboard Section -->
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">IBE</div>
+        <div class="sidebar-logo-text"><span>IBE</span> Bank</div>
+      </div>
+    </div>
+    
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarInitials">CL</div>
+      <div class="sidebar-user-info">
+        <h4 id="sidebarName">Client</h4>
+        <p id="sidebarEmail">Loading...</p>
+      </div>
+    </div>
+    
+    <div class="sidebar-account">
+      <div class="sidebar-account-label">Account Number</div>
+      <div class="sidebar-account-number" id="sidebarAccountNumber">---</div>
+    </div>
+    
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Main</div>
+        <button class="nav-item active" data-section="dashboard">
+          <i class="fas fa-th-large"></i> Dashboard
+        </button>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-label">Banking</div>
+        <button class="nav-item" data-section="transfer">
+          <i class="fas fa-exchange-alt"></i> Transfer Money
+        </button>
+        <button class="nav-item" data-section="loan">
+          <i class="fas fa-hand-holding-usd"></i> Loans
+        </button>
+        <button class="nav-item" data-section="request">
+          <i class="fas fa-paper-plane"></i> Requests
+          <span class="nav-badge" id="requestBadge">0</span>
+        </button>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-label">Financial Tools</div>
+        <button class="nav-item" data-section="calculator">
+          <i class="fas fa-calculator"></i> Calculator
+        </button>
+        <button class="nav-item" data-section="transactions">
+          <i class="fas fa-list-alt"></i> All Transactions
+        </button>
+      </div>
+    </div>
+    
+    <div class="sidebar-footer">
+      <button class="logout-nav-item" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="top-bar">
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="top-actions">
+        <button class="icon-btn" id="notificationBell">
+          <i class="fas fa-bell"></i>
+          <span class="icon-badge" id="notificationBadge">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
     <div class="content-section active" id="dashboard-section">
-      <div class="welcome-card">
-        <div class="welcome-header">
-          <div class="user-greeting">
-            <h1 id="greeting">Welcome!</h1>
-            <p id="userEmail">Loading...</p>
-          </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-wallet"></i></div>
+          <div class="stat-value" id="balance">TSh 0</div>
+          <div class="stat-label">Available Balance</div>
         </div>
-        
-        <div class="account-number-box">
-          <div class="account-number-label">Account Number</div>
-          <div class="account-number-value" id="accountNumber">---</div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-hand-holding-usd"></i></div>
+          <div class="stat-value" id="activeLoanDebt">TSh 0</div>
+          <div class="stat-label">Active Loan Debt</div>
         </div>
-        
-        <div class="balance-card">
-          <div class="balance-label">Available Balance</div>
-          <div class="balance-amount" id="balance">TSh 0</div>
-          <div class="net-balance-label">Net Balance (Balance - Loan Debt)</div>
-          <div class="net-balance-amount" id="netBalance">TSh 0</div>
-          
-          <div class="interest-stats">
-            <div class="interest-stat-card">
-              <div class="interest-stat-label"><i class="fas fa-gift"></i> Profit Share Earned</div>
-              <div class="interest-stat-value" id="totalProfitShare">TSh 0</div>
-              <small>From loan interest distribution</small>
-            </div>
-            <div class="interest-stat-card">
-              <div class="interest-stat-label"><i class="fas fa-chart-pie"></i> Your Pool Share</div>
-              <div class="interest-stat-value" id="poolPercentage">0%</div>
-              <small>Of total bank deposits</small>
-            </div>
-          </div>
-          
-          <div class="debt-warning" style="margin-top: 20px; background: rgba(239, 68, 68, 0.15);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Active Loan Debt:</strong></span>
-              <span style="font-size: 1.5rem; font-weight: 700; color: #ef4444;" id="activeLoanDebt">TSh 0</span>
-            </div>
-            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">This is debt to repay - Due loans will be auto-deducted from your balance!</p>
-          </div>
-          
-          <div class="quick-actions">
-            <button class="btn-action" onclick="openRequestModal('deposit')"><i class="fas fa-plus"></i> Deposit</button>
-            <button class="btn-action" onclick="openRequestModal('withdraw')"><i class="fas fa-minus"></i> Withdraw</button>
-          </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><i class="fas fa-calculator"></i></div>
+          <div class="stat-value" id="netBalance">TSh 0</div>
+          <div class="stat-label">Net Balance (Balance - Debt)</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-icon gold"><i class="fas fa-gift"></i></div>
+          <div class="stat-value" id="totalProfitShare">TSh 0</div>
+          <div class="stat-label">Profit Share Earned</div>
+        </div>
+      </div>
+      
+      <div class="debt-warning-card" id="debtWarning" style="display:none;">
+        <i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i>
+        <strong> Loan Due Soon!</strong> Your loan payment will be automatically deducted from your balance on the due date.
       </div>
       
       <div class="dashboard-grid">
@@ -202,15 +643,12 @@
       </div>
     </div>
 
-    <!-- Transfer Section -->
+    <!-- TRANSFER -->
     <div class="content-section" id="transfer-section">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-exchange-alt"></i> Transfer Money</h3>
-        </div>
+      <div class="form-card">
+        <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-exchange-alt"></i> Transfer Money</h3>
         
-        <div class="info-note">
-          <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
+        <div class="info-card">
           <strong>Your Account:</strong> <span id="transferAccountNumber">---</span>
         </div>
         
@@ -218,21 +656,14 @@
           <label class="form-label">Recipient Account Number</label>
           <input type="text" id="recipientAccount" class="form-input" placeholder="Enter 10-digit account number" maxlength="10">
         </div>
-        
-        <div id="recipientPreview" class="recipient-preview" style="display: none;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem;" id="recipientInitials">JD</div>
-            <div>
-              <h4 style="margin-bottom: 4px;" id="recipientName">John Doe</h4>
-              <p style="color: #065f46; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Account verified</p>
-            </div>
+        <div id="recipientPreview" style="display:none;background:#d1fae5;border-radius:12px;padding:16px;margin-bottom:18px;border-left:4px solid var(--success);">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">JD</div>
+            <div><h4 id="recipientName">John Doe</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> Account verified</p></div>
           </div>
         </div>
-        
-        <div id="recipientNotFound" class="recipient-notfound" style="display: none;">
-          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
-          <strong style="color: #991b1b;"> Account not found!</strong>
-          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please check the account number and try again.</p>
+        <div id="recipientNotFound" style="display:none;background:#fee2e2;border-radius:12px;padding:16px;margin-bottom:18px;border-left:4px solid var(--danger);color:#991b1b;">
+          <i class="fas fa-exclamation-circle"></i> Account not found!
         </div>
         
         <div class="form-group">
@@ -240,250 +671,133 @@
           <input type="number" id="transferAmount" class="form-input" placeholder="Enter amount" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Description (Optional)</label>
+          <label class="form-label">Description</label>
           <input type="text" id="transferDescription" class="form-input" placeholder="Payment for...">
         </div>
         
-        <div id="transferSummary" style="display: none; background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-          <h4 style="margin-bottom: 15px;">Transfer Summary</h4>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>From:</span>
-            <span><strong id="summaryFrom">Your Account</strong></span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>To:</span>
-            <span><strong id="summaryTo">---</strong></span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>Amount:</span>
-            <span><strong id="summaryAmount">TSh 0</strong></span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>Description:</span>
-            <span><strong id="summaryDescription">---</strong></span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #e2e8f0;">
-            <span>Your Balance After Transfer:</span>
-            <span><strong id="summaryNewBalance">TSh 0</strong></span>
-          </div>
+        <div id="transferSummary" style="display:none;background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:20px;">
+          <h4 style="margin-bottom:12px;">Transfer Summary</h4>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>From:</span><span><strong id="summaryFrom">You</strong></span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>To:</span><span><strong id="summaryTo">---</strong></span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Amount:</span><span><strong id="summaryAmount">TSh 0</strong></span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Description:</span><span><strong id="summaryDescription">---</strong></span></div>
+          <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #e2e8f0;"><span>After Transfer:</span><span><strong id="summaryNewBalance">TSh 0</strong></span></div>
         </div>
         
-        <button class="btn-submit" id="sendTransferBtn" disabled>
+        <button class="btn btn-primary btn-block" id="sendTransferBtn" disabled>
           <i class="fas fa-paper-plane"></i> Send Transfer
         </button>
-        
-        <div class="info-note" style="margin-top: 20px;">
-          <i class="fas fa-shield-alt"></i>
-          <strong>Security Note:</strong> Always verify the recipient's name before confirming the transfer.
-        </div>
       </div>
     </div>
 
-    <!-- Loan Section -->
+    <!-- LOAN -->
     <div class="content-section" id="loan-section">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-hand-holding-usd"></i> Loan Management</h3>
+      <div class="form-card">
+        <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-hand-holding-usd"></i> Loan Management</h3>
+        
+        <div class="debt-warning-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span><strong>Total Loan Debt:</strong></span>
+            <span style="font-size:1.5rem;font-weight:700;color:var(--danger);" id="loanSectionDebt">TSh 0</span>
+          </div>
+          <p style="font-size:0.8rem;color:#92400e;margin-top:6px;">10% interest per month. Due loans auto-deducted from balance!</p>
         </div>
         
-        <div class="debt-warning">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Total Loan Debt:</strong></span>
-            <span style="font-size: 1.8rem; font-weight: 700; color: #ef4444;" id="loanSectionDebt">TSh 0</span>
-          </div>
-          <p style="font-size: 0.85rem; color: #92400e; margin-top: 8px;">10% interest per month. Due loans will be auto-deducted from your balance!</p>
+        <div class="loan-stats-grid">
+          <div class="loan-stat-card"><div class="stat-value" id="activeLoanAmount">TSh 0</div><div class="stat-label">Active Loans</div></div>
+          <div class="loan-stat-card"><div class="stat-value" id="nextPaymentDue">—</div><div class="stat-label">Next Due Date</div></div>
         </div>
         
-        <div class="loan-summary">
-          <div class="loan-stat">
-            <div class="value" id="activeLoanAmount">TSh 0</div>
-            <div class="label">Active Loan Balance</div>
+        <h4 style="margin:20px 0 12px;"><i class="fas fa-calculator"></i> Loan Calculator (10%/month)</h4>
+        <div style="background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:20px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group"><label class="form-label">Amount</label><input type="number" id="calcLoanAmount" class="form-input" value="100000"></div>
+            <div class="form-group"><label class="form-label">Duration</label><select id="calcLoanDuration" class="form-select"><option value="30">30 Days (10%)</option><option value="60">60 Days (20%)</option><option value="90" selected>90 Days (30%)</option><option value="180">180 Days (60%)</option></select></div>
           </div>
-          <div class="loan-stat">
-            <div class="value" id="nextPaymentDue">—</div>
-            <div class="label">Next Due Date</div>
-          </div>
-        </div>
-        
-        <h4 style="margin: 20px 0 15px;"><i class="fas fa-calculator"></i> Calculate Your Loan (10% per month)</h4>
-        <div style="background: #f8fafc; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-          <div class="calc-row">
-            <div class="form-group">
-              <label class="form-label">Loan Amount (TSh)</label>
-              <input type="number" id="calcLoanAmount" class="form-input" placeholder="100,000" value="100000" min="0">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Duration</label>
-              <select id="calcLoanDuration" class="form-select">
-                <option value="30">30 Days (1 Month) - 10%</option>
-                <option value="60">60 Days (2 Months) - 20%</option>
-                <option value="90" selected>90 Days (3 Months) - 30%</option>
-                <option value="180">180 Days (6 Months) - 60%</option>
-              </select>
+          <button class="btn btn-accent btn-block" id="calculateLoanBtn" style="margin-bottom:12px;"><i class="fas fa-calculator"></i> Calculate</button>
+          <div class="calc-result-card" id="loanCalcResult" style="display:none;">
+            <p style="font-size:0.85rem;opacity:0.9;">Total to Repay</p>
+            <div style="font-size:1.8rem;font-weight:700;" id="loanCalcTotalRepayment">TSh 0</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;">
+              <div><div style="font-size:0.7rem;opacity:0.8;">Loan</div><div id="loanCalcPrincipal">TSh 0</div></div>
+              <div><div style="font-size:0.7rem;opacity:0.8;">Interest</div><div id="loanCalcInterest">TSh 0</div></div>
+              <div><div style="font-size:0.7rem;opacity:0.8;">Total</div><div id="loanCalcTotal">TSh 0</div></div>
             </div>
           </div>
-          
-          <button class="btn-calculate" id="calculateLoanBtn"><i class="fas fa-calculator"></i> Calculate</button>
-          
-          <div class="calc-result" id="loanCalcResult" style="display: none;">
-            <p><i class="fas fa-chart-pie"></i> Loan Summary</p>
-            <div class="calc-result-value" id="loanCalcTotalRepayment">TSh 0</div>
-            <div class="calc-breakdown">
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Loan Amount</div>
-                <div class="calc-breakdown-value" id="loanCalcPrincipal">TSh 0</div>
-              </div>
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Interest</div>
-                <div class="calc-breakdown-value" id="loanCalcInterest">TSh 0</div>
-              </div>
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Total to Repay</div>
-                <div class="calc-breakdown-value" id="loanCalcTotal">TSh 0</div>
-              </div>
-            </div>
-            <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;" id="loanInterestRateDisplay">
-              <i class="fas fa-info-circle"></i> Interest: 10% per month. Due date payment is auto-deducted!
-            </p>
-          </div>
         </div>
         
-        <h4 style="margin: 20px 0 15px;">Request New Loan</h4>
-        <div class="form-group">
-          <label class="form-label">Loan Amount (TSh)</label>
-          <input type="number" id="loanAmount" class="form-input" placeholder="Enter amount" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Duration</label>
-          <select id="loanDuration" class="form-select">
-            <option value="30">30 Days (1 Month) - 10%</option>
-            <option value="60">60 Days (2 Months) - 20%</option>
-            <option value="90">90 Days (3 Months) - 30%</option>
-            <option value="180">180 Days (6 Months) - 60%</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total to Repay</label>
-          <p style="font-size: 1.5rem; font-weight: 700; color: #1a1a2e;" id="estimatedRepayment">TSh 0</p>
-          <small id="monthlyPaymentHint" style="display: block; color: #718096; margin-top: 5px;"></small>
-        </div>
-        <button class="btn-submit" id="requestLoanBtn">Request Loan</button>
+        <h4 style="margin:20px 0 12px;">Request New Loan</h4>
+        <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="loanAmount" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Duration</label><select id="loanDuration" class="form-select"><option value="30">30 Days</option><option value="60">60 Days</option><option value="90">90 Days</option><option value="180">180 Days</option></select></div>
+        <div class="form-group"><label class="form-label">Total to Repay</label><p style="font-size:1.3rem;font-weight:700;" id="estimatedRepayment">TSh 0</p></div>
+        <button class="btn btn-primary btn-block" id="requestLoanBtn">Request Loan</button>
         
-        <div class="info-note">
-          <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
-          <strong>Note:</strong> On due date, payment will be <strong>automatically deducted</strong> from your balance. If balance is insufficient, your balance will go negative!
+        <div class="info-card" style="margin-top:20px;">
+          <i class="fas fa-info-circle"></i>
+          <strong>Note:</strong> On due date, payment will be <strong>automatically deducted</strong> from your balance.
         </div>
         
-        <h4 style="margin: 20px 0 15px;">Your Active Loans</h4>
+        <h4 style="margin:20px 0 12px;">Your Active Loans</h4>
         <div id="activeLoansList"></div>
       </div>
     </div>
 
-    <!-- Calculator Section -->
+    <!-- CALCULATOR -->
     <div class="content-section" id="calculator-section">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-calculator"></i> Profit Share Calculator</h3>
-          <p style="color: #718096; font-size: 0.9rem;">See how much you earn from loan interest distribution</p>
-        </div>
-        <div class="calculator-form">
-          <div class="calc-row">
-            <div class="form-group">
-              <label class="form-label">Total Loan Interest Collected (TSh)</label>
-              <input type="number" id="calcTotalInterest" class="form-input" placeholder="500,000" value="500000">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Your Balance (TSh)</label>
-              <input type="number" id="calcYourBalance" class="form-input" placeholder="1,000,000" value="1000000">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Total Bank Deposits (All Users Combined)</label>
-            <input type="number" id="calcTotalDeposits" class="form-input" placeholder="10,000,000" value="10000000">
-          </div>
-          <button class="btn-calculate" id="calculateProfitBtn"><i class="fas fa-chart-pie"></i> Calculate Your Share</button>
-          
-          <div class="calc-result" id="profitCalcResult" style="display: none;">
-            <p><i class="fas fa-gift"></i> Your Profit Share</p>
-            <div class="calc-result-value" id="profitShareAmount">TSh 0</div>
-            <div class="calc-breakdown">
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Your Pool %</div>
-                <div class="calc-breakdown-value" id="profitPoolPercent">0%</div>
-              </div>
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Total Interest</div>
-                <div class="calc-breakdown-value" id="profitTotalInterest">TSh 0</div>
-              </div>
-              <div class="calc-breakdown-item">
-                <div class="calc-breakdown-label">Your Share</div>
-                <div class="calc-breakdown-value" id="profitYourShare">TSh 0</div>
-              </div>
-            </div>
-          </div>
+      <div class="form-card">
+        <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-calculator"></i> Profit Share Calculator</h3>
+        <div class="form-group"><label class="form-label">Total Loan Interest Collected (TSh)</label><input type="number" id="calcTotalInterest" class="form-input" value="500000"></div>
+        <div class="form-group"><label class="form-label">Your Balance (TSh)</label><input type="number" id="calcYourBalance" class="form-input" value="1000000"></div>
+        <div class="form-group"><label class="form-label">Total Bank Deposits (TSh)</label><input type="number" id="calcTotalDeposits" class="form-input" value="10000000"></div>
+        <button class="btn btn-accent btn-block" id="calculateProfitBtn"><i class="fas fa-chart-pie"></i> Calculate</button>
+        <div class="calc-result-card" id="profitCalcResult" style="display:none;">
+          <p style="font-size:0.85rem;opacity:0.9;">Your Profit Share</p>
+          <div style="font-size:1.8rem;font-weight:700;" id="profitShareAmount">TSh 0</div>
         </div>
       </div>
     </div>
 
-    <!-- Transactions Section -->
+    <!-- TRANSACTIONS -->
     <div class="content-section" id="transactions-section">
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">All Transactions</h3></div>
-        <div class="transaction-list" id="allTransactions" style="max-height: 600px;"></div>
+      <div class="table-card">
+        <div class="table-header"><h3 class="card-title">All Transactions</h3></div>
+        <div class="transaction-list" id="allTransactions" style="max-height:600px;"></div>
       </div>
     </div>
 
-    <!-- Request Section -->
+    <!-- REQUEST -->
     <div class="content-section" id="request-section">
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">Make a Request</h3></div>
-        <div class="form-group">
-          <label class="form-label">Request Type</label>
-          <select id="requestType" class="form-select"><option value="deposit">Deposit</option><option value="withdraw">Withdrawal</option></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Amount (TSh)</label>
-          <input type="number" id="requestAmount" class="form-input" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Note (Optional)</label>
-          <textarea id="requestNote" class="form-input" rows="3"></textarea>
-        </div>
-        <button class="btn-submit" id="submitRequestBtn">Submit Request</button>
-      </div>
-      <div class="card" style="margin-top: 20px;">
-        <div class="card-header"><h3 class="card-title">Your Requests</h3></div>
-        <div id="userRequests"></div>
+      <div class="form-card">
+        <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-paper-plane"></i> Make a Request</h3>
+        <div class="form-group"><label class="form-label">Type</label><select id="requestType" class="form-select"><option value="deposit">Deposit</option><option value="withdraw">Withdrawal</option></select></div>
+        <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="requestAmount" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Note</label><textarea id="requestNote" class="form-input" rows="3"></textarea></div>
+        <button class="btn btn-primary btn-block" id="submitRequestBtn">Submit Request</button>
+        <div style="margin-top:20px;" id="userRequests"></div>
       </div>
     </div>
   </div>
 
   <!-- Notifications Panel -->
-  <div class="notifications-panel" id="notificationsPanel">
-    <div class="notifications-header">
-      <h3>Notifications</h3>
-      <button onclick="markAllRead()" style="background: none; border: none; color: #1a3a5c; cursor: pointer;">Mark all read</button>
+  <div class="notif-panel" id="notificationsPanel">
+    <div style="padding:20px;border-bottom:1px solid var(--gray-light);display:flex;justify-content:space-between;">
+      <h4>Notifications</h4>
+      <button onclick="markAllRead()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:500;">Mark all read</button>
     </div>
-    <div class="notifications-body" id="notificationsList"></div>
+    <div style="max-height:400px;overflow-y:auto;" id="notificationsList"></div>
   </div>
 
   <!-- Request Modal -->
   <div class="modal-overlay" id="requestModal">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modalTitle">Request Deposit</h3>
-        <span class="modal-close" onclick="closeRequestModal()">&times;</span>
+        <h3 id="modalTitle">Request</h3>
+        <i class="fas fa-times modal-close" onclick="closeRequestModal()"></i>
       </div>
-      <div class="form-group">
-        <label class="form-label">Amount (TSh)</label>
-        <input type="number" id="modalAmount" class="form-input" min="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Note</label>
-        <input type="text" id="modalNote" class="form-input">
-      </div>
-      <button class="btn-submit" id="modalSubmitBtn">Submit Request</button>
-      <button class="btn-submit" style="background: #ef4444; margin-top: 10px;" onclick="closeRequestModal()">Cancel</button>
+      <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="modalAmount" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Note</label><input type="text" id="modalNote" class="form-input"></div>
+      <button class="btn btn-primary btn-block" id="modalSubmitBtn">Submit</button>
+      <button class="btn btn-danger btn-block" style="margin-top:10px;" onclick="closeRequestModal()">Cancel</button>
     </div>
   </div>
 
@@ -505,14 +819,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
-    let userData = null;
-    let chart = null;
-    let currentRequestType = 'deposit';
-    let allTransactions = [];
-    let foundRecipientData = null;
-    let transferValid = false;
-    let allUsers = [];
+    let currentUser = null, userData = null, chart = null, currentRequestType = 'deposit';
+    let allTransactions = [], foundRecipientData = null, transferValid = false;
 
     const formatMoney = (val) => {
       if (val < 0) return '-TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(Math.abs(val)));
@@ -522,9 +830,7 @@
     function generateAccountNumber(uid) {
       if (!uid) return '---';
       let num = '';
-      for (let i = 0; i < uid.length; i++) {
-        if (uid[i] >= '0' && uid[i] <= '9') num += uid[i];
-      }
+      for (let i = 0; i < uid.length; i++) { if (uid[i] >= '0' && uid[i] <= '9') num += uid[i]; }
       while (num.length < 10) num += '0';
       return num.substring(0, 10);
     }
@@ -532,26 +838,9 @@
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.replace('index.html'); return; }
       currentUser = user;
-      console.log('✅ Logged in as:', user.email);
       await loadUserData();
       initRealtimeData();
-      loadAllUsers();
     });
-
-    async function loadAllUsers() {
-      const snapshot = await getDocs(collection(db, "users"));
-      allUsers = [];
-      snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
-      updatePoolPercentage();
-    }
-
-    function updatePoolPercentage() {
-      if (!userData) return;
-      const totalDeposits = allUsers.reduce((sum, u) => sum + (u.balance || 0), 0);
-      const userBalance = userData.balance || 0;
-      const percentage = totalDeposits > 0 ? ((userBalance / totalDeposits) * 100).toFixed(2) : 0;
-      document.getElementById('poolPercentage').textContent = percentage + '%';
-    }
 
     async function loadUserData() {
       try {
@@ -563,283 +852,197 @@
             await updateDoc(doc(db, "users", currentUser.uid), { accountNumber });
             userData.accountNumber = accountNumber;
           }
-          document.getElementById('greeting').textContent = `Welcome, ${userData.name || 'Client'}!`;
-          document.getElementById('userEmail').textContent = currentUser.email;
-          document.getElementById('accountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
-          document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
+          document.getElementById('sidebarName').textContent = userData.name || 'Client';
+          document.getElementById('sidebarEmail').textContent = currentUser.email;
+          document.getElementById('sidebarInitials').textContent = (userData.name || 'CL').substring(0, 2).toUpperCase();
+          document.getElementById('sidebarAccountNumber').textContent = userData.accountNumber;
+          document.getElementById('transferAccountNumber').textContent = userData.accountNumber;
         }
-      } catch (e) { console.error('Error loading user:', e); }
+      } catch (e) { console.error(e); }
     }
 
     function initRealtimeData() {
-      onSnapshot(collection(db, "users"), (snapshot) => {
-        allUsers = [];
-        snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
-        if (userData) updatePoolPercentage();
-      });
-
       onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
         if (doc.exists()) {
           userData = doc.data();
           document.getElementById('balance').textContent = formatMoney(userData.balance || 0);
-          document.getElementById('accountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
-          document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
-          updatePoolPercentage();
-          updateProfitShareStats();
           updateNetBalance();
         }
       });
 
-      const transactionQuery = query(collection(db, "transactions"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
-      onSnapshot(transactionQuery, (snapshot) => {
+      const tq = query(collection(db, "transactions"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(tq, (snapshot) => {
         allTransactions = [];
         snapshot.forEach(doc => allTransactions.push({ id: doc.id, ...doc.data() }));
         renderTransactions(allTransactions);
         updateChart();
-        updateProfitShareStats();
+        updateProfitStats();
         updateNetBalance();
       });
 
-      const notifQuery = query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
-      onSnapshot(notifQuery, (snapshot) => {
-        const notifications = [];
-        snapshot.forEach(doc => notifications.push({ id: doc.id, ...doc.data() }));
-        renderNotifications(notifications);
+      const nq = query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(nq, (snapshot) => {
+        const notifs = [];
+        snapshot.forEach(doc => notifs.push({ id: doc.id, ...doc.data() }));
+        document.getElementById('notificationBadge').textContent = notifs.filter(n => !n.read).length;
+        document.getElementById('notificationsList').innerHTML = notifs.map(n => `<div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;${n.read?'':'background:#e0e7ff;'}"><strong>${n.message}</strong><div style="font-size:0.75rem;color:var(--gray);">${new Date(n.timestamp).toLocaleString()}</div></div>`).join('') || '<p style="padding:20px;text-align:center;color:var(--gray);">No notifications</p>';
       });
 
-      const requestQuery = query(collection(db, "requests"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
-      onSnapshot(requestQuery, (snapshot) => {
-        const requests = [];
-        snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
-        renderUserRequests(requests);
+      const rq = query(collection(db, "requests"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      onSnapshot(rq, (snapshot) => {
+        const reqs = [];
+        snapshot.forEach(doc => reqs.push({ id: doc.id, ...doc.data() }));
+        document.getElementById('requestBadge').textContent = reqs.filter(r => r.status === 'pending').length;
+        document.getElementById('userRequests').innerHTML = reqs.map(r => `<div style="padding:12px;background:#f7fafc;border-radius:10px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><span><strong>${r.type.toUpperCase()}</strong></span><span>${formatMoney(r.amount)}</span></div><div style="display:flex;justify-content:space-between;margin-top:6px;"><span>Status: ${r.status}</span><span>${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p style="color:var(--gray);">No requests</p>';
       });
 
-      const loansQuery = query(collection(db, "loans"), where("userEmail", "==", currentUser.email), where("status", "in", ["active", "overdue"]));
-      onSnapshot(loansQuery, (snapshot) => {
+      const lq = query(collection(db, "loans"), where("userEmail", "==", currentUser.email), where("status", "in", ["active", "overdue"]));
+      onSnapshot(lq, (snapshot) => {
         const loans = [];
         snapshot.forEach(doc => loans.push({ id: doc.id, ...doc.data() }));
         renderActiveLoans(loans);
         updateNetBalance();
-        checkAndAutoDeductLoans(loans);
+        checkAndAutoDeduct(loans);
       });
     }
 
     function updateNetBalance() {
       const balance = userData?.balance || 0;
-      const loans = document.getElementById('activeLoanDebt').textContent;
-      // Parse loan debt from the display
-      const loanDebtText = document.getElementById('activeLoanDebt').textContent;
-      let loanDebt = 0;
-      if (loanDebtText && loanDebtText !== 'TSh 0') {
-        const match = loanDebtText.match(/[\d,]+/);
-        if (match) loanDebt = parseFloat(match[0].replace(/,/g, ''));
-        if (loanDebtText.includes('-')) loanDebt = -loanDebt;
+      const debtText = document.getElementById('activeLoanDebt').textContent;
+      let debt = 0;
+      if (debtText && debtText !== 'TSh 0') {
+        const m = debtText.match(/[\d,]+/);
+        if (m) debt = parseFloat(m[0].replace(/,/g, ''));
+        if (debtText.includes('-')) debt = -debt;
       }
-      
-      const netBalance = balance - loanDebt;
+      const net = balance - debt;
       const netEl = document.getElementById('netBalance');
-      netEl.textContent = formatMoney(netBalance);
-      if (netBalance < 0) {
-        netEl.classList.add('negative');
-      } else {
-        netEl.classList.remove('negative');
-      }
+      netEl.textContent = formatMoney(net);
+      netEl.style.color = net < 0 ? 'var(--danger)' : 'var(--dark)';
+      document.getElementById('debtWarning').style.display = debt > 0 ? 'block' : 'none';
     }
 
-    function updateProfitShareStats() {
-      const profitShareEarned = allTransactions.filter(t => t.type === 'profit_share').reduce((s, t) => s + t.amount, 0);
-      document.getElementById('totalProfitShare').textContent = formatMoney(profitShareEarned);
+    function updateProfitStats() {
+      const ps = allTransactions.filter(t => t.type === 'profit_share').reduce((s, t) => s + t.amount, 0);
+      document.getElementById('totalProfitShare').textContent = formatMoney(ps);
     }
 
-    // FIXED: Render transactions with proper icons and amounts
     function renderTransactions(transactions) {
       const renderItem = (t) => {
-        // Determine if money went OUT (negative) or IN (positive)
-        const isOutgoing = t.type === 'withdrawal' || t.type === 'transfer_sent' || t.type === 'loan_repayment' || t.type === 'loan_auto_deduct';
-        const isIncoming = t.type === 'deposit' || t.type === 'transfer_received' || t.type === 'profit_share';
-        const isNeutral = t.type === 'loan_disbursement';
-        
-        let icon = 'plus';
-        let colorClass = 'amount-positive';
-        let sign = '+';
+        const isOut = t.type === 'withdrawal' || t.type === 'transfer_sent' || t.type === 'loan_repayment' || t.type === 'loan_auto_deduct';
+        const isIn = t.type === 'deposit' || t.type === 'transfer_received' || t.type === 'profit_share';
+        let icon = 'plus-circle', sign = '+', cls = 'incoming';
         let title = t.type.replace(/_/g, ' ').toUpperCase();
         
-        if (t.type === 'withdrawal') { icon = 'arrow-up'; colorClass = 'amount-negative'; sign = '-'; title = 'WITHDRAWAL'; }
-        else if (t.type === 'transfer_sent') { icon = 'paper-plane'; colorClass = 'amount-negative'; sign = '-'; title = `SENT TO ${t.recipientName || 'USER'}`; }
-        else if (t.type === 'transfer_received') { icon = 'arrow-down'; colorClass = 'amount-positive'; sign = '+'; title = `RECEIVED FROM ${t.senderName || 'USER'}`; }
-        else if (t.type === 'deposit') { icon = 'plus-circle'; colorClass = 'amount-positive'; sign = '+'; title = 'DEPOSIT'; }
-        else if (t.type === 'profit_share') { icon = 'gift'; colorClass = 'amount-positive'; sign = '+'; title = 'PROFIT SHARE'; }
-        else if (t.type === 'loan_disbursement') { icon = 'hand-holding-usd'; colorClass = 'amount-neutral'; sign = '📋'; title = 'LOAN DISBURSEMENT'; }
-        else if (t.type === 'loan_repayment') { icon = 'money-bill'; colorClass = 'amount-negative'; sign = '-'; title = 'LOAN REPAYMENT'; }
-        else if (t.type === 'loan_auto_deduct') { icon = 'credit-card'; colorClass = 'amount-negative'; sign = '-'; title = 'AUTO LOAN PAYMENT'; }
+        if (t.type === 'withdrawal') { icon = 'arrow-up'; sign = '-'; cls = 'outgoing'; title = 'WITHDRAWAL'; }
+        else if (t.type === 'transfer_sent') { icon = 'paper-plane'; sign = '-'; cls = 'outgoing'; title = `SENT TO ${t.recipientName||'USER'}`; }
+        else if (t.type === 'transfer_received') { sign = '+'; cls = 'incoming'; title = `FROM ${t.senderName||'USER'}`; }
+        else if (t.type === 'profit_share') { icon = 'gift'; sign = '+'; cls = 'incoming'; title = 'PROFIT SHARE'; }
+        else if (t.type === 'loan_disbursement') { icon = 'hand-holding-usd'; sign = '📋'; cls = 'neutral'; }
+        else if (t.type === 'loan_repayment') { icon = 'money-bill'; sign = '-'; cls = 'outgoing'; }
+        else if (t.type === 'loan_auto_deduct') { icon = 'credit-card'; sign = '-'; cls = 'outgoing'; title = 'AUTO LOAN PAYMENT'; }
         
-        // Show description/note if available
-        let noteHtml = '';
-        if (t.note || t.description) {
-          noteHtml = `<div class="transaction-note">📝 ${t.note || t.description}</div>`;
-        } else if (t.type === 'transfer_sent' && t.recipientName) {
-          noteHtml = `<div class="transaction-note">To: ${t.recipientName} (${t.recipientAccount || ''})</div>`;
-        } else if (t.type === 'transfer_received' && t.senderName) {
-          noteHtml = `<div class="transaction-note">From: ${t.senderName}</div>`;
-        }
+        let note = '';
+        if (t.description && t.type === 'transfer_sent') note = `<div class="transaction-note">📝 ${t.description}</div>`;
+        else if (t.description && t.type === 'transfer_received') note = `<div class="transaction-note">📝 ${t.description}</div>`;
         
         return `<div class="transaction-item">
-          <div style="display: flex; align-items: center;">
-            <div class="transaction-icon ${t.type}"><i class="fas fa-${icon}"></i></div>
-            <div class="transaction-info">
-              <div class="transaction-title">${title}</div>
-              <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
-              ${noteHtml}
-            </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div>
+            <div class="transaction-info"><div class="transaction-title">${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div>
           </div>
-          <div class="transaction-amount ${colorClass}">
-            ${sign === '📋' ? '📋' : sign}${formatMoney(Math.abs(t.amount))}
-          </div>
+          <div class="transaction-amount ${sign==='-'?'amount-negative':sign==='📋'?'amount-neutral':'amount-positive'}">${sign==='📋'?'📋':sign}${formatMoney(Math.abs(t.amount))}</div>
         </div>`;
       };
-      document.getElementById('recentTransactions').innerHTML = transactions.slice(0, 5).map(renderItem).join('') || '<p style="color: #718096;">No transactions</p>';
-      document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('') || '<p style="color: #718096;">No transactions</p>';
+      document.getElementById('recentTransactions').innerHTML = transactions.slice(0,5).map(renderItem).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
+      document.getElementById('allTransactions').innerHTML = transactions.map(renderItem).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
     }
 
     function updateChart() {
       const ctx = document.getElementById('balanceHistoryChart').getContext('2d');
       if (chart) chart.destroy();
-      const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toLocaleDateString(); });
-      chart = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ data: last7Days.map(() => userData?.balance || 0), borderColor: '#1a3a5c', backgroundColor: 'rgba(26, 58, 92, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-    }
-
-    function renderNotifications(notifications) {
-      const unread = notifications.filter(n => !n.read).length;
-      document.getElementById('notificationBadge').textContent = unread;
-      document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead('${n.id}')"><strong>${n.message}</strong><div style="font-size:0.8rem;margin-top:4px;">${new Date(n.timestamp).toLocaleString()}</div></div>`).join('') || '<p style="padding:20px;">No notifications</p>';
-    }
-
-    function renderUserRequests(requests) {
-      document.getElementById('userRequests').innerHTML = requests.map(r => `<div style="padding:12px;background:#f7fafc;border-radius:10px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><span><strong>${r.type.toUpperCase()}</strong></span><span>${formatMoney(r.amount)}</span></div><div style="display:flex;justify-content:space-between;margin-top:8px;"><span>Status: ${r.status}</span><span>${new Date(r.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p>No requests</p>';
+      const days = Array.from({length:7}, (_,i) => { const d=new Date(); d.setDate(d.getDate()-(6-i)); return d.toLocaleDateString(); });
+      chart = new Chart(ctx, { type: 'line', data: { labels: days, datasets: [{ data: days.map(()=>userData?.balance||0), borderColor: '#1a3a5c', backgroundColor: 'rgba(26,58,92,0.08)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
     function renderActiveLoans(loans) {
-      const totalDebt = loans.reduce((s, l) => s + (l.remainingAmount || l.amount), 0);
-      document.getElementById('activeLoanDebt').textContent = formatMoney(totalDebt);
-      document.getElementById('loanSectionDebt').textContent = formatMoney(totalDebt);
-      
+      const td = loans.reduce((s,l) => s + (l.remainingAmount||l.amount), 0);
+      document.getElementById('activeLoanDebt').textContent = formatMoney(td);
+      document.getElementById('loanSectionDebt').textContent = formatMoney(td);
       if (loans.length === 0) {
         document.getElementById('activeLoanAmount').textContent = 'TSh 0';
         document.getElementById('nextPaymentDue').textContent = '—';
-        document.getElementById('activeLoansList').innerHTML = '<p style="text-align:center;padding:20px;">No active loans</p>';
+        document.getElementById('activeLoansList').innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No active loans</p>';
         return;
       }
-      
-      const next = loans.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
-      document.getElementById('activeLoanAmount').textContent = formatMoney(totalDebt);
+      const next = loans.sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate))[0];
+      document.getElementById('activeLoanAmount').textContent = formatMoney(td);
       document.getElementById('nextPaymentDue').textContent = new Date(next.dueDate).toLocaleDateString();
-      
       document.getElementById('activeLoansList').innerHTML = loans.map(l => {
-        const due = new Date(l.dueDate);
-        const now = new Date();
-        const overdue = now > due;
-        const daysLeft = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-        const remaining = l.remainingAmount || l.amount;
-        const originalAmount = l.amount;
-        const interestCharged = remaining - originalAmount;
-        
-        return `<div style="padding:15px;background:#f7fafc;border-radius:10px;margin-bottom:10px;border-left:4px solid ${overdue ? '#ef4444' : '#10b981'};">
-          <div style="display:flex;justify-content:space-between;">
-            <span><strong>Loan Amount:</strong> ${formatMoney(originalAmount)}</span>
-            <span><strong>Remaining:</strong> ${formatMoney(remaining)}</span>
-          </div>
-          ${interestCharged > 0 ? `<div style="color:#ef4444;margin-top:5px;"><i class="fas fa-exclamation-circle"></i> Interest: ${formatMoney(interestCharged)}</div>` : ''}
-          <div style="display:flex;justify-content:space-between;margin-top:8px;">
-            <span><strong>Due Date:</strong> ${due.toLocaleDateString()} (${overdue ? 'OVERDUE' : daysLeft + ' days left'})</span>
-            <span class="status-badge ${overdue ? 'status-overdue' : 'status-active'}">${overdue ? 'OVERDUE' : 'Active'}</span>
-          </div>
-          <p style="font-size:0.8rem;color:#718096;margin-top:8px;">
-            <i class="fas fa-info-circle"></i> ${overdue ? '⚠️ Payment will be auto-deducted!' : 'Auto-deduct on due date from balance'}
-          </p>
+        const due = new Date(l.dueDate), now = new Date(), overdue = now > due;
+        const daysLeft = Math.ceil((due-now)/(1000*60*60*24));
+        const rem = l.remainingAmount||l.amount, orig = l.amount, interest = rem-orig;
+        return `<div style="padding:14px;background:#f7fafc;border-radius:10px;margin-bottom:8px;border-left:4px solid ${overdue?'var(--danger)':'var(--success)'};">
+          <div style="display:flex;justify-content:space-between;"><span><strong>Loan:</strong> ${formatMoney(orig)}</span><span><strong>Remaining:</strong> ${formatMoney(rem)}</span></div>
+          ${interest>0?`<div style="color:var(--danger);margin-top:4px;"><i class="fas fa-exclamation-circle"></i> Interest: ${formatMoney(interest)}</div>`:''}
+          <div style="display:flex;justify-content:space-between;margin-top:8px;"><span><strong>Due:</strong> ${due.toLocaleDateString()} (${overdue?'OVERDUE':daysLeft+' days left'})</span><span class="status-badge ${overdue?'status-overdue':'status-active'}">${overdue?'OVERDUE':'Active'}</span></div>
+          <p style="font-size:0.75rem;color:var(--gray);margin-top:6px;"><i class="fas fa-info-circle"></i> ${overdue?'⚠️ Auto-deduct pending!':'Auto-deduct on due date'}</p>
         </div>`;
       }).join('');
       updateNetBalance();
     }
 
-    // FIXED: Auto-deduct loans that are due
-    async function checkAndAutoDeductLoans(loans) {
+    async function checkAndAutoDeduct(loans) {
       const now = new Date();
-      
       for (const loan of loans) {
-        const dueDate = new Date(loan.dueDate);
-        const isDue = now >= dueDate;
-        const remainingAmount = loan.remainingAmount || loan.amount;
-        
-        if (isDue && (loan.status === 'active' || loan.status === 'overdue') && remainingAmount > 0) {
-          // Check if already auto-deducted this period
-          const lastAutoDeduct = loan.lastAutoDeductDate ? new Date(loan.lastAutoDeductDate) : null;
-          const daysSinceLastDeduct = lastAutoDeduct ? (now - lastAutoDeduct) / (1000 * 60 * 60 * 24) : 999;
-          
-          if (!lastAutoDeduct || daysSinceLastDeduct >= 1) {
-            // Auto-deduct from balance
-            const userBalance = userData?.balance || 0;
-            const deductAmount = Math.min(remainingAmount, Math.max(0, userBalance));
-            
-            if (deductAmount > 0) {
-              const newBalance = userBalance - deductAmount;
-              const newRemaining = remainingAmount - deductAmount;
-              const newStatus = newRemaining <= 0 ? 'paid' : 'active';
-              
-              await updateDoc(doc(db, "users", currentUser.uid), { balance: newBalance });
-              await updateDoc(doc(db, "loans", loan.id), {
-                remainingAmount: newRemaining,
-                status: newStatus,
-                lastAutoDeductDate: now.toISOString(),
-                lastPayment: deductAmount,
-                lastPaymentDate: now.toISOString()
-              });
-              
-              await setDoc(doc(collection(db, "transactions")), {
-                userEmail: currentUser.email,
-                userName: userData?.name || 'Client',
-                type: 'loan_auto_deduct',
-                amount: deductAmount,
-                loanId: loan.id,
-                timestamp: now.toISOString(),
-                description: `Auto-deducted loan payment`
-              });
-              
-              await setDoc(doc(collection(db, "notifications")), {
-                userEmail: currentUser.email,
-                message: `🏦 Auto loan payment of ${formatMoney(deductAmount)} was deducted from your balance. Remaining loan: ${formatMoney(newRemaining)}`,
-                timestamp: now.toISOString(),
-                read: false
-              });
+        const due = new Date(loan.dueDate);
+        if (now >= due && (loan.status==='active'||loan.status==='overdue') && (loan.remainingAmount||loan.amount)>0) {
+          const lastDeduct = loan.lastAutoDeductDate ? new Date(loan.lastAutoDeductDate) : null;
+          const daysSince = lastDeduct ? (now-lastDeduct)/(1000*60*60*24) : 999;
+          if (!lastDeduct || daysSince >= 1) {
+            const userBal = userData?.balance||0;
+            const deductAmt = Math.min(loan.remainingAmount||loan.amount, Math.max(0,userBal));
+            if (deductAmt > 0) {
+              const newBal = userBal - deductAmt;
+              const newRem = (loan.remainingAmount||loan.amount) - deductAmt;
+              const newStatus = newRem <= 0 ? 'paid' : 'active';
+              await updateDoc(doc(db,"users",currentUser.uid),{balance:newBal});
+              await updateDoc(doc(db,"loans",loan.id),{remainingAmount:newRem,status:newStatus,lastAutoDeductDate:now.toISOString(),lastPayment:deductAmt,lastPaymentDate:now.toISOString()});
+              await setDoc(doc(collection(db,"transactions")),{userEmail:currentUser.email,userName:userData?.name,type:'loan_auto_deduct',amount:deductAmt,loanId:loan.id,timestamp:now.toISOString(),description:'Auto-deducted loan payment'});
             } else {
-              // No balance to deduct - balance goes negative conceptually
-              // Apply penalty for non-payment
-              const settings = await getDoc(doc(db, "settings", "interest"));
-              const loanRate = settings.exists() ? (settings.data().loanRate || 10) : 10;
-              const penalty = remainingAmount * (loanRate / 100);
-              const newRemaining = remainingAmount + penalty;
-              
-              await updateDoc(doc(db, "loans", loan.id), {
-                remainingAmount: newRemaining,
-                status: 'overdue',
-                lastAutoDeductDate: now.toISOString()
-              });
-              
-              await setDoc(doc(collection(db, "notifications")), {
-                userEmail: currentUser.email,
-                message: `⚠️ Insufficient balance for loan payment! 10% penalty applied: +${formatMoney(penalty)}. Total debt: ${formatMoney(newRemaining)}`,
-                timestamp: now.toISOString(),
-                read: false
-              });
+              const settings = await getDoc(doc(db,"settings","interest"));
+              const rate = settings.exists() ? (settings.data().loanRate||10) : 10;
+              const penalty = (loan.remainingAmount||loan.amount)*(rate/100);
+              await updateDoc(doc(db,"loans",loan.id),{remainingAmount:(loan.remainingAmount||loan.amount)+penalty,status:'overdue',lastAutoDeductDate:now.toISOString()});
+              await setDoc(doc(collection(db,"notifications")),{userEmail:currentUser.email,message:`⚠️ Insufficient balance! 10% penalty applied.`,timestamp:now.toISOString(),read:false});
             }
           }
         }
       }
     }
 
-    // Recipient Account Check
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${item.dataset.section}-section`).classList.add('active');
+        document.getElementById('pageTitle').textContent = item.textContent.trim();
+        if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
+      });
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('mobile-open'));
+    document.getElementById('notificationBell').addEventListener('click', () => {
+      const p = document.getElementById('notificationsPanel');
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Transfer
     document.getElementById('recipientAccount').addEventListener('input', async (e) => {
-      const accountNumber = e.target.value.trim();
-      if (accountNumber.length < 10) {
+      const acc = e.target.value.trim();
+      if (acc.length < 10) {
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('recipientNotFound').style.display = 'none';
         document.getElementById('transferSummary').style.display = 'none';
@@ -847,282 +1050,160 @@
         foundRecipientData = null; transferValid = false;
         return;
       }
-      if (accountNumber === userData?.accountNumber) {
+      if (acc === userData?.accountNumber) {
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('recipientNotFound').style.display = 'block';
-        document.getElementById('recipientNotFound').innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i><strong style="color: #991b1b;"> Cannot transfer to yourself!</strong>`;
         document.getElementById('sendTransferBtn').disabled = true;
         foundRecipientData = null; transferValid = false;
         return;
       }
-      try {
-        const usersSnapshot = await getDocs(query(collection(db, "users"), where("accountNumber", "==", accountNumber)));
-        if (usersSnapshot.empty) {
-          document.getElementById('recipientPreview').style.display = 'none';
-          document.getElementById('recipientNotFound').style.display = 'block';
-          document.getElementById('recipientNotFound').innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i><strong style="color: #991b1b;"> Account not found!</strong>`;
-          document.getElementById('transferSummary').style.display = 'none';
-          document.getElementById('sendTransferBtn').disabled = true;
-          foundRecipientData = null; transferValid = false;
-        } else {
-          const recipientDoc = usersSnapshot.docs[0];
-          foundRecipientData = { id: recipientDoc.id, ...recipientDoc.data() };
-          const initials = (foundRecipientData.name || 'U').substring(0, 2).toUpperCase();
-          document.getElementById('recipientInitials').textContent = initials;
-          document.getElementById('recipientName').textContent = foundRecipientData.name || 'User';
-          document.getElementById('recipientPreview').style.display = 'block';
-          document.getElementById('recipientNotFound').style.display = 'none';
-          transferValid = true;
-          updateTransferSummary();
-        }
-      } catch (error) { console.error('Error finding recipient:', error); }
+      const snap = await getDocs(query(collection(db,"users"),where("accountNumber","==",acc)));
+      if (snap.empty) {
+        document.getElementById('recipientPreview').style.display = 'none';
+        document.getElementById('recipientNotFound').style.display = 'block';
+        document.getElementById('transferSummary').style.display = 'none';
+        document.getElementById('sendTransferBtn').disabled = true;
+        foundRecipientData = null; transferValid = false;
+      } else {
+        const d = snap.docs[0];
+        foundRecipientData = { id: d.id, ...d.data() };
+        document.getElementById('recipientInitials').textContent = (foundRecipientData.name||'U').substring(0,2).toUpperCase();
+        document.getElementById('recipientName').textContent = foundRecipientData.name||'User';
+        document.getElementById('recipientPreview').style.display = 'block';
+        document.getElementById('recipientNotFound').style.display = 'none';
+        transferValid = true;
+        updateTransferSummary();
+      }
     });
 
     document.getElementById('transferAmount').addEventListener('input', updateTransferSummary);
     document.getElementById('transferDescription').addEventListener('input', updateTransferSummary);
 
     function updateTransferSummary() {
-      const amount = parseFloat(document.getElementById('transferAmount').value) || 0;
-      const description = document.getElementById('transferDescription').value || 'No description';
-      const currentBalance = userData?.balance || 0;
-      
-      if (transferValid && amount > 0) {
-        document.getElementById('summaryFrom').textContent = `${userData?.name || 'You'} (${userData?.accountNumber})`;
+      const amt = parseFloat(document.getElementById('transferAmount').value)||0;
+      const desc = document.getElementById('transferDescription').value||'No description';
+      if (transferValid && amt > 0) {
+        document.getElementById('summaryFrom').textContent = `${userData?.name||'You'} (${userData?.accountNumber})`;
         document.getElementById('summaryTo').textContent = `${foundRecipientData.name} (${foundRecipientData.accountNumber})`;
-        document.getElementById('summaryAmount').textContent = formatMoney(amount);
-        document.getElementById('summaryDescription').textContent = description;
-        const newBalance = currentBalance - amount;
-        const balanceElement = document.getElementById('summaryNewBalance');
-        balanceElement.textContent = formatMoney(newBalance);
-        balanceElement.style.color = newBalance < 0 ? '#ef4444' : '#1a1a2e';
+        document.getElementById('summaryAmount').textContent = formatMoney(amt);
+        document.getElementById('summaryDescription').textContent = desc;
+        const nb = (userData?.balance||0)-amt;
+        const nbe = document.getElementById('summaryNewBalance');
+        nbe.textContent = formatMoney(nb);
+        nbe.style.color = nb<0?'var(--danger)':'var(--dark)';
         document.getElementById('transferSummary').style.display = 'block';
-        document.getElementById('sendTransferBtn').disabled = !(amount <= currentBalance && amount > 0);
+        document.getElementById('sendTransferBtn').disabled = !(amt<=(userData?.balance||0)&&amt>0);
       } else {
         document.getElementById('transferSummary').style.display = 'none';
         document.getElementById('sendTransferBtn').disabled = true;
       }
     }
 
-    // Transfer Submit
     document.getElementById('sendTransferBtn').addEventListener('click', async () => {
-      const recipientAccount = document.getElementById('recipientAccount').value.trim();
-      const amount = parseFloat(document.getElementById('transferAmount').value);
-      const description = document.getElementById('transferDescription').value || 'Transfer';
-      
-      if (!recipientAccount) { alert('Please enter recipient account number'); return; }
-      if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
-      if (amount > (userData?.balance || 0)) { alert('Insufficient balance!'); return; }
-      if (!foundRecipientData) { alert('Please verify the recipient account first'); return; }
-      
-      if (!confirm(`Confirm Transfer:\n━━━━━━━━━━━━━━━━━━━━\nTo: ${foundRecipientData.name}\nAccount: ${foundRecipientData.accountNumber}\nAmount: ${formatMoney(amount)}\nDescription: ${description}\n━━━━━━━━━━━━━━━━━━━━\n\nThis action cannot be undone.`)) return;
-      
+      const amt = parseFloat(document.getElementById('transferAmount').value);
+      const desc = document.getElementById('transferDescription').value||'Transfer';
+      if (!amt||amt<=0||amt>(userData?.balance||0)||!foundRecipientData) return;
+      if (!confirm(`Transfer ${formatMoney(amt)} to ${foundRecipientData.name}?`)) return;
       const btn = document.getElementById('sendTransferBtn');
-      btn.textContent = 'Processing...';
-      btn.disabled = true;
-      
+      btn.disabled = true; btn.textContent = 'Processing...';
       try {
-        const recipientId = foundRecipientData.id;
-        await runTransaction(db, async (transaction) => {
-          const senderRef = doc(db, "users", currentUser.uid);
-          const recipientRef = doc(db, "users", recipientId);
-          const senderDoc = await transaction.get(senderRef);
-          const recipientDocSnap = await transaction.get(recipientRef);
-          if (!senderDoc.exists() || !recipientDocSnap.exists()) throw new Error("User not found!");
-          const senderBalance = senderDoc.data().balance || 0;
-          const recipientBalance = recipientDocSnap.data().balance || 0;
-          if (senderBalance < amount) throw new Error("Insufficient balance!");
-          transaction.update(senderRef, { balance: senderBalance - amount });
-          transaction.update(recipientRef, { balance: recipientBalance + amount });
+        await runTransaction(db, async (t) => {
+          const sr = doc(db,"users",currentUser.uid), rr = doc(db,"users",foundRecipientData.id);
+          const sd = await t.get(sr), rd = await t.get(rr);
+          if (!sd.exists()||!rd.exists()) throw new Error("User not found");
+          const sb = sd.data().balance||0, rb = rd.data().balance||0;
+          if (sb<amt) throw new Error("Insufficient funds");
+          t.update(sr,{balance:sb-amt}); t.update(rr,{balance:rb+amt});
         });
-        
-        await setDoc(doc(collection(db, "transactions")), {
-          userEmail: currentUser.email, userName: userData?.name || 'Client',
-          type: 'transfer_sent', amount, recipientAccount, recipientName: foundRecipientData.name,
-          recipientEmail: foundRecipientData.email, description, timestamp: new Date().toISOString()
-        });
-        
-        await setDoc(doc(collection(db, "transactions")), {
-          userEmail: foundRecipientData.email, userName: foundRecipientData.name,
-          type: 'transfer_received', amount, senderAccount: userData.accountNumber,
-          senderName: userData?.name || 'Client', senderEmail: currentUser.email,
-          description, timestamp: new Date().toISOString()
-        });
-        
-        await setDoc(doc(collection(db, "notifications")), {
-          userEmail: foundRecipientData.email,
-          message: `💰 You received ${formatMoney(amount)} from ${userData?.name || 'User'} (${userData.accountNumber}). Description: ${description}`,
-          timestamp: new Date().toISOString(), read: false
-        });
-        
-        await setDoc(doc(collection(db, "notifications")), {
-          userEmail: currentUser.email,
-          message: `✅ Transfer of ${formatMoney(amount)} to ${foundRecipientData.name} was successful.`,
-          timestamp: new Date().toISOString(), read: false
-        });
-        
-        document.getElementById('recipientAccount').value = '';
-        document.getElementById('transferAmount').value = '';
-        document.getElementById('transferDescription').value = '';
+        await setDoc(doc(collection(db,"transactions")),{userEmail:currentUser.email,userName:userData?.name,type:'transfer_sent',amount:amt,recipientName:foundRecipientData.name,recipientEmail:foundRecipientData.email,description:desc,timestamp:new Date().toISOString()});
+        await setDoc(doc(collection(db,"transactions")),{userEmail:foundRecipientData.email,userName:foundRecipientData.name,type:'transfer_received',amount:amt,senderName:userData?.name,senderEmail:currentUser.email,description:desc,timestamp:new Date().toISOString()});
+        document.getElementById('recipientAccount').value = document.getElementById('transferAmount').value = document.getElementById('transferDescription').value = '';
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('transferSummary').style.display = 'none';
         foundRecipientData = null; transferValid = false;
         alert('✅ Transfer successful!');
-      } catch (error) {
-        console.error('Transfer error:', error);
-        alert('❌ Transfer failed: ' + error.message);
-      } finally {
-        btn.textContent = 'Send Transfer';
-        btn.disabled = false;
-      }
+      } catch(e) { alert('❌ '+e.message); }
+      finally { btn.disabled = false; btn.textContent = 'Send Transfer'; }
     });
 
-    // Loan Calculator - 10% PER MONTH
+    // Loan Calculator
     document.getElementById('calculateLoanBtn').addEventListener('click', () => {
-      const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
-      const duration = parseInt(document.getElementById('calcLoanDuration').value) || 30;
-      if (amount <= 0) { alert('Enter amount'); return; }
-      const months = duration / 30;
-      const interestRate = 0.10 * months;
-      const interest = amount * interestRate;
-      const total = amount + interest;
-      document.getElementById('loanCalcPrincipal').textContent = formatMoney(amount);
-      document.getElementById('loanCalcInterest').textContent = formatMoney(interest) + ` (${interestRate * 100}%)`;
+      const amt = parseFloat(document.getElementById('calcLoanAmount').value)||0;
+      const dur = parseInt(document.getElementById('calcLoanDuration').value)||30;
+      if (amt<=0) return;
+      const months = dur/30, rate = 0.10*months, interest = amt*rate, total = amt+interest;
+      document.getElementById('loanCalcPrincipal').textContent = formatMoney(amt);
+      document.getElementById('loanCalcInterest').textContent = formatMoney(interest);
       document.getElementById('loanCalcTotal').textContent = formatMoney(total);
       document.getElementById('loanCalcTotalRepayment').textContent = formatMoney(total);
       document.getElementById('loanCalcResult').style.display = 'block';
-      document.getElementById('loanAmount').value = amount;
-      document.getElementById('loanDuration').value = duration;
-      updateEstimatedRepayment();
+      document.getElementById('loanAmount').value = amt;
+      document.getElementById('loanDuration').value = dur;
+      document.getElementById('estimatedRepayment').textContent = formatMoney(total);
     });
-
-    function updateEstimatedRepayment() {
-      const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
-      const duration = parseInt(document.getElementById('loanDuration').value) || 30;
-      if (amount > 0) {
-        const months = duration / 30;
-        const interestRate = 0.10 * months;
-        const interest = amount * interestRate;
-        const total = amount + interest;
-        document.getElementById('estimatedRepayment').textContent = formatMoney(total);
-        document.getElementById('monthlyPaymentHint').innerHTML = `Interest: ${interestRate * 100}% (${formatMoney(interest)}) | Auto-deducted on due date`;
-      } else {
-        document.getElementById('estimatedRepayment').textContent = 'TSh 0';
-        document.getElementById('monthlyPaymentHint').textContent = 'Enter amount to see calculation';
-      }
-    }
-
-    document.getElementById('loanAmount').addEventListener('input', updateEstimatedRepayment);
-    document.getElementById('loanDuration').addEventListener('change', updateEstimatedRepayment);
-    updateEstimatedRepayment();
 
     document.getElementById('requestLoanBtn').addEventListener('click', async () => {
-      const amount = parseFloat(document.getElementById('loanAmount').value);
-      const duration = parseInt(document.getElementById('loanDuration').value);
-      if (!amount || amount <= 0) { alert('Enter amount'); return; }
-      const months = duration / 30;
-      const interestRate = 0.10 * months;
-      const interest = amount * interestRate;
-      const total = amount + interest;
-      if (!confirm(`📋 Loan Summary:\n💰 Loan: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total: ${formatMoney(total)}\n📅 Duration: ${duration} days\n\n⚠️ Auto-deducted on due date!\n\nSubmit?`)) return;
-      await setDoc(doc(collection(db, "loanRequests")), {
-        userEmail: currentUser.email, userName: userData?.name || 'Client',
-        amount, duration, interestRate, interestAmount: interest, totalRepayment: total,
-        status: 'pending', timestamp: new Date().toISOString()
-      });
+      const amt = parseFloat(document.getElementById('loanAmount').value);
+      const dur = parseInt(document.getElementById('loanDuration').value);
+      if (!amt||amt<=0) return alert('Enter amount');
+      const months = dur/30, rate = 0.10*months, interest = amt*rate, total = amt+interest;
+      if (!confirm(`Loan: ${formatMoney(amt)}\nInterest: ${formatMoney(interest)}\nTotal: ${formatMoney(total)}\nDuration: ${dur} days\n\nSubmit?`)) return;
+      await setDoc(doc(collection(db,"loanRequests")),{userEmail:currentUser.email,userName:userData?.name,amount:amt,duration:dur,interestRate:rate,interestAmount:interest,totalRepayment:total,status:'pending',timestamp:new Date().toISOString()});
       document.getElementById('loanAmount').value = '';
       document.getElementById('estimatedRepayment').textContent = 'TSh 0';
-      document.getElementById('monthlyPaymentHint').textContent = '';
-      alert('✅ Loan request submitted!');
+      alert('✅ Request submitted!');
     });
 
+    // Profit Calculator
     document.getElementById('calculateProfitBtn').addEventListener('click', () => {
-      const totalInterest = parseFloat(document.getElementById('calcTotalInterest').value) || 0;
-      const yourBalance = parseFloat(document.getElementById('calcYourBalance').value) || 0;
-      const totalDeposits = parseFloat(document.getElementById('calcTotalDeposits').value) || 1;
-      const poolPercent = (yourBalance / totalDeposits) * 100;
-      const yourShare = totalInterest * (poolPercent / 100);
-      document.getElementById('profitPoolPercent').textContent = poolPercent.toFixed(2) + '%';
-      document.getElementById('profitTotalInterest').textContent = formatMoney(totalInterest);
-      document.getElementById('profitYourShare').textContent = formatMoney(yourShare);
-      document.getElementById('profitShareAmount').textContent = formatMoney(yourShare);
+      const ti = parseFloat(document.getElementById('calcTotalInterest').value)||0;
+      const yb = parseFloat(document.getElementById('calcYourBalance').value)||0;
+      const td = parseFloat(document.getElementById('calcTotalDeposits').value)||1;
+      const pct = (yb/td)*100;
+      const share = ti*(pct/100);
+      document.getElementById('profitShareAmount').textContent = formatMoney(share);
       document.getElementById('profitCalcResult').style.display = 'block';
     });
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`${link.dataset.section}-section`).classList.add('active');
-      });
+    // Request
+    document.getElementById('submitRequestBtn').addEventListener('click', async () => {
+      const type = document.getElementById('requestType').value;
+      const amt = parseFloat(document.getElementById('requestAmount').value);
+      if (!amt||amt<=0) return alert('Invalid amount');
+      if (type==='withdraw'&&amt>(userData?.balance||0)) return alert('Insufficient balance!');
+      await setDoc(doc(collection(db,"requests")),{userEmail:currentUser.email,userName:userData?.name,type,amount:amt,note:document.getElementById('requestNote').value,status:'pending',timestamp:new Date().toISOString()});
+      document.getElementById('requestAmount').value = document.getElementById('requestNote').value = '';
+      alert('✅ Request submitted!');
     });
-
-    document.getElementById('notificationBell').addEventListener('click', () => {
-      const p = document.getElementById('notificationsPanel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    });
-
-    window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications", id), { read: true }); };
-    window.markAllRead = async () => {
-      const snapshot = await getDocs(query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), where("read", "==", false)));
-      snapshot.forEach(async (d) => { await updateDoc(d.ref, { read: true }); });
-    };
 
     window.openRequestModal = (type) => {
       currentRequestType = type;
       document.getElementById('modalTitle').textContent = `Request ${type}`;
       document.getElementById('requestModal').style.display = 'flex';
     };
-    window.closeRequestModal = () => {
-      document.getElementById('requestModal').style.display = 'none';
-      document.getElementById('modalAmount').value = '';
-      document.getElementById('modalNote').value = '';
-    };
+    window.closeRequestModal = () => { document.getElementById('requestModal').style.display = 'none'; };
 
     document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
-      const amount = parseFloat(document.getElementById('modalAmount').value);
-      if (!amount || amount <= 0) { alert('Invalid amount'); return; }
-      if (currentRequestType === 'withdraw' && amount > (userData?.balance || 0)) {
-        alert('❌ Insufficient balance!');
-        return;
-      }
-      await setDoc(doc(collection(db, "requests")), {
-        userEmail: currentUser.email, userName: userData?.name || 'Client',
-        type: currentRequestType, amount, note: document.getElementById('modalNote').value,
-        status: 'pending', timestamp: new Date().toISOString()
-      });
+      const amt = parseFloat(document.getElementById('modalAmount').value);
+      if (!amt||amt<=0) return alert('Invalid amount');
+      if (currentRequestType==='withdraw'&&amt>(userData?.balance||0)) return alert('Insufficient balance!');
+      await setDoc(doc(collection(db,"requests")),{userEmail:currentUser.email,userName:userData?.name,type:currentRequestType,amount:amt,note:document.getElementById('modalNote').value,status:'pending',timestamp:new Date().toISOString()});
       closeRequestModal();
-      alert('Request submitted!');
+      alert('✅ Request submitted!');
     });
 
-    document.getElementById('submitRequestBtn').addEventListener('click', async () => {
-      const type = document.getElementById('requestType').value;
-      const amount = parseFloat(document.getElementById('requestAmount').value);
-      if (!amount || amount <= 0) { alert('Invalid amount'); return; }
-      if (type === 'withdraw' && amount > (userData?.balance || 0)) {
-        alert('❌ Insufficient balance!');
-        return;
-      }
-      await setDoc(doc(collection(db, "requests")), {
-        userEmail: currentUser.email, userName: userData?.name || 'Client',
-        type, amount, note: document.getElementById('requestNote').value,
-        status: 'pending', timestamp: new Date().toISOString()
-      });
-      document.getElementById('requestAmount').value = '';
-      document.getElementById('requestNote').value = '';
-      alert('Request submitted!');
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.replace('index.html');
-    });
+    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.replace('index.html'); });
 
     document.addEventListener('click', (e) => {
-      const panel = document.getElementById('notificationsPanel');
-      const bell = document.getElementById('notificationBell');
-      if (!panel.contains(e.target) && !bell.contains(e.target)) panel.style.display = 'none';
+      const p = document.getElementById('notificationsPanel');
+      const b = document.getElementById('notificationBell');
+      if (!p.contains(e.target) && !b.contains(e.target)) p.style.display = 'none';
     });
+
+    window.markAllRead = async () => {
+      const snap = await getDocs(query(collection(db,"notifications"),where("userEmail","==",currentUser.email),where("read","==",false)));
+      snap.forEach(async (d) => { await updateDoc(d.ref,{read:true}); });
+    };
   </script>
 </body>
 </html>
