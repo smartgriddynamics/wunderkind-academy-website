@@ -32,11 +32,16 @@
     .balance-card { background: linear-gradient(135deg, #1a3a5c, #c9a23d); border-radius: 20px; padding: 30px; color: white; margin-top: 20px; }
     .balance-label { font-size: 1rem; opacity: 0.9; }
     .balance-amount { font-size: 3.5rem; font-weight: 700; margin: 10px 0; }
+    .net-balance-label { font-size: 0.85rem; opacity: 0.8; margin-top: 5px; }
+    .net-balance-amount { font-size: 1.8rem; font-weight: 600; }
+    .net-balance-amount.negative { color: #ef4444; }
     .interest-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
     @media (max-width: 480px) { .interest-stats { grid-template-columns: 1fr; } }
     .interest-stat-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
     .interest-stat-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
     .interest-stat-value { font-size: 1.5rem; font-weight: 700; }
+    .progress-bar { background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+    .progress-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; }
     .quick-actions { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
     .btn-action { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
     .btn-action:hover { background: rgba(255,255,255,0.3); }
@@ -53,15 +58,20 @@
     .chart-container { position: relative; height: 250px; }
     .transaction-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
     .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 12px; flex-wrap: wrap; gap: 10px; }
-    .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
-    .transaction-icon.deposit, .transaction-icon.transfer_received, .transaction-icon.profit_share { background: #d1fae5; color: #10b981; }
-    .transaction-icon.withdrawal, .transaction-icon.transfer_sent { background: #fee2e2; color: #ef4444; }
+    .transaction-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+    .transaction-icon.deposit { background: #d1fae5; color: #10b981; }
+    .transaction-icon.withdrawal { background: #fee2e2; color: #ef4444; }
+    .transaction-icon.transfer_sent { background: #fee2e2; color: #ef4444; }
+    .transaction-icon.transfer_received { background: #d1fae5; color: #10b981; }
+    .transaction-icon.profit_share { background: #d1fae5; color: #10b981; }
     .transaction-icon.loan_disbursement { background: #fef3c7; color: #92400e; }
     .transaction-icon.loan_repayment { background: #fef3c7; color: #92400e; }
+    .transaction-icon.loan_auto_deduct { background: #fee2e2; color: #ef4444; }
     .transaction-info { flex: 1; min-width: 150px; }
     .transaction-title { font-weight: 600; margin-bottom: 4px; }
     .transaction-date { font-size: 0.8rem; color: #718096; }
-    .transaction-amount { font-weight: 600; }
+    .transaction-note { font-size: 0.8rem; color: #a0aec0; font-style: italic; margin-top: 2px; }
+    .transaction-amount { font-weight: 600; white-space: nowrap; }
     .amount-positive { color: #10b981; }
     .amount-negative { color: #ef4444; }
     .amount-neutral { color: #92400e; }
@@ -147,8 +157,10 @@
         </div>
         
         <div class="balance-card">
-          <div class="balance-label">Available Balance (Your Money)</div>
+          <div class="balance-label">Available Balance</div>
           <div class="balance-amount" id="balance">TSh 0</div>
+          <div class="net-balance-label">Net Balance (Balance - Loan Debt)</div>
+          <div class="net-balance-amount" id="netBalance">TSh 0</div>
           
           <div class="interest-stats">
             <div class="interest-stat-card">
@@ -168,7 +180,7 @@
               <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Active Loan Debt:</strong></span>
               <span style="font-size: 1.5rem; font-weight: 700; color: #ef4444;" id="activeLoanDebt">TSh 0</span>
             </div>
-            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">This is debt to repay - Pay on time to avoid 10% monthly penalty!</p>
+            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">This is debt to repay - Due loans will be auto-deducted from your balance!</p>
           </div>
           
           <div class="quick-actions">
@@ -228,8 +240,8 @@
           <input type="number" id="transferAmount" class="form-input" placeholder="Enter amount" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Note (Optional)</label>
-          <input type="text" id="transferNote" class="form-input" placeholder="Payment for...">
+          <label class="form-label">Description (Optional)</label>
+          <input type="text" id="transferDescription" class="form-input" placeholder="Payment for...">
         </div>
         
         <div id="transferSummary" style="display: none; background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
@@ -245,6 +257,10 @@
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span>Amount:</span>
             <span><strong id="summaryAmount">TSh 0</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Description:</span>
+            <span><strong id="summaryDescription">---</strong></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #e2e8f0;">
             <span>Your Balance After Transfer:</span>
@@ -275,7 +291,7 @@
             <span><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <strong>Total Loan Debt:</strong></span>
             <span style="font-size: 1.8rem; font-weight: 700; color: #ef4444;" id="loanSectionDebt">TSh 0</span>
           </div>
-          <p style="font-size: 0.85rem; color: #92400e; margin-top: 8px;">10% interest per month. Pay on time to avoid 10% monthly penalty!</p>
+          <p style="font-size: 0.85rem; color: #92400e; margin-top: 8px;">10% interest per month. Due loans will be auto-deducted from your balance!</p>
         </div>
         
         <div class="loan-summary">
@@ -327,10 +343,7 @@
               </div>
             </div>
             <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.9;" id="loanInterestRateDisplay">
-              <i class="fas fa-info-circle"></i> Interest: 10% per month. After due: +10% monthly penalty!
-            </p>
-            <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.9; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 8px;">
-              <i class="fas fa-users"></i> Interest paid is distributed to all depositors as profit share!
+              <i class="fas fa-info-circle"></i> Interest: 10% per month. Due date payment is auto-deducted!
             </p>
           </div>
         </div>
@@ -358,7 +371,7 @@
         
         <div class="info-note">
           <i class="fas fa-info-circle" style="color: #1a3a5c;"></i>
-          <strong>Note:</strong> Approved loans are <strong>NOT added to your balance</strong>. Interest paid is shared with all depositors!
+          <strong>Note:</strong> On due date, payment will be <strong>automatically deducted</strong> from your balance. If balance is insufficient, your balance will go negative!
         </div>
         
         <h4 style="margin: 20px 0 15px;">Your Active Loans</h4>
@@ -501,7 +514,10 @@
     let transferValid = false;
     let allUsers = [];
 
-    const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
+    const formatMoney = (val) => {
+      if (val < 0) return '-TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(Math.abs(val)));
+      return 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
+    };
 
     function generateAccountNumber(uid) {
       if (!uid) return '---';
@@ -542,26 +558,17 @@
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           userData = userDoc.data();
-          
           if (!userData.accountNumber) {
             const accountNumber = generateAccountNumber(currentUser.uid);
             await updateDoc(doc(db, "users", currentUser.uid), { accountNumber });
             userData.accountNumber = accountNumber;
           }
-          
           document.getElementById('greeting').textContent = `Welcome, ${userData.name || 'Client'}!`;
           document.getElementById('userEmail').textContent = currentUser.email;
           document.getElementById('accountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
           document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
-        } else {
-          document.getElementById('greeting').textContent = 'Welcome!';
-          document.getElementById('userEmail').textContent = currentUser.email;
-          document.getElementById('accountNumber').textContent = generateAccountNumber(currentUser.uid);
-          document.getElementById('transferAccountNumber').textContent = generateAccountNumber(currentUser.uid);
         }
-      } catch (e) {
-        console.error('Error loading user:', e);
-      }
+      } catch (e) { console.error('Error loading user:', e); }
     }
 
     function initRealtimeData() {
@@ -579,6 +586,7 @@
           document.getElementById('transferAccountNumber').textContent = userData.accountNumber || generateAccountNumber(currentUser.uid);
           updatePoolPercentage();
           updateProfitShareStats();
+          updateNetBalance();
         }
       });
 
@@ -589,6 +597,7 @@
         renderTransactions(allTransactions);
         updateChart();
         updateProfitShareStats();
+        updateNetBalance();
       });
 
       const notifQuery = query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
@@ -610,7 +619,31 @@
         const loans = [];
         snapshot.forEach(doc => loans.push({ id: doc.id, ...doc.data() }));
         renderActiveLoans(loans);
+        updateNetBalance();
+        checkAndAutoDeductLoans(loans);
       });
+    }
+
+    function updateNetBalance() {
+      const balance = userData?.balance || 0;
+      const loans = document.getElementById('activeLoanDebt').textContent;
+      // Parse loan debt from the display
+      const loanDebtText = document.getElementById('activeLoanDebt').textContent;
+      let loanDebt = 0;
+      if (loanDebtText && loanDebtText !== 'TSh 0') {
+        const match = loanDebtText.match(/[\d,]+/);
+        if (match) loanDebt = parseFloat(match[0].replace(/,/g, ''));
+        if (loanDebtText.includes('-')) loanDebt = -loanDebt;
+      }
+      
+      const netBalance = balance - loanDebt;
+      const netEl = document.getElementById('netBalance');
+      netEl.textContent = formatMoney(netBalance);
+      if (netBalance < 0) {
+        netEl.classList.add('negative');
+      } else {
+        netEl.classList.remove('negative');
+      }
     }
 
     function updateProfitShareStats() {
@@ -618,22 +651,37 @@
       document.getElementById('totalProfitShare').textContent = formatMoney(profitShareEarned);
     }
 
+    // FIXED: Render transactions with proper icons and amounts
     function renderTransactions(transactions) {
       const renderItem = (t) => {
+        // Determine if money went OUT (negative) or IN (positive)
+        const isOutgoing = t.type === 'withdrawal' || t.type === 'transfer_sent' || t.type === 'loan_repayment' || t.type === 'loan_auto_deduct';
+        const isIncoming = t.type === 'deposit' || t.type === 'transfer_received' || t.type === 'profit_share';
+        const isNeutral = t.type === 'loan_disbursement';
+        
         let icon = 'plus';
         let colorClass = 'amount-positive';
         let sign = '+';
+        let title = t.type.replace(/_/g, ' ').toUpperCase();
         
-        if (t.type === 'withdrawal' || t.type === 'transfer_sent') { icon = 'minus'; colorClass = 'amount-negative'; sign = '-'; }
-        else if (t.type === 'profit_share') { icon = 'gift'; colorClass = 'amount-positive'; sign = '+'; }
-        else if (t.type === 'transfer_received') { icon = 'arrow-down'; colorClass = 'amount-positive'; sign = '+'; }
-        else if (t.type === 'loan_disbursement') { icon = 'hand-holding-usd'; colorClass = 'amount-neutral'; sign = '📋'; }
-        else if (t.type === 'loan_repayment') { icon = 'money-bill'; colorClass = 'amount-negative'; sign = '-'; }
+        if (t.type === 'withdrawal') { icon = 'arrow-up'; colorClass = 'amount-negative'; sign = '-'; title = 'WITHDRAWAL'; }
+        else if (t.type === 'transfer_sent') { icon = 'paper-plane'; colorClass = 'amount-negative'; sign = '-'; title = `SENT TO ${t.recipientName || 'USER'}`; }
+        else if (t.type === 'transfer_received') { icon = 'arrow-down'; colorClass = 'amount-positive'; sign = '+'; title = `RECEIVED FROM ${t.senderName || 'USER'}`; }
+        else if (t.type === 'deposit') { icon = 'plus-circle'; colorClass = 'amount-positive'; sign = '+'; title = 'DEPOSIT'; }
+        else if (t.type === 'profit_share') { icon = 'gift'; colorClass = 'amount-positive'; sign = '+'; title = 'PROFIT SHARE'; }
+        else if (t.type === 'loan_disbursement') { icon = 'hand-holding-usd'; colorClass = 'amount-neutral'; sign = '📋'; title = 'LOAN DISBURSEMENT'; }
+        else if (t.type === 'loan_repayment') { icon = 'money-bill'; colorClass = 'amount-negative'; sign = '-'; title = 'LOAN REPAYMENT'; }
+        else if (t.type === 'loan_auto_deduct') { icon = 'credit-card'; colorClass = 'amount-negative'; sign = '-'; title = 'AUTO LOAN PAYMENT'; }
         
-        let title = t.type.replace('_', ' ').toUpperCase();
-        if (t.type === 'transfer_sent') title = `Transfer to ${t.recipientName || 'User'}`;
-        if (t.type === 'transfer_received') title = `Transfer from ${t.senderName || 'User'}`;
-        if (t.type === 'profit_share') title = `Profit Share (Loan Interest)`;
+        // Show description/note if available
+        let noteHtml = '';
+        if (t.note || t.description) {
+          noteHtml = `<div class="transaction-note">📝 ${t.note || t.description}</div>`;
+        } else if (t.type === 'transfer_sent' && t.recipientName) {
+          noteHtml = `<div class="transaction-note">To: ${t.recipientName} (${t.recipientAccount || ''})</div>`;
+        } else if (t.type === 'transfer_received' && t.senderName) {
+          noteHtml = `<div class="transaction-note">From: ${t.senderName}</div>`;
+        }
         
         return `<div class="transaction-item">
           <div style="display: flex; align-items: center;">
@@ -641,10 +689,11 @@
             <div class="transaction-info">
               <div class="transaction-title">${title}</div>
               <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
+              ${noteHtml}
             </div>
           </div>
           <div class="transaction-amount ${colorClass}">
-            ${sign === '📋' ? '📋' : sign}${formatMoney(t.amount)}
+            ${sign === '📋' ? '📋' : sign}${formatMoney(Math.abs(t.amount))}
           </div>
         </div>`;
       };
@@ -682,13 +731,14 @@
       }
       
       const next = loans.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
-      
       document.getElementById('activeLoanAmount').textContent = formatMoney(totalDebt);
       document.getElementById('nextPaymentDue').textContent = new Date(next.dueDate).toLocaleDateString();
       
       document.getElementById('activeLoansList').innerHTML = loans.map(l => {
         const due = new Date(l.dueDate);
-        const overdue = new Date() > due;
+        const now = new Date();
+        const overdue = now > due;
+        const daysLeft = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
         const remaining = l.remainingAmount || l.amount;
         const originalAmount = l.amount;
         const interestCharged = remaining - originalAmount;
@@ -698,105 +748,155 @@
             <span><strong>Loan Amount:</strong> ${formatMoney(originalAmount)}</span>
             <span><strong>Remaining:</strong> ${formatMoney(remaining)}</span>
           </div>
-          ${interestCharged > 0 ? `<div style="color:#ef4444;margin-top:5px;"><i class="fas fa-exclamation-circle"></i> Interest/Penalty: ${formatMoney(interestCharged)}</div>` : ''}
+          ${interestCharged > 0 ? `<div style="color:#ef4444;margin-top:5px;"><i class="fas fa-exclamation-circle"></i> Interest: ${formatMoney(interestCharged)}</div>` : ''}
           <div style="display:flex;justify-content:space-between;margin-top:8px;">
-            <span><strong>Due Date:</strong> ${due.toLocaleDateString()}</span>
+            <span><strong>Due Date:</strong> ${due.toLocaleDateString()} (${overdue ? 'OVERDUE' : daysLeft + ' days left'})</span>
             <span class="status-badge ${overdue ? 'status-overdue' : 'status-active'}">${overdue ? 'OVERDUE' : 'Active'}</span>
           </div>
           <p style="font-size:0.8rem;color:#718096;margin-top:8px;">
-            <i class="fas fa-info-circle"></i> This is debt to repay - NOT deducted from your balance
+            <i class="fas fa-info-circle"></i> ${overdue ? '⚠️ Payment will be auto-deducted!' : 'Auto-deduct on due date from balance'}
           </p>
         </div>`;
       }).join('');
+      updateNetBalance();
+    }
+
+    // FIXED: Auto-deduct loans that are due
+    async function checkAndAutoDeductLoans(loans) {
+      const now = new Date();
+      
+      for (const loan of loans) {
+        const dueDate = new Date(loan.dueDate);
+        const isDue = now >= dueDate;
+        const remainingAmount = loan.remainingAmount || loan.amount;
+        
+        if (isDue && (loan.status === 'active' || loan.status === 'overdue') && remainingAmount > 0) {
+          // Check if already auto-deducted this period
+          const lastAutoDeduct = loan.lastAutoDeductDate ? new Date(loan.lastAutoDeductDate) : null;
+          const daysSinceLastDeduct = lastAutoDeduct ? (now - lastAutoDeduct) / (1000 * 60 * 60 * 24) : 999;
+          
+          if (!lastAutoDeduct || daysSinceLastDeduct >= 1) {
+            // Auto-deduct from balance
+            const userBalance = userData?.balance || 0;
+            const deductAmount = Math.min(remainingAmount, Math.max(0, userBalance));
+            
+            if (deductAmount > 0) {
+              const newBalance = userBalance - deductAmount;
+              const newRemaining = remainingAmount - deductAmount;
+              const newStatus = newRemaining <= 0 ? 'paid' : 'active';
+              
+              await updateDoc(doc(db, "users", currentUser.uid), { balance: newBalance });
+              await updateDoc(doc(db, "loans", loan.id), {
+                remainingAmount: newRemaining,
+                status: newStatus,
+                lastAutoDeductDate: now.toISOString(),
+                lastPayment: deductAmount,
+                lastPaymentDate: now.toISOString()
+              });
+              
+              await setDoc(doc(collection(db, "transactions")), {
+                userEmail: currentUser.email,
+                userName: userData?.name || 'Client',
+                type: 'loan_auto_deduct',
+                amount: deductAmount,
+                loanId: loan.id,
+                timestamp: now.toISOString(),
+                description: `Auto-deducted loan payment`
+              });
+              
+              await setDoc(doc(collection(db, "notifications")), {
+                userEmail: currentUser.email,
+                message: `🏦 Auto loan payment of ${formatMoney(deductAmount)} was deducted from your balance. Remaining loan: ${formatMoney(newRemaining)}`,
+                timestamp: now.toISOString(),
+                read: false
+              });
+            } else {
+              // No balance to deduct - balance goes negative conceptually
+              // Apply penalty for non-payment
+              const settings = await getDoc(doc(db, "settings", "interest"));
+              const loanRate = settings.exists() ? (settings.data().loanRate || 10) : 10;
+              const penalty = remainingAmount * (loanRate / 100);
+              const newRemaining = remainingAmount + penalty;
+              
+              await updateDoc(doc(db, "loans", loan.id), {
+                remainingAmount: newRemaining,
+                status: 'overdue',
+                lastAutoDeductDate: now.toISOString()
+              });
+              
+              await setDoc(doc(collection(db, "notifications")), {
+                userEmail: currentUser.email,
+                message: `⚠️ Insufficient balance for loan payment! 10% penalty applied: +${formatMoney(penalty)}. Total debt: ${formatMoney(newRemaining)}`,
+                timestamp: now.toISOString(),
+                read: false
+              });
+            }
+          }
+        }
+      }
     }
 
     // Recipient Account Check
     document.getElementById('recipientAccount').addEventListener('input', async (e) => {
       const accountNumber = e.target.value.trim();
-      
       if (accountNumber.length < 10) {
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('recipientNotFound').style.display = 'none';
         document.getElementById('transferSummary').style.display = 'none';
         document.getElementById('sendTransferBtn').disabled = true;
-        foundRecipientData = null;
-        transferValid = false;
+        foundRecipientData = null; transferValid = false;
         return;
       }
-      
       if (accountNumber === userData?.accountNumber) {
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('recipientNotFound').style.display = 'block';
-        document.getElementById('recipientNotFound').innerHTML = `
-          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
-          <strong style="color: #991b1b;"> Cannot transfer to yourself!</strong>
-          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please enter a different account number.</p>
-        `;
+        document.getElementById('recipientNotFound').innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i><strong style="color: #991b1b;"> Cannot transfer to yourself!</strong>`;
         document.getElementById('sendTransferBtn').disabled = true;
-        foundRecipientData = null;
-        transferValid = false;
+        foundRecipientData = null; transferValid = false;
         return;
       }
-      
       try {
         const usersSnapshot = await getDocs(query(collection(db, "users"), where("accountNumber", "==", accountNumber)));
-        
         if (usersSnapshot.empty) {
           document.getElementById('recipientPreview').style.display = 'none';
           document.getElementById('recipientNotFound').style.display = 'block';
-          document.getElementById('recipientNotFound').innerHTML = `
-            <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
-            <strong style="color: #991b1b;"> Account not found!</strong>
-            <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please check the account number and try again.</p>
-          `;
+          document.getElementById('recipientNotFound').innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444;"></i><strong style="color: #991b1b;"> Account not found!</strong>`;
           document.getElementById('transferSummary').style.display = 'none';
           document.getElementById('sendTransferBtn').disabled = true;
-          foundRecipientData = null;
-          transferValid = false;
+          foundRecipientData = null; transferValid = false;
         } else {
           const recipientDoc = usersSnapshot.docs[0];
           foundRecipientData = { id: recipientDoc.id, ...recipientDoc.data() };
-          
           const initials = (foundRecipientData.name || 'U').substring(0, 2).toUpperCase();
           document.getElementById('recipientInitials').textContent = initials;
           document.getElementById('recipientName').textContent = foundRecipientData.name || 'User';
           document.getElementById('recipientPreview').style.display = 'block';
           document.getElementById('recipientNotFound').style.display = 'none';
-          
           transferValid = true;
           updateTransferSummary();
         }
-      } catch (error) {
-        console.error('Error finding recipient:', error);
-        document.getElementById('recipientNotFound').style.display = 'block';
-        document.getElementById('recipientNotFound').innerHTML = `
-          <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
-          <strong style="color: #991b1b;"> Error checking account!</strong>
-          <p style="color: #991b1b; font-size: 0.9rem; margin-top: 5px;">Please try again later.</p>
-        `;
-      }
+      } catch (error) { console.error('Error finding recipient:', error); }
     });
 
     document.getElementById('transferAmount').addEventListener('input', updateTransferSummary);
+    document.getElementById('transferDescription').addEventListener('input', updateTransferSummary);
 
     function updateTransferSummary() {
       const amount = parseFloat(document.getElementById('transferAmount').value) || 0;
+      const description = document.getElementById('transferDescription').value || 'No description';
       const currentBalance = userData?.balance || 0;
       
       if (transferValid && amount > 0) {
         document.getElementById('summaryFrom').textContent = `${userData?.name || 'You'} (${userData?.accountNumber})`;
         document.getElementById('summaryTo').textContent = `${foundRecipientData.name} (${foundRecipientData.accountNumber})`;
         document.getElementById('summaryAmount').textContent = formatMoney(amount);
-        
+        document.getElementById('summaryDescription').textContent = description;
         const newBalance = currentBalance - amount;
         const balanceElement = document.getElementById('summaryNewBalance');
         balanceElement.textContent = formatMoney(newBalance);
         balanceElement.style.color = newBalance < 0 ? '#ef4444' : '#1a1a2e';
-        
         document.getElementById('transferSummary').style.display = 'block';
-        
-        const hasEnoughBalance = amount <= currentBalance;
-        document.getElementById('sendTransferBtn').disabled = !hasEnoughBalance || amount <= 0;
+        document.getElementById('sendTransferBtn').disabled = !(amount <= currentBalance && amount > 0);
       } else {
         document.getElementById('transferSummary').style.display = 'none';
         document.getElementById('sendTransferBtn').disabled = true;
@@ -807,14 +907,14 @@
     document.getElementById('sendTransferBtn').addEventListener('click', async () => {
       const recipientAccount = document.getElementById('recipientAccount').value.trim();
       const amount = parseFloat(document.getElementById('transferAmount').value);
-      const note = document.getElementById('transferNote').value;
+      const description = document.getElementById('transferDescription').value || 'Transfer';
       
       if (!recipientAccount) { alert('Please enter recipient account number'); return; }
       if (!amount || amount <= 0) { alert('Please enter a valid amount'); return; }
       if (amount > (userData?.balance || 0)) { alert('Insufficient balance!'); return; }
       if (!foundRecipientData) { alert('Please verify the recipient account first'); return; }
       
-      if (!confirm(`Confirm Transfer:\n━━━━━━━━━━━━━━━━━━━━\nTo: ${foundRecipientData.name}\nAccount: ${foundRecipientData.accountNumber}\nAmount: ${formatMoney(amount)}\n━━━━━━━━━━━━━━━━━━━━\n\nThis action cannot be undone.`)) return;
+      if (!confirm(`Confirm Transfer:\n━━━━━━━━━━━━━━━━━━━━\nTo: ${foundRecipientData.name}\nAccount: ${foundRecipientData.accountNumber}\nAmount: ${formatMoney(amount)}\nDescription: ${description}\n━━━━━━━━━━━━━━━━━━━━\n\nThis action cannot be undone.`)) return;
       
       const btn = document.getElementById('sendTransferBtn');
       btn.textContent = 'Processing...';
@@ -822,25 +922,15 @@
       
       try {
         const recipientId = foundRecipientData.id;
-        
         await runTransaction(db, async (transaction) => {
           const senderRef = doc(db, "users", currentUser.uid);
           const recipientRef = doc(db, "users", recipientId);
-          
           const senderDoc = await transaction.get(senderRef);
           const recipientDocSnap = await transaction.get(recipientRef);
-          
-          if (!senderDoc.exists() || !recipientDocSnap.exists()) {
-            throw new Error("User not found!");
-          }
-          
+          if (!senderDoc.exists() || !recipientDocSnap.exists()) throw new Error("User not found!");
           const senderBalance = senderDoc.data().balance || 0;
           const recipientBalance = recipientDocSnap.data().balance || 0;
-          
-          if (senderBalance < amount) {
-            throw new Error("Insufficient balance!");
-          }
-          
+          if (senderBalance < amount) throw new Error("Insufficient balance!");
           transaction.update(senderRef, { balance: senderBalance - amount });
           transaction.update(recipientRef, { balance: recipientBalance + amount });
         });
@@ -848,19 +938,19 @@
         await setDoc(doc(collection(db, "transactions")), {
           userEmail: currentUser.email, userName: userData?.name || 'Client',
           type: 'transfer_sent', amount, recipientAccount, recipientName: foundRecipientData.name,
-          recipientEmail: foundRecipientData.email, note, timestamp: new Date().toISOString()
+          recipientEmail: foundRecipientData.email, description, timestamp: new Date().toISOString()
         });
         
         await setDoc(doc(collection(db, "transactions")), {
           userEmail: foundRecipientData.email, userName: foundRecipientData.name,
           type: 'transfer_received', amount, senderAccount: userData.accountNumber,
           senderName: userData?.name || 'Client', senderEmail: currentUser.email,
-          note, timestamp: new Date().toISOString()
+          description, timestamp: new Date().toISOString()
         });
         
         await setDoc(doc(collection(db, "notifications")), {
           userEmail: foundRecipientData.email,
-          message: `💰 You received ${formatMoney(amount)} from ${userData?.name || 'User'} (${userData.accountNumber})`,
+          message: `💰 You received ${formatMoney(amount)} from ${userData?.name || 'User'} (${userData.accountNumber}). Description: ${description}`,
           timestamp: new Date().toISOString(), read: false
         });
         
@@ -872,19 +962,17 @@
         
         document.getElementById('recipientAccount').value = '';
         document.getElementById('transferAmount').value = '';
-        document.getElementById('transferNote').value = '';
+        document.getElementById('transferDescription').value = '';
         document.getElementById('recipientPreview').style.display = 'none';
         document.getElementById('transferSummary').style.display = 'none';
-        foundRecipientData = null;
-        transferValid = false;
-        
+        foundRecipientData = null; transferValid = false;
         alert('✅ Transfer successful!');
-        
       } catch (error) {
         console.error('Transfer error:', error);
         alert('❌ Transfer failed: ' + error.message);
       } finally {
         btn.textContent = 'Send Transfer';
+        btn.disabled = false;
       }
     });
 
@@ -893,21 +981,15 @@
       const amount = parseFloat(document.getElementById('calcLoanAmount').value) || 0;
       const duration = parseInt(document.getElementById('calcLoanDuration').value) || 30;
       if (amount <= 0) { alert('Enter amount'); return; }
-      
       const months = duration / 30;
       const interestRate = 0.10 * months;
       const interest = amount * interestRate;
       const total = amount + interest;
-      const monthlyPayment = total / months;
-      
       document.getElementById('loanCalcPrincipal').textContent = formatMoney(amount);
       document.getElementById('loanCalcInterest').textContent = formatMoney(interest) + ` (${interestRate * 100}%)`;
       document.getElementById('loanCalcTotal').textContent = formatMoney(total);
       document.getElementById('loanCalcTotalRepayment').textContent = formatMoney(total);
-      document.getElementById('loanInterestRateDisplay').innerHTML = 
-        `<i class="fas fa-info-circle"></i> Interest: ${interestRate * 100}% (10% × ${months} month${months !== 1 ? 's' : ''}). After due: +10% monthly penalty!`;
       document.getElementById('loanCalcResult').style.display = 'block';
-      
       document.getElementById('loanAmount').value = amount;
       document.getElementById('loanDuration').value = duration;
       updateEstimatedRepayment();
@@ -916,17 +998,13 @@
     function updateEstimatedRepayment() {
       const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
       const duration = parseInt(document.getElementById('loanDuration').value) || 30;
-      
       if (amount > 0) {
         const months = duration / 30;
         const interestRate = 0.10 * months;
         const interest = amount * interestRate;
         const total = amount + interest;
-        const monthlyPayment = total / months;
-        
         document.getElementById('estimatedRepayment').textContent = formatMoney(total);
-        document.getElementById('monthlyPaymentHint').innerHTML = 
-          `Interest: ${interestRate * 100}% (${formatMoney(interest)}) | Duration: ${months} month${months !== 1 ? 's' : ''} | Monthly payment: ${formatMoney(monthlyPayment)}`;
+        document.getElementById('monthlyPaymentHint').innerHTML = `Interest: ${interestRate * 100}% (${formatMoney(interest)}) | Auto-deducted on due date`;
       } else {
         document.getElementById('estimatedRepayment').textContent = 'TSh 0';
         document.getElementById('monthlyPaymentHint').textContent = 'Enter amount to see calculation';
@@ -937,40 +1015,32 @@
     document.getElementById('loanDuration').addEventListener('change', updateEstimatedRepayment);
     updateEstimatedRepayment();
 
-    // Loan Request
     document.getElementById('requestLoanBtn').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('loanAmount').value);
       const duration = parseInt(document.getElementById('loanDuration').value);
       if (!amount || amount <= 0) { alert('Enter amount'); return; }
-      
       const months = duration / 30;
       const interestRate = 0.10 * months;
       const interest = amount * interestRate;
       const total = amount + interest;
-      
-      if (!confirm(`📋 Loan Summary:\n━━━━━━━━━━━━━━━━━━━━\n💰 Loan Amount: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total to Repay: ${formatMoney(total)}\n📅 Duration: ${duration} days (${months} month${months !== 1 ? 's' : ''})\n\n⚠️ Note: Loan is NOT added to your balance. Interest paid is shared with depositors!\n━━━━━━━━━━━━━━━━━━━━\n\nSubmit this loan request?`)) return;
-      
+      if (!confirm(`📋 Loan Summary:\n💰 Loan: ${formatMoney(amount)}\n📊 Interest (${interestRate * 100}%): ${formatMoney(interest)}\n💳 Total: ${formatMoney(total)}\n📅 Duration: ${duration} days\n\n⚠️ Auto-deducted on due date!\n\nSubmit?`)) return;
       await setDoc(doc(collection(db, "loanRequests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
         amount, duration, interestRate, interestAmount: interest, totalRepayment: total,
         status: 'pending', timestamp: new Date().toISOString()
       });
-      
       document.getElementById('loanAmount').value = '';
       document.getElementById('estimatedRepayment').textContent = 'TSh 0';
       document.getElementById('monthlyPaymentHint').textContent = '';
       alert('✅ Loan request submitted!');
     });
 
-    // Profit Share Calculator
     document.getElementById('calculateProfitBtn').addEventListener('click', () => {
       const totalInterest = parseFloat(document.getElementById('calcTotalInterest').value) || 0;
       const yourBalance = parseFloat(document.getElementById('calcYourBalance').value) || 0;
       const totalDeposits = parseFloat(document.getElementById('calcTotalDeposits').value) || 1;
-      
       const poolPercent = (yourBalance / totalDeposits) * 100;
       const yourShare = totalInterest * (poolPercent / 100);
-      
       document.getElementById('profitPoolPercent').textContent = poolPercent.toFixed(2) + '%';
       document.getElementById('profitTotalInterest').textContent = formatMoney(totalInterest);
       document.getElementById('profitYourShare').textContent = formatMoney(yourShare);
@@ -978,7 +1048,6 @@
       document.getElementById('profitCalcResult').style.display = 'block';
     });
 
-    // Navigation
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -994,7 +1063,6 @@
     });
 
     window.markAsRead = async (id) => { await updateDoc(doc(db, "notifications", id), { read: true }); };
-    
     window.markAllRead = async () => {
       const snapshot = await getDocs(query(collection(db, "notifications"), where("userEmail", "==", currentUser.email), where("read", "==", false)));
       snapshot.forEach(async (d) => { await updateDoc(d.ref, { read: true }); });
@@ -1005,7 +1073,6 @@
       document.getElementById('modalTitle').textContent = `Request ${type}`;
       document.getElementById('requestModal').style.display = 'flex';
     };
-
     window.closeRequestModal = () => {
       document.getElementById('requestModal').style.display = 'none';
       document.getElementById('modalAmount').value = '';
@@ -1015,12 +1082,10 @@
     document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('modalAmount').value);
       if (!amount || amount <= 0) { alert('Invalid amount'); return; }
-      
       if (currentRequestType === 'withdraw' && amount > (userData?.balance || 0)) {
-        alert('❌ Insufficient balance! You cannot withdraw more than your available balance.');
+        alert('❌ Insufficient balance!');
         return;
       }
-      
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
         type: currentRequestType, amount, note: document.getElementById('modalNote').value,
@@ -1034,12 +1099,10 @@
       const type = document.getElementById('requestType').value;
       const amount = parseFloat(document.getElementById('requestAmount').value);
       if (!amount || amount <= 0) { alert('Invalid amount'); return; }
-      
       if (type === 'withdraw' && amount > (userData?.balance || 0)) {
-        alert('❌ Insufficient balance! You cannot withdraw more than your available balance.');
+        alert('❌ Insufficient balance!');
         return;
       }
-      
       await setDoc(doc(collection(db, "requests")), {
         userEmail: currentUser.email, userName: userData?.name || 'Client',
         type, amount, note: document.getElementById('requestNote').value,
