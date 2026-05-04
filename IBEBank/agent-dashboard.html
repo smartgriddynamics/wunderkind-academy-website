@@ -6,19 +6,21 @@
   <title>IBE Bank · Agent Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     :root {
       --primary: #1a3a5c; --accent: #c9a23d; --agent: #0891b2; --agent-light: #0e7490;
       --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
       --dark: #1e1e2e; --light: #f8fafc; --white: #ffffff;
-      --gray: #6b7280; --gray-light: #e5e7eb;
-      --sidebar-width: 260px;
+      --gray: #6b7280; --gray-light: #e5e7eb; --sidebar-width: 260px;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; display: flex; }
+    body { 
+      font-family: 'Inter', sans-serif; background: #f0f2f5; 
+      color: #1a1a1a; min-height: 100vh; display: flex; 
+    }
     
     .sidebar {
       width: var(--sidebar-width); background: linear-gradient(180deg, #0c4a6e 0%, #155e75 100%);
@@ -35,7 +37,10 @@
     }
     .sidebar-logo-text { font-size: 1.4rem; font-weight: 700; color: white; }
     .sidebar-logo-text span { color: var(--accent); }
-    .tag { font-size: 0.7rem; background: var(--accent); color: var(--dark); padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 8px; }
+    .sidebar-tag { 
+      font-size: 0.7rem; background: var(--accent); color: var(--dark); 
+      padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 8px; 
+    }
     
     .sidebar-user { padding: 20px 24px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-avatar {
@@ -55,7 +60,7 @@
       display: flex; align-items: center; gap: 12px; padding: 12px 16px;
       color: rgba(255,255,255,0.7); border-radius: 10px; margin-bottom: 2px;
       cursor: pointer; border: none; background: none; width: 100%;
-      font-size: 0.9rem; font-weight: 500; text-align: left;
+      font-size: 0.88rem; font-weight: 500; text-align: left;
     }
     .nav-item i { width: 22px; font-size: 1.1rem; text-align: center; }
     .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -65,7 +70,7 @@
     .logout-btn {
       display: flex; align-items: center; gap: 12px; padding: 12px 16px;
       color: rgba(255,255,255,0.5); cursor: pointer; border: none; background: none;
-      width: 100%; font-size: 0.9rem; font-weight: 500; text-align: left; border-radius: 10px;
+      width: 100%; font-size: 0.88rem; font-weight: 500; text-align: left; border-radius: 10px;
     }
     .logout-btn:hover { background: rgba(239,68,68,0.2); color: var(--danger); }
     
@@ -79,14 +84,15 @@
     .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 16px; }
     .stat-icon.agent { background: #cffafe; color: var(--agent); }
     .stat-icon.green { background: #d1fae5; color: var(--success); }
+    .stat-icon.gold { background: #fef3c7; color: var(--accent); }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
     .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
     
     .form-card { background: white; border-radius: 18px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 28px; }
     .form-group { margin-bottom: 18px; }
     .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark); font-size: 0.9rem; }
-    .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: 10px; font-size: 0.95rem; }
-    .form-input:focus, .form-select:focus { outline: none; border-color: var(--agent); }
+    .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: 10px; font-size: 0.95rem; }
+    .form-input:focus { outline: none; border-color: var(--agent); }
     
     .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--agent); color: white; }
@@ -98,14 +104,14 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 16px; background: #f8fafc; border-radius: 12px; gap: 12px;
     }
-    .transaction-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .transaction-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .transaction-icon.incoming { background: #d1fae5; color: var(--success); }
     .transaction-icon.outgoing { background: #fee2e2; color: var(--danger); }
-    .transaction-info { flex: 1; }
-    .transaction-title { font-weight: 600; font-size: 0.9rem; }
+    .transaction-info { flex: 1; min-width: 120px; }
+    .transaction-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
     .transaction-date { font-size: 0.75rem; color: var(--gray); }
     .transaction-note { font-size: 0.75rem; color: #a0aec0; font-style: italic; margin-top: 2px; }
-    .transaction-amount { font-weight: 600; }
+    .transaction-amount { font-weight: 600; white-space: nowrap; }
     .amount-positive { color: var(--success); }
     .amount-negative { color: var(--danger); }
     
@@ -130,7 +136,7 @@
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo"><div class="sidebar-logo-icon">IBE</div><div class="sidebar-logo-text"><span>IBE</span> Bank</div></div>
-      <span class="tag">🏪 Agent Portal</span>
+      <span class="sidebar-tag">🏪 Agent Portal</span>
     </div>
     
     <div class="sidebar-user">
@@ -161,10 +167,11 @@
     <div class="content-section active" id="dashboard-section">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-wallet"></i></div><div class="stat-value" id="balance">TSh 0</div><div class="stat-label">Your Agent Balance</div></div>
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="totalSent">TSh 0</div><div class="stat-label">Total Sent to Clients</div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-paper-plane"></i></div><div class="stat-value" id="totalSent">TSh 0</div><div class="stat-label">Total Sent to Clients</div></div>
+        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-arrow-down"></i></div><div class="stat-value" id="totalReceived">TSh 0</div><div class="stat-label">Total Received (Admin)</div></div>
       </div>
       
-      <div class="info-card"><i class="fas fa-info-circle"></i> <strong>Note:</strong> Your balance is separate from the main bank pool. Admin deposits money for you to serve customers.</div>
+      <div class="info-card"><i class="fas fa-info-circle"></i> Your balance is separate from the main bank pool. Admin deposits money for you to serve customers.</div>
       
       <h3 style="margin-bottom:16px;">Recent Transactions</h3>
       <div class="transaction-list" id="recentTransactions"></div>
@@ -177,11 +184,15 @@
         
         <div class="info-card"><strong>Your Account:</strong> <span id="transferAccountNumber">---</span></div>
         
-        <div class="form-group"><label class="form-label">Client Account Number</label><input type="text" id="recipientAccount" class="form-input" placeholder="Enter client account number" maxlength="10"></div>
+        <div class="form-group"><label class="form-label">Client Account Number</label><input type="text" id="recipientAccount" class="form-input" placeholder="Enter 10-digit client account number" maxlength="10"></div>
         
         <div class="recipient-preview" id="recipientPreview">
-          <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;background:linear-gradient(135deg,var(--agent),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">CL</div><div><h4 id="recipientName">Client Name</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> Client verified</p></div></div></div>
-        <div class="recipient-notfound" id="recipientNotFound"><i class="fas fa-exclamation-circle"></i> Client account not found!</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--agent),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">CL</div>
+            <div><h4 id="recipientName">Client Name</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> Client verified</p></div>
+          </div>
+        </div>
+        <div class="recipient-notfound" id="recipientNotFound"><i class="fas fa-exclamation-circle"></i> Account not found! Check the number and try again.</div>
         
         <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="sendAmount" class="form-input" placeholder="Enter amount" min="0"></div>
         <div class="form-group"><label class="form-label">Description</label><input type="text" id="sendDescription" class="form-input" placeholder="Payment for..."></div>
@@ -221,84 +232,136 @@
 
     const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
 
+    // Helper to generate account number
+    function generateAccountNumber(uid) {
+      if (!uid) return '---';
+      let num = '';
+      for (let i = 0; i < uid.length; i++) { if (uid[i] >= '0' && uid[i] <= '9') num += uid[i]; }
+      while (num.length < 10) num += '0';
+      return num.substring(0, 10);
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.replace('index.html'); return; }
       currentUser = user;
-      console.log('Agent logged in:', user.email);
+      console.log('🔍 Agent auth check for:', user.email);
       
-      // VERIFY this is actually an agent
+      // Check if agent exists in Firestore
       const agentDoc = await getDoc(doc(db, "agents", user.uid));
+      console.log('📄 Agent doc exists:', agentDoc.exists());
       
       if (!agentDoc.exists()) {
-        // Not an agent - might be a client, redirect
+        // Not an agent - redirect to appropriate dashboard
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          window.location.replace('client-dashboard.html');
-        } else {
-          await signOut(auth);
-          window.location.replace('index.html');
+        if (userDoc.exists()) { 
+          console.log('➡️ Redirecting to client dashboard');
+          window.location.replace('client-dashboard.html'); 
+          return; 
         }
+        await signOut(auth); 
+        window.location.replace('index.html'); 
         return;
       }
       
-      if (agentDoc.data().status !== 'active') {
-        alert('Your agent account is pending approval. Please wait for admin approval.');
-        await signOut(auth);
-        window.location.replace('index.html');
-        return;
-      }
-      
-      // Valid agent
       agentData = agentDoc.data();
+      console.log('📊 Agent data:', agentData);
+      
+      if (agentData.status !== 'active') {
+        alert('Your agent account is pending approval. Please wait for admin to approve.');
+        await signOut(auth); 
+        window.location.replace('index.html'); 
+        return;
+      }
+      
+      // Generate account number if not exists
+      if (!agentData.accountNumber) {
+        const acc = generateAccountNumber(user.uid);
+        await updateDoc(doc(db, "agents", user.uid), { accountNumber: acc });
+        agentData.accountNumber = acc;
+        console.log('🆕 Generated account number:', acc);
+      }
+      
+      // Update UI
       document.getElementById('sidebarName').textContent = agentData.name || 'Agent';
       document.getElementById('sidebarEmail').textContent = user.email;
       document.getElementById('sidebarInitials').textContent = (agentData.name || 'AG').substring(0, 2).toUpperCase();
       document.getElementById('sidebarAccountNumber').textContent = agentData.accountNumber || '---';
       document.getElementById('transferAccountNumber').textContent = agentData.accountNumber || '---';
       
+      console.log('✅ Agent loaded successfully, starting realtime data...');
       initRealtime();
     });
 
     function initRealtime() {
-      // Agent balance
+      // Listen to agent balance changes
       onSnapshot(doc(db, "agents", currentUser.uid), (doc) => {
         if (doc.exists()) { 
           agentData = doc.data(); 
-          document.getElementById('balance').textContent = formatMoney(agentData.balance || 0); 
+          const bal = agentData.balance || 0;
+          document.getElementById('balance').textContent = formatMoney(bal);
+          console.log('💰 Balance updated:', bal);
         }
+      }, (error) => {
+        console.error('❌ Balance listener error:', error);
       });
 
-      // Agent transactions
-      const tq = query(collection(db, "transactions"), where("userEmail", "==", currentUser.email), orderBy("timestamp", "desc"));
+      // Listen to agent transactions
+      const tq = query(
+        collection(db, "transactions"), 
+        where("userEmail", "==", currentUser.email), 
+        orderBy("timestamp", "desc")
+      );
+      
       onSnapshot(tq, (snapshot) => {
         const trans = [];
         snapshot.forEach(doc => trans.push({ id: doc.id, ...doc.data() }));
+        console.log('📋 Transactions loaded:', trans.length);
         
+        // Calculate totals
         const totalSent = trans.filter(t => t.type === 'agent_transfer_out').reduce((s, t) => s + t.amount, 0);
+        const totalReceived = trans.filter(t => t.type === 'agent_deposit').reduce((s, t) => s + t.amount, 0);
+        
         document.getElementById('totalSent').textContent = formatMoney(totalSent);
+        document.getElementById('totalReceived').textContent = formatMoney(totalReceived);
         
         const renderItem = (t) => {
-          const isOut = t.type === 'agent_transfer_out';
-          const isIn = t.type === 'agent_deposit';
-          let title = t.type.replace(/_/g, ' ').toUpperCase();
-          if (t.type === 'agent_transfer_out') title = `Sent to ${t.clientName || 'Client'}`;
-          if (t.type === 'agent_deposit') title = 'Admin Deposit';
+          let icon, cls, sign, title, note = '';
           
-          let note = '';
-          if (t.description) note = `<div class="transaction-note">📝 ${t.description}</div>`;
-          if (t.type === 'agent_transfer_out' && t.clientName) note = `<div class="transaction-note">To: ${t.clientName}</div>`;
+          if (t.type === 'agent_deposit') {
+            icon = 'building-columns'; cls = 'incoming'; sign = '+';
+            title = 'FROM ADMIN';
+            if (t.note) note = `<div class="transaction-note">📝 ${t.note}</div>`;
+          } else if (t.type === 'agent_transfer_out') {
+            icon = 'paper-plane'; cls = 'outgoing'; sign = '-';
+            title = `SENT TO ${t.clientName || 'CLIENT'}`;
+            if (t.description) note = `<div class="transaction-note">📝 ${t.description}</div>`;
+            if (t.clientName) note = `<div class="transaction-note">👤 ${t.clientName}</div>`;
+          } else {
+            icon = 'exchange-alt'; cls = 'incoming'; sign = '+';
+            title = t.type.replace(/_/g, ' ').toUpperCase();
+          }
           
           return `<div class="transaction-item">
             <div style="display:flex;align-items:center;gap:12px;">
-              <div class="transaction-icon ${isOut ? 'outgoing' : 'incoming'}"><i class="fas fa-${isOut ? 'paper-plane' : 'arrow-down'}"></i></div>
-              <div class="transaction-info"><div class="transaction-title">${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div>
+              <div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div>
+              <div class="transaction-info">
+                <div class="transaction-title">${title}</div>
+                <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
+                ${note}
+              </div>
             </div>
-            <div class="transaction-amount ${isOut ? 'amount-negative' : 'amount-positive'}">${isOut ? '-' : '+'}${formatMoney(t.amount)}</div>
+            <div class="transaction-amount ${cls === 'outgoing' ? 'amount-negative' : 'amount-positive'}">${sign}${formatMoney(t.amount)}</div>
           </div>`;
         };
         
-        document.getElementById('recentTransactions').innerHTML = trans.slice(0, 10).map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
-        document.getElementById('allTransactions').innerHTML = trans.map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
+        const recentHtml = trans.slice(0, 10).map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
+        const allHtml = trans.map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
+        
+        document.getElementById('recentTransactions').innerHTML = recentHtml;
+        document.getElementById('allTransactions').innerHTML = allHtml;
+      }, (error) => {
+        console.error('❌ Transactions listener error:', error);
+        document.getElementById('recentTransactions').innerHTML = '<p style="color:var(--danger);text-align:center;padding:20px;">Error loading transactions. Check console.</p>';
       });
     }
 
@@ -319,26 +382,34 @@
     // Client lookup
     document.getElementById('recipientAccount').addEventListener('input', async (e) => {
       const acc = e.target.value.trim();
+      console.log('🔍 Searching for account:', acc);
+      
       if (acc.length < 10) { 
         resetClientPreview(); 
         return; 
       }
       
-      // ONLY search in users collection (agents send to clients only)
-      const snap = await getDocs(query(collection(db, "users"), where("accountNumber", "==", acc)));
-      
-      if (snap.empty) { 
-        resetClientPreview(); 
-        document.getElementById('recipientNotFound').style.display = 'block'; 
-      } else {
-        const d = snap.docs[0]; 
-        foundClient = { id: d.id, ...d.data() };
-        document.getElementById('recipientInitials').textContent = (foundClient.name || 'C').substring(0, 2).toUpperCase();
-        document.getElementById('recipientName').textContent = foundClient.name || 'Client';
-        document.getElementById('recipientPreview').style.display = 'block';
-        document.getElementById('recipientNotFound').style.display = 'none';
-        clientValid = true; 
-        updateSendBtn();
+      try {
+        const snap = await getDocs(query(collection(db, "users"), where("accountNumber", "==", acc)));
+        console.log('📄 Search results:', snap.size);
+        
+        if (snap.empty) { 
+          resetClientPreview(); 
+          document.getElementById('recipientNotFound').style.display = 'block'; 
+        } else {
+          const d = snap.docs[0]; 
+          foundClient = { id: d.id, ...d.data() };
+          console.log('✅ Client found:', foundClient.name);
+          
+          document.getElementById('recipientInitials').textContent = (foundClient.name || 'C').substring(0, 2).toUpperCase();
+          document.getElementById('recipientName').textContent = foundClient.name || 'Client';
+          document.getElementById('recipientPreview').style.display = 'block';
+          document.getElementById('recipientNotFound').style.display = 'none';
+          clientValid = true; 
+          updateSendBtn();
+        }
+      } catch (error) {
+        console.error('❌ Search error:', error);
       }
     });
 
@@ -354,7 +425,9 @@
     
     function updateSendBtn() {
       const amt = parseFloat(document.getElementById('sendAmount').value) || 0;
-      document.getElementById('sendMoneyBtn').disabled = !(clientValid && amt > 0 && amt <= (agentData?.balance || 0));
+      const canSend = clientValid && amt > 0 && amt <= (agentData?.balance || 0);
+      document.getElementById('sendMoneyBtn').disabled = !canSend;
+      console.log('🔘 Send button enabled:', canSend);
     }
 
     // Send money
@@ -363,54 +436,46 @@
       const desc = document.getElementById('sendDescription').value || 'Agent payment';
       
       if (!amt || amt <= 0 || amt > (agentData?.balance || 0) || !foundClient) return;
-      if (!confirm(`Send ${formatMoney(amt)} to ${foundClient.name}?`)) return;
+      if (!confirm(`Send ${formatMoney(amt)} to ${foundClient.name}?\n\nDescription: ${desc}`)) return;
       
       const btn = document.getElementById('sendMoneyBtn'); 
       btn.disabled = true; 
       btn.textContent = 'Sending...';
+      console.log('💰 Sending', amt, 'to', foundClient.name);
       
       try {
         await runTransaction(db, async (t) => {
-          const agentRef = doc(db, "agents", currentUser.uid);
-          const clientRef = doc(db, "users", foundClient.id);
-          
-          const agentDocSnap = await t.get(agentRef);
-          const clientDocSnap = await t.get(clientRef);
-          
-          if (!agentDocSnap.exists() || !clientDocSnap.exists()) {
-            throw new Error("Account not found");
-          }
-          
-          const agentBal = agentDocSnap.data().balance || 0;
-          const clientBal = clientDocSnap.data().balance || 0;
-          
-          if (agentBal < amt) throw new Error("Insufficient balance");
-          
-          t.update(agentRef, { balance: agentBal - amt });
-          t.update(clientRef, { balance: clientBal + amt });
+          const ar = doc(db, "agents", currentUser.uid), cr = doc(db, "users", foundClient.id);
+          const ad = await t.get(ar), cd = await t.get(cr);
+          if (!ad.exists() || !cd.exists()) throw new Error("Account not found");
+          const ab = ad.data().balance || 0, cb = cd.data().balance || 0;
+          if (ab < amt) throw new Error("Insufficient balance");
+          t.update(ar, { balance: ab - amt }); 
+          t.update(cr, { balance: cb + amt });
         });
         
-        // Record agent transaction
+        // Agent record
         await setDoc(doc(collection(db, "transactions")), {
-          userEmail: currentUser.email,
-          userName: agentData?.name,
-          type: 'agent_transfer_out',
-          clientName: foundClient.name,
-          clientEmail: foundClient.email,
-          amount: amt,
-          description: desc,
-          timestamp: new Date().toISOString()
+          userEmail: currentUser.email, userName: agentData?.name,
+          type: 'agent_transfer_out', clientName: foundClient.name,
+          clientEmail: foundClient.email, clientAccount: foundClient.accountNumber,
+          amount: amt, description: desc, timestamp: new Date().toISOString()
         });
         
-        // Record client transaction
+        // Client record
         await setDoc(doc(collection(db, "transactions")), {
+          userEmail: foundClient.email, userName: foundClient.name,
+          type: 'agent_deposit_received', agentName: agentData?.name,
+          agentBusiness: agentData?.businessName || 'Agent',
+          agentAccount: agentData.accountNumber,
+          amount: amt, description: desc, timestamp: new Date().toISOString()
+        });
+        
+        // Notify
+        await setDoc(doc(collection(db, "notifications")), {
           userEmail: foundClient.email,
-          userName: foundClient.name,
-          type: 'agent_deposit_received',
-          agentName: agentData?.name,
-          amount: amt,
-          description: desc,
-          timestamp: new Date().toISOString()
+          message: `💰 Received ${formatMoney(amt)} from Agent: ${agentData?.name} (${agentData?.businessName || 'Agent'}). ${desc}`,
+          timestamp: new Date().toISOString(), read: false
         });
         
         document.getElementById('recipientAccount').value = '';
@@ -418,8 +483,8 @@
         document.getElementById('sendDescription').value = '';
         resetClientPreview();
         alert('✅ Money sent successfully!');
-        
       } catch (e) { 
+        console.error('❌ Send error:', e);
         alert('❌ ' + e.message); 
       } finally { 
         btn.disabled = false; 

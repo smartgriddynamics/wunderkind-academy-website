@@ -6,7 +6,7 @@
   <title>IBE Bank · Admin Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
@@ -49,10 +49,7 @@
     
     .sidebar-nav { padding: 16px 12px; flex: 1; }
     .nav-section { margin-bottom: 8px; }
-    .nav-section-label {
-      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
-      color: rgba(255,255,255,0.3); padding: 8px 16px 8px;
-    }
+    .nav-section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.3); padding: 8px 16px 8px; }
     .nav-item {
       display: flex; align-items: center; gap: 12px; padding: 12px 16px;
       color: rgba(255,255,255,0.65); border-radius: 10px; margin-bottom: 2px;
@@ -81,8 +78,8 @@
     
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 28px; }
     .stat-card {
-      background: white; border-radius: 18px; padding: 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04); transition: transform 0.2s;
+      background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
     }
     .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
     .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 16px; }
@@ -91,13 +88,18 @@
     .stat-icon.red { background: #fee2e2; color: var(--danger); }
     .stat-icon.gold { background: #fef3c7; color: var(--accent); }
     .stat-icon.agent { background: #cffafe; color: var(--agent); }
+    .stat-icon.purple { background: #e0e7ff; color: #8b5cf6; }
+    .stat-icon.teal { background: #ccfbf1; color: #0d9488; }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
     .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
     
-    .table-card {
-      background: white; border-radius: 18px; padding: 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow-x: auto; margin-bottom: 28px;
-    }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); }
+    .chart-container { position: relative; height: 300px; }
+    
+    .table-card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow-x: auto; margin-bottom: 28px; }
     .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
     .search-box { display: flex; align-items: center; gap: 10px; background: #f3f4f6; padding: 10px 16px; border-radius: 10px; }
     .search-box i { color: #9ca3af; }
@@ -114,7 +116,6 @@
       border-radius: 10px; display: flex; align-items: center; justify-content: center;
       color: white; font-weight: 600; font-size: 0.85rem;
     }
-    
     .balance { font-weight: 600; color: var(--success); }
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
     .status-active { background: #d1fae5; color: #065f46; }
@@ -122,28 +123,18 @@
     .status-overdue { background: #fee2e2; color: #991b1b; }
     
     .action-buttons { display: flex; gap: 8px; }
-    .btn-icon {
-      background: none; border: none; padding: 8px; border-radius: 8px; cursor: pointer;
-      color: var(--gray); transition: all 0.2s;
-    }
+    .btn-icon { background: none; border: none; padding: 8px; border-radius: 8px; cursor: pointer; color: var(--gray); transition: all 0.2s; }
     .btn-icon:hover { background: #f3f4f6; color: var(--primary); }
     .btn-icon.danger:hover { background: #fee2e2; color: var(--danger); }
     
-    .btn {
-      padding: 10px 22px; border-radius: 10px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s; border: none; font-size: 0.9rem;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
+    .btn { padding: 10px 22px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-success { background: var(--success); color: white; }
     
     .requests-list { display: flex; flex-direction: column; gap: 12px; }
-    .request-card {
-      background: #f9fafb; border-radius: 12px; padding: 20px;
-      border: 1px solid var(--gray-light);
-    }
+    .request-card { background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid var(--gray-light); }
     .request-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
     .request-user { font-weight: 600; }
     .request-amount { font-weight: 700; color: var(--primary); }
@@ -151,23 +142,22 @@
     .btn-approve { background: var(--success); color: white; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
     .btn-reject { background: var(--danger); color: white; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
     
-    .interest-settings {
-      background: white; border-radius: 18px; padding: 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 28px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;
-    }
+    .interest-settings { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
     .toggle-switch { position: relative; width: 60px; height: 30px; }
     .toggle-input { opacity: 0; width: 0; height: 0; }
-    .toggle-label {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1; transition: .3s; border-radius: 30px;
-    }
-    .toggle-label:before {
-      position: absolute; content: ""; height: 24px; width: 24px;
-      left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
-    }
+    .toggle-label { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 30px; }
+    .toggle-label:before { position: absolute; content: ""; height: 24px; width: 24px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
     .toggle-input:checked + .toggle-label { background: var(--primary); }
     .toggle-input:checked + .toggle-label:before { transform: translateX(30px); }
+    
+    .loan-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .loan-stat { background: #f8fafc; border-radius: 12px; padding: 15px; text-align: center; }
+    .loan-stat .value { font-size: 1.5rem; font-weight: 700; }
+    .loan-stat .label { color: #64748b; font-size: 0.8rem; }
+    
+    .profit-distribution-card { background: linear-gradient(135deg, var(--accent), var(--accent-light)); border-radius: 18px; padding: 24px; margin-bottom: 28px; color: var(--dark); }
+    .profit-distribution-card h3 { margin-bottom: 10px; }
+    .profit-distribution-card .btn { background: var(--primary); color: white; margin-top: 15px; }
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal { background: white; border-radius: 20px; padding: 32px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
@@ -180,24 +170,9 @@
     .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); }
     .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
     
-    .charts-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 28px; }
-    .chart-card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .chart-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); }
-    .chart-container { position: relative; height: 300px; }
+    .menu-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 200; width: 42px; height: 42px; border-radius: 12px; background: var(--primary); color: white; border: none; cursor: pointer; font-size: 1.2rem; }
     
-    .loan-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-    .loan-stat { background: #f8fafc; border-radius: 12px; padding: 15px; text-align: center; }
-    .loan-stat .value { font-size: 1.5rem; font-weight: 700; }
-    .loan-stat .label { color: #64748b; font-size: 0.8rem; }
-    
-    .menu-toggle {
-      display: none; position: fixed; top: 20px; left: 20px; z-index: 200;
-      width: 42px; height: 42px; border-radius: 12px; background: var(--primary);
-      color: white; border: none; cursor: pointer; font-size: 1.2rem;
-    }
-    
-    @media (max-width: 1024px) { .charts-container { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.mobile-open { transform: translateX(0); }
@@ -216,12 +191,10 @@
     <div class="sidebar-header">
       <div class="sidebar-logo"><div class="sidebar-logo-icon">IBE</div><div class="sidebar-logo-text"><span>IBE</span> Bank</div></div>
     </div>
-    
     <div class="sidebar-user">
       <div class="sidebar-avatar" id="sidebarInitials">AD</div>
       <div class="sidebar-user-info"><h4 id="sidebarName">Admin</h4><p id="sidebarEmail">admin@ibebank.com</p></div>
     </div>
-    
     <div class="sidebar-nav">
       <div class="nav-section"><div class="nav-section-label">Main</div>
         <button class="nav-item active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
@@ -241,7 +214,6 @@
         <button class="nav-item" data-section="settings"><i class="fas fa-cog"></i> Settings</button>
       </div>
     </div>
-    
     <div class="sidebar-footer">
       <button class="logout-nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
@@ -254,20 +226,23 @@
     <div class="content-section active" id="dashboard-section">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-wallet"></i></div><div class="stat-value" id="totalDeposits">TSh 0</div><div class="stat-label">Total Deposits</div></div>
+        <div class="stat-card"><div class="stat-icon teal"><i class="fas fa-piggy-bank"></i></div><div class="stat-value" id="availableBalance">TSh 0</div><div class="stat-label">Available Balance</div></div>
         <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div class="stat-value" id="totalUsers">0</div><div class="stat-label">Total Users</div></div>
         <div class="stat-card"><div class="stat-icon red"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value" id="totalLoans">TSh 0</div><div class="stat-label">Active Loans</div></div>
         <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-store"></i></div><div class="stat-value" id="totalAgents">0</div><div class="stat-label">Active Agents</div></div>
         <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-gift"></i></div><div class="stat-value" id="totalProfitShared">TSh 0</div><div class="stat-label">Profit Shared</div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-percent"></i></div><div class="stat-value" id="loanInterestDisplay">10%</div><div class="stat-label">Loan Interest Rate</div></div>
+      </div>
+      
+      <div class="profit-distribution-card">
+        <h3><i class="fas fa-gift"></i> Distribute Profits to Depositors</h3>
+        <p>Available for loans: <strong id="availableForLoans">TSh 0</strong> | Loan interest rate: <strong>10% per month</strong></p>
+        <button class="btn" id="distributeProfitsBtn"><i class="fas fa-share"></i> Distribute Profits Now</button>
       </div>
       
       <div class="interest-settings">
-        <div class="interest-info"><h3><i class="fas fa-cog"></i> System Settings</h3><p>Profit sharing active | Loan interest: 10% per month</p></div>
+        <div class="interest-info"><h3><i class="fas fa-cog"></i> System Settings</h3><p>Profit sharing: Loan interest distributed to all depositors | Loan interest: 10% per month</p></div>
         <div class="toggle-switch"><input type="checkbox" id="autoInterestToggle" class="toggle-input" checked><label for="autoInterestToggle" class="toggle-label"></label></div>
-      </div>
-      
-      <div class="charts-container">
-        <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Balance Overview</h3></div><div class="chart-container"><canvas id="balanceChart"></canvas></div></div>
-        <div class="chart-card"><div class="chart-header"><h3 class="chart-title">User Distribution</h3></div><div class="chart-container"><canvas id="userDistributionChart"></canvas></div></div>
       </div>
     </div>
 
@@ -280,30 +255,18 @@
             <button class="btn btn-primary" id="addUserBtn"><i class="fas fa-plus"></i> Add User</button>
           </div>
         </div>
-        <table><thead><tr><th>User</th><th>Account #</th><th>Balance</th><th>Loan Debt</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table>
+        <table><thead><tr><th>User</th><th>Account #</th><th>Balance</th><th>Loan Debt</th><th>Pool %</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table>
       </div>
     </div>
 
     <!-- REGISTRATIONS -->
     <div class="content-section" id="registrations-section">
-      <div class="table-card">
-        <div class="table-header"><h3>Pending Account Registrations</h3></div>
-        <div id="registrationsList" class="requests-list"></div>
-      </div>
+      <div class="table-card"><div class="table-header"><h3>Pending Account Registrations</h3></div><div id="registrationsList" class="requests-list"></div></div>
     </div>
 
     <!-- AGENTS -->
     <div class="content-section" id="agents-section">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-store"></i></div><div class="stat-value" id="totalActiveAgents">0</div><div class="stat-label">Active Agents</div></div>
-        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-wallet"></i></div><div class="stat-value" id="totalAgentBalance">TSh 0</div><div class="stat-label">Total Agent Balances</div></div>
-      </div>
-      
-      <div class="table-card">
-        <div class="table-header"><h3>Pending Agent Registrations</h3></div>
-        <div id="pendingAgentsList" class="requests-list"></div>
-      </div>
-      
+      <div class="table-card"><div class="table-header"><h3>Pending Agent Registrations</h3></div><div id="pendingAgentsList" class="requests-list"></div></div>
       <div class="table-card" style="margin-top:20px;">
         <div class="table-header"><h3>Active Agents</h3></div>
         <table><thead><tr><th>Agent</th><th>Account #</th><th>Balance</th><th>Actions</th></tr></thead><tbody id="agentsTableBody"></tbody></table>
@@ -312,10 +275,7 @@
 
     <!-- REQUESTS -->
     <div class="content-section" id="requests-section">
-      <div class="table-card">
-        <div class="table-header"><h3>Pending Transaction Requests</h3></div>
-        <div id="requestsList" class="requests-list"></div>
-      </div>
+      <div class="table-card"><div class="table-header"><h3>Pending Transaction Requests</h3></div><div id="requestsList" class="requests-list"></div></div>
     </div>
 
     <!-- LOANS -->
@@ -326,12 +286,7 @@
         <div class="loan-stat"><div class="value" id="overdueLoansCount">0</div><div class="label">Overdue</div></div>
         <div class="loan-stat"><div class="value" id="totalLoanAmount">TSh 0</div><div class="label">Total Lent</div></div>
       </div>
-      
-      <div class="table-card">
-        <div class="table-header"><h3>Loan Requests (10%/month)</h3></div>
-        <div id="loanRequestsList" class="requests-list"></div>
-      </div>
-      
+      <div class="table-card"><div class="table-header"><h3>Loan Requests (10%/month)</h3></div><div id="loanRequestsList" class="requests-list"></div></div>
       <div class="table-card" style="margin-top:20px;">
         <div class="table-header"><h3>Active Loans</h3></div>
         <table><thead><tr><th>User</th><th>Amount</th><th>Remaining</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="activeLoansBody"></tbody></table>
@@ -347,11 +302,12 @@
           <div class="stats-grid">
             <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-hashtag"></i></div><div class="stat-value" id="analyticsAccountNumber" style="font-size:1.3rem;">---</div><div class="stat-label">Account Number</div></div>
             <div class="stat-card"><div class="stat-icon green"><i class="fas fa-wallet"></i></div><div class="stat-value" id="analyticsBalance">TSh 0</div><div class="stat-label">Balance</div></div>
+            <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-chart-pie"></i></div><div class="stat-value" id="analyticsPoolShare">0%</div><div class="stat-label">Pool Share</div></div>
             <div class="stat-card"><div class="stat-icon red"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value" id="analyticsLoanDebt">TSh 0</div><div class="stat-label">Loan Debt</div></div>
           </div>
-          <div class="charts-container" style="margin-top:20px;">
-            <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Balance History</h3></div><div class="chart-container" style="height:250px;"><canvas id="userBalanceHistoryChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Transaction Breakdown</h3></div><div class="chart-container" style="height:250px;"><canvas id="userTransactionChart"></canvas></div></div>
+          <div class="dashboard-grid" style="margin-top:20px;">
+            <div class="card"><div class="card-header"><h3 class="card-title">Balance History</h3></div><div class="chart-container" style="height:250px;"><canvas id="userBalanceHistoryChart"></canvas></div></div>
+            <div class="card"><div class="card-header"><h3 class="card-title">Transaction Breakdown</h3></div><div class="chart-container" style="height:250px;"><canvas id="userTransactionChart"></canvas></div></div>
           </div>
           <h4 style="margin:20px 0 12px;">Recent Transactions</h4>
           <table><thead><tr><th>Date</th><th>Type</th><th>Amount</th></tr></thead><tbody id="userTransactionsBody"></tbody></table>
@@ -361,8 +317,7 @@
 
     <!-- TRANSACTIONS -->
     <div class="content-section" id="transactions-section">
-      <div class="table-card">
-        <div class="table-header"><h3>All Transactions</h3></div>
+      <div class="table-card"><div class="table-header"><h3>All Transactions</h3></div>
         <table><thead><tr><th>Date</th><th>User</th><th>Type</th><th>Amount</th></tr></thead><tbody id="allTransactionsBody"></tbody></table>
       </div>
     </div>
@@ -378,7 +333,7 @@
     </div>
   </div>
 
-  <!-- ADD USER MODAL -->
+  <!-- MODALS -->
   <div class="modal-overlay" id="addUserModal">
     <div class="modal">
       <div class="modal-header"><h3 class="modal-title">Add New User</h3><button class="modal-close" onclick="closeModal('addUserModal')">&times;</button></div>
@@ -390,7 +345,6 @@
     </div>
   </div>
 
-  <!-- TRANSACTION MODAL -->
   <div class="modal-overlay" id="transactionModal">
     <div class="modal">
       <div class="modal-header"><h3 class="modal-title" id="transactionModalTitle">Deposit</h3><button class="modal-close" onclick="closeModal('transactionModal')">&times;</button></div>
@@ -400,7 +354,6 @@
     </div>
   </div>
 
-  <!-- LOAN PAYMENT MODAL -->
   <div class="modal-overlay" id="loanPaymentModal">
     <div class="modal">
       <div class="modal-header"><h3 class="modal-title">Record Loan Payment</h3><button class="modal-close" onclick="closeModal('loanPaymentModal')">&times;</button></div>
@@ -410,7 +363,6 @@
     </div>
   </div>
 
-  <!-- AGENT DEPOSIT MODAL -->
   <div class="modal-overlay" id="agentDepositModal">
     <div class="modal">
       <div class="modal-header"><h3 class="modal-title">Deposit to Agent</h3><button class="modal-close" onclick="closeModal('agentDepositModal')">&times;</button></div>
@@ -426,18 +378,12 @@
     import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
-      authDomain: "minibank-b76d6.firebaseapp.com",
-      projectId: "minibank-b76d6",
-      storageBucket: "minibank-b76d6.firebasestorage.app",
-      messagingSenderId: "1076277480681",
-      appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
+      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8", authDomain: "minibank-b76d6.firebaseapp.com",
+      projectId: "minibank-b76d6", storageBucket: "minibank-b76d6.firebasestorage.app",
+      messagingSenderId: "1076277480681", appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
+    const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app);
     let currentUser = null, users = [], transactions = [], requests = [], loanRequests = [], activeLoans = [];
     let pendingRegistrations = [], agents = [], pendingAgents = [], charts = {};
     let userAnalyticsChart = null, userTransactionChart = null;
@@ -458,7 +404,6 @@
       initRealtimeData();
     });
 
-    // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -479,62 +424,109 @@
     }
 
     document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
-      await updateDoc(doc(db,"settings","interest"),{loanRate:parseFloat(document.getElementById('loanInterestRate').value)||10,lowBalanceThreshold:parseFloat(document.getElementById('lowBalanceThreshold').value)||1000000});
+      const loanRate = parseFloat(document.getElementById('loanInterestRate').value)||10;
+      const threshold = parseFloat(document.getElementById('lowBalanceThreshold').value)||1000000;
+      await updateDoc(doc(db,"settings","interest"),{loanRate,lowBalanceThreshold:threshold});
+      document.getElementById('loanInterestDisplay').textContent = loanRate + '%';
       alert('Settings saved!');
     });
 
     function initRealtimeData() {
+      // Users
       onSnapshot(collection(db,"users"),(snap)=>{users=[];snap.forEach(d=>users.push({id:d.id,...d.data()}));updateDashboard();renderUsersTable();populateUserSelect();});
+      // Transactions
       const tq=query(collection(db,"transactions"),orderBy("timestamp","desc"));
       onSnapshot(tq,(snap)=>{transactions=[];snap.forEach(d=>transactions.push({id:d.id,...d.data()}));updateTransactionsDisplay();updateDashboard();});
+      // Requests
       const rq=query(collection(db,"requests"),where("status","==","pending"));
       onSnapshot(rq,(snap)=>{requests=[];snap.forEach(d=>requests.push({id:d.id,...d.data()}));document.getElementById('requestCount').textContent=requests.length;renderRequests();});
+      // Loan Requests
       const lrq=query(collection(db,"loanRequests"),where("status","==","pending"));
       onSnapshot(lrq,(snap)=>{loanRequests=[];snap.forEach(d=>loanRequests.push({id:d.id,...d.data()}));loanRequests.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));document.getElementById('loanRequestCount').textContent=loanRequests.length;renderLoanRequests();});
+      // Active Loans
       const alq=query(collection(db,"loans"),where("status","in",["active","overdue"]));
-      onSnapshot(alq,(snap)=>{activeLoans=[];snap.forEach(d=>activeLoans.push({id:d.id,...d.data()}));renderActiveLoans();updateLoanStats();updateDashboard();});
+      onSnapshot(alq,(snap)=>{
+        activeLoans=[];
+        snap.forEach(d=>{const loan={id:d.id,...d.data()};activeLoans.push(loan);});
+        console.log('✅ Active loans loaded:', activeLoans.length);
+        activeLoans.forEach(l=>console.log(`   Loan: ${l.userEmail} | Remaining: ${l.remainingAmount||l.amount} | Status: ${l.status}`));
+        renderActiveLoans();updateLoanStats();updateDashboard();renderUsersTable();
+      });
+      // Registrations
       const regQ=query(collection(db,"pendingRegistrations"),where("status","==","pending"));
       onSnapshot(regQ,(snap)=>{pendingRegistrations=[];snap.forEach(d=>pendingRegistrations.push({id:d.id,...d.data()}));document.getElementById('registrationCount').textContent=pendingRegistrations.length;renderRegistrations();});
-      
-      // AGENTS
+      // Agents
       const agentsQ=query(collection(db,"agents"),where("status","==","active"));
       onSnapshot(agentsQ,(snap)=>{agents=[];snap.forEach(d=>agents.push({id:d.id,...d.data()}));renderAgents();updateAgentStats();});
+      // Pending Agents
       const pendingAgentsQ=query(collection(db,"pendingAgents"),where("status","==","pending"));
       onSnapshot(pendingAgentsQ,(snap)=>{pendingAgents=[];snap.forEach(d=>pendingAgents.push({id:d.id,...d.data()}));document.getElementById('agentRequestCount').textContent=pendingAgents.length;renderPendingAgents();});
     }
 
     function updateDashboard() {
-      const total=users.reduce((s,u)=>s+(u.balance||0),0);
-      const totalLoan=activeLoans.filter(l=>l.status==='active').reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
-      document.getElementById('totalDeposits').textContent=formatMoney(total);
+      const totalDep = users.reduce((s,u)=>s+(u.balance||0),0);
+      const totalLoanAmt = activeLoans.filter(l=>l.status==='active').reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
+      const available = totalDep - totalLoanAmt;
+      const profitShared = transactions.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0);
+      document.getElementById('totalDeposits').textContent=formatMoney(totalDep);
+      document.getElementById('availableBalance').textContent=formatMoney(available);
       document.getElementById('totalUsers').textContent=users.length;
-      document.getElementById('totalLoans').textContent=formatMoney(totalLoan);
+      document.getElementById('totalLoans').textContent=formatMoney(totalLoanAmt);
       document.getElementById('totalAgents').textContent=agents.length;
-      document.getElementById('totalProfitShared').textContent=formatMoney(transactions.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0));
+      document.getElementById('totalProfitShared').textContent=formatMoney(profitShared);
+      document.getElementById('availableForLoans').textContent=formatMoney(available);
+      getDoc(doc(db,"settings","interest")).then(s=>{document.getElementById('loanInterestDisplay').textContent=(s.exists()?(s.data().loanRate||10):10)+'%';});
     }
 
-    function updateAgentStats() {
-      document.getElementById('totalActiveAgents').textContent=agents.length;
-      document.getElementById('totalAgentBalance').textContent=formatMoney(agents.reduce((s,a)=>s+(a.balance||0),0));
-    }
+    function updateAgentStats() { document.getElementById('totalAgents').textContent = agents.length; }
 
     function updateLoanStats() {
-      document.getElementById('activeLoansCount').textContent=activeLoans.filter(l=>l.status==='active').length;
-      document.getElementById('pendingLoansCount').textContent=loanRequests.length;
-      document.getElementById('overdueLoansCount').textContent=activeLoans.filter(l=>l.status==='overdue').length;
-      document.getElementById('totalLoanAmount').textContent=formatMoney(activeLoans.reduce((s,l)=>s+(l.remainingAmount||l.amount),0));
+      document.getElementById('activeLoansCount').textContent = activeLoans.filter(l=>l.status==='active').length;
+      document.getElementById('pendingLoansCount').textContent = loanRequests.length;
+      document.getElementById('overdueLoansCount').textContent = activeLoans.filter(l=>l.status==='overdue').length;
+      document.getElementById('totalLoanAmount').textContent = formatMoney(activeLoans.reduce((s,l)=>s+(l.remainingAmount||l.amount),0));
     }
 
+    // FIXED: renderUsersTable with proper loan matching
     function renderUsersTable() {
-      const search=document.getElementById('userSearch')?.value.toLowerCase()||'';
-      const filtered=users.filter(u=>u.name?.toLowerCase().includes(search)||u.email?.toLowerCase().includes(search));
-      const tbody=document.getElementById('usersTableBody');
-      if(tbody){
-        tbody.innerHTML=filtered.map(u=>{
-          const debt=activeLoans.filter(l=>l.userEmail?.toLowerCase()===u.email?.toLowerCase()&&(l.status==='active'||l.status==='overdue')).reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
-          return `<tr><td><div class="user-cell"><div class="user-avatar">${(u.name||'U').substring(0,2).toUpperCase()}</div><div><h4>${u.name||'N/A'}</h4><p>${u.email}</p></div></div></td><td>${u.accountNumber||generateAccountNumber(u.id)}</td><td class="balance">${formatMoney(u.balance||0)}</td><td style="color:${debt>0?'var(--danger)':'var(--success)'};">${formatMoney(debt)}</td><td><div class="action-buttons"><button class="btn-icon" onclick="handleDeposit('${u.email}')"><i class="fas fa-plus"></i></button><button class="btn-icon" onclick="handleWithdraw('${u.email}')"><i class="fas fa-minus"></i></button><button class="btn-icon danger" onclick="deleteUser('${u.id}','${u.name}')"><i class="fas fa-trash"></i></button></div></td></tr>`;
-        }).join('');
-      }
+      const search = document.getElementById('userSearch')?.value.toLowerCase() || '';
+      const filtered = users.filter(u => u.name?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search));
+      const totalDep = users.reduce((s,u)=>s+(u.balance||0),0);
+      const tbody = document.getElementById('usersTableBody');
+      if(!tbody) return;
+      
+      tbody.innerHTML = filtered.map(u => {
+        // Match loans to user by email (case-insensitive)
+        const userLoans = activeLoans.filter(l => {
+          if(!l.userEmail || !u.email) return false;
+          return l.userEmail.toLowerCase().trim() === u.email.toLowerCase().trim();
+        });
+        
+        // Only active and overdue loans count as debt
+        const activeUserLoans = userLoans.filter(l => l.status === 'active' || l.status === 'overdue');
+        
+        // Calculate total debt
+        const debt = activeUserLoans.reduce((sum, l) => sum + (l.remainingAmount || l.amount || 0), 0);
+        
+        // Debug log
+        if(debt > 0) console.log(`💰 ${u.email}: ${activeUserLoans.length} active loans, debt: ${formatMoney(debt)}`);
+        
+        const poolPct = totalDep > 0 ? ((u.balance||0)/totalDep*100).toFixed(2) : 0;
+        const acc = u.accountNumber || generateAccountNumber(u.id);
+        
+        return `<tr>
+          <td><div class="user-cell"><div class="user-avatar">${(u.name||'U').substring(0,2).toUpperCase()}</div><div><h4>${u.name||'N/A'}</h4><p>${u.email}</p></div></div></td>
+          <td>${acc}</td>
+          <td class="balance">${formatMoney(u.balance||0)}</td>
+          <td style="color:${debt>0?'var(--danger)':'var(--success)'};font-weight:600;">${formatMoney(debt)}</td>
+          <td>${poolPct}%</td>
+          <td><div class="action-buttons">
+            <button class="btn-icon" onclick="handleDeposit('${u.email}')"><i class="fas fa-plus"></i></button>
+            <button class="btn-icon" onclick="handleWithdraw('${u.email}')"><i class="fas fa-minus"></i></button>
+            <button class="btn-icon danger" onclick="deleteUser('${u.id}','${u.name}')"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>`;
+      }).join('');
     }
 
     function renderRegistrations() {
@@ -568,7 +560,8 @@
         const rate=r.interestRate||(r.duration/30)*0.10;
         const interest=r.interestAmount||(r.amount*rate);
         const total=r.totalRepayment||(r.amount+interest);
-        return `<div class="request-card"><div class="request-header"><span class="request-user">${r.userName} (${r.userEmail})</span><span class="request-amount">${formatMoney(r.amount)}</span></div><p>Duration: ${r.duration} days | Interest: ${rate*100}% (${formatMoney(interest)}) | <strong>Total: ${formatMoney(total)}</strong></p><div class="request-actions"><button class="btn-approve" onclick="approveLoanRequest('${r.id}')">Approve</button><button class="btn-reject" onclick="rejectLoanRequest('${r.id}')">Reject</button></div></div>`;
+        const months=r.duration/30;
+        return `<div class="request-card"><div class="request-header"><span class="request-user">${r.userName} (${r.userEmail})</span><span class="request-amount">${formatMoney(r.amount)}</span></div><p>Duration: ${r.duration} days (${months} month${months!==1?'s':''}) | Interest: ${(rate*100).toFixed(0)}% (${formatMoney(interest)})</p><p><strong>Total to Repay: ${formatMoney(total)}</strong></p><p style="color:#c9a23d;font-size:0.85rem;"><i class="fas fa-users"></i> Interest will be shared with depositors!</p><div class="request-actions"><button class="btn-approve" onclick="approveLoanRequest('${r.id}')">Approve</button><button class="btn-reject" onclick="rejectLoanRequest('${r.id}')">Reject</button></div></div>`;
       }).join('');
     }
 
@@ -601,9 +594,12 @@
     function loadUserAnalytics(uid) {
       const user=users.find(u=>u.id===uid);if(!user)return;
       const ut=transactions.filter(t=>t.userEmail===user.email);
-      const debt=activeLoans.filter(l=>l.userEmail===user.email&&(l.status==='active'||l.status==='overdue')).reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
-      document.getElementById('analyticsAccountNumber').textContent=user.accountNumber||generateAccountNumber(user.id);
+      const debt=activeLoans.filter(l=>l.userEmail?.toLowerCase()===user.email?.toLowerCase()&&(l.status==='active'||l.status==='overdue')).reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
+      const totalDep=users.reduce((s,u)=>s+(u.balance||0),0);
+      const poolShare=totalDep>0?((user.balance||0)/totalDep*100).toFixed(2):0;
+      document.getElementById('analyticsAccountNumber').textContent=user.accountNumber||'---';
       document.getElementById('analyticsBalance').textContent=formatMoney(user.balance||0);
+      document.getElementById('analyticsPoolShare').textContent=poolShare+'%';
       document.getElementById('analyticsLoanDebt').textContent=formatMoney(debt);
       
       const ctx1=document.getElementById('userBalanceHistoryChart').getContext('2d');
@@ -613,27 +609,21 @@
       
       const ctx2=document.getElementById('userTransactionChart').getContext('2d');
       if(userTransactionChart)userTransactionChart.destroy();
-      const dep=ut.filter(t=>t.type==='deposit'||t.type==='transfer_received').reduce((s,t)=>s+t.amount,0);
+      const dep=ut.filter(t=>t.type==='deposit'||t.type==='transfer_received'||t.type==='agent_deposit_received').reduce((s,t)=>s+t.amount,0);
       const wit=ut.filter(t=>t.type==='withdrawal'||t.type==='transfer_sent').reduce((s,t)=>s+t.amount,0);
       const prof=ut.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0);
-      userTransactionChart=new Chart(ctx2,{type:'doughnut',data:{labels:['Deposits','Withdrawals','Profit'],datasets:[{data:[dep,wit,prof],backgroundColor:['#10b981','#ef4444','#c9a23d']}]},options:{responsive:true,maintainAspectRatio:false}});
+      userTransactionChart=new Chart(ctx2,{type:'doughnut',data:{labels:['Deposits/Received','Withdrawals/Sent','Profit Share'],datasets:[{data:[dep,wit,prof],backgroundColor:['#10b981','#ef4444','#c9a23d']}]},options:{responsive:true,maintainAspectRatio:false}});
       
       document.getElementById('userTransactionsBody').innerHTML=ut.slice(0,10).map(t=>`<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.type}</td><td style="color:${t.type==='withdrawal'||t.type==='transfer_sent'?'var(--danger)':'var(--success)'};">${t.type==='withdrawal'||t.type==='transfer_sent'?'-':'+'}${formatMoney(t.amount)}</td></tr>`).join('')||'<tr><td colspan="3" style="text-align:center;">No transactions</td></tr>';
       document.getElementById('userAnalytics').style.display='block';
     }
 
-    // USER MANAGEMENT
+    // User Management
     document.getElementById('createUserBtn').addEventListener('click',async()=>{
       const name=document.getElementById('newUserName').value.trim(),email=document.getElementById('newUserEmail').value.trim().toLowerCase();
       const password=document.getElementById('newUserPassword').value,balance=parseFloat(document.getElementById('newUserBalance').value)||0;
       if(!name||!email||!password)return alert('All fields required');
-      try{
-        const uc=await createUserWithEmailAndPassword(auth,email,password);
-        const acc=generateAccountNumber(uc.user.uid);
-        await setDoc(doc(db,"users",uc.user.uid),{name,email,balance,accountNumber:acc,createdAt:new Date().toISOString(),uid:uc.user.uid});
-        closeModal('addUserModal');document.getElementById('newUserName').value=document.getElementById('newUserEmail').value='';document.getElementById('newUserBalance').value='0';
-        alert('User created!');
-      }catch(e){alert(e.code==='auth/email-already-in-use'?'Email exists':e.message);}
+      try{const uc=await createUserWithEmailAndPassword(auth,email,password);const acc=generateAccountNumber(uc.user.uid);await setDoc(doc(db,"users",uc.user.uid),{name,email,balance,accountNumber:acc,createdAt:new Date().toISOString(),uid:uc.user.uid});closeModal('addUserModal');document.getElementById('newUserName').value=document.getElementById('newUserEmail').value='';document.getElementById('newUserBalance').value='0';alert('User created!');}catch(e){alert(e.code==='auth/email-already-in-use'?'Email exists':e.message);}
     });
 
     window.handleDeposit=(email)=>{const u=users.find(x=>x.email===email);if(!u)return;selectedUser=u;currentTransactionType='deposit';document.getElementById('transactionModalTitle').textContent='Deposit';document.getElementById('transactionUser').value=`${u.name} (${u.email})`;openModal('transactionModal');};
@@ -641,108 +631,75 @@
     window.deleteUser=async(id,name)=>{if(!confirm(`Delete ${name}?`))return;await deleteDoc(doc(db,"users",id));};
 
     document.getElementById('confirmTransactionBtn').addEventListener('click',async()=>{
-      const amt=parseFloat(document.getElementById('transactionAmount').value);
-      if(!amt||amt<=0)return alert('Invalid amount');
-      const nb=currentTransactionType==='deposit'?selectedUser.balance+amt:selectedUser.balance-amt;
-      if(nb<0)return alert('Insufficient funds');
-      await updateDoc(doc(db,"users",selectedUser.id),{balance:nb});
-      await setDoc(doc(collection(db,"transactions")),{userEmail:selectedUser.email,userName:selectedUser.name,type:currentTransactionType,amount:amt,timestamp:new Date().toISOString()});
+      const amt=parseFloat(document.getElementById('transactionAmount').value);if(!amt||amt<=0)return alert('Invalid amount');
+      const nb=currentTransactionType==='deposit'?selectedUser.balance+amt:selectedUser.balance-amt;if(nb<0)return alert('Insufficient funds');
+      await updateDoc(doc(db,"users",selectedUser.id),{balance:nb});await setDoc(doc(collection(db,"transactions")),{userEmail:selectedUser.email,userName:selectedUser.name,type:currentTransactionType,amount:amt,timestamp:new Date().toISOString()});
       closeModal('transactionModal');document.getElementById('transactionAmount').value='';
     });
 
-    // REGISTRATION
-    window.approveRegistration=async(id)=>{
-      const r=pendingRegistrations.find(x=>x.id===id);if(!r)return;
-      const acc=generateAccountNumber(id);
-      await setDoc(doc(db,"users",id),{name:r.name,email:r.email,balance:r.initialBalance||0,accountNumber:acc,createdAt:new Date().toISOString(),uid:id});
-      await updateDoc(doc(db,"pendingRegistrations",id),{status:'approved'});
-      alert('✅ Registration approved!');
-    };
-    window.rejectRegistration=async(id)=>{await updateDoc(doc(db,"pendingRegistrations",id),{status:'rejected'});alert('Registration rejected.');};
+    // Registration
+    window.approveRegistration=async(id)=>{const r=pendingRegistrations.find(x=>x.id===id);if(!r)return;const acc=generateAccountNumber(id);await setDoc(doc(db,"users",id),{name:r.name,email:r.email,balance:r.initialBalance||0,accountNumber:acc,createdAt:new Date().toISOString(),uid:id});await updateDoc(doc(db,"pendingRegistrations",id),{status:'approved'});alert('✅ Approved!');};
+    window.rejectRegistration=async(id)=>{await updateDoc(doc(db,"pendingRegistrations",id),{status:'rejected'});alert('Rejected.');};
 
-    // AGENT MANAGEMENT
-    window.approveAgent=async(id)=>{
-      const a=pendingAgents.find(x=>x.id===id);if(!a)return;
-      const acc=generateAccountNumber(id);
-      await setDoc(doc(db,"agents",id),{name:a.name,email:a.email,phone:a.phone,businessName:a.businessName,location:a.location,balance:0,accountNumber:acc,status:'active',createdAt:new Date().toISOString()});
-      await updateDoc(doc(db,"pendingAgents",id),{status:'approved'});
-      alert('✅ Agent approved!');
-    };
+    // Agents
+    window.approveAgent=async(id)=>{const a=pendingAgents.find(x=>x.id===id);if(!a)return;const acc=generateAccountNumber(id);await setDoc(doc(db,"agents",id),{name:a.name,email:a.email,phone:a.phone,businessName:a.businessName,location:a.location,balance:0,accountNumber:acc,status:'active',createdAt:new Date().toISOString()});await updateDoc(doc(db,"pendingAgents",id),{status:'approved'});alert('✅ Agent approved!');};
     window.rejectAgent=async(id)=>{await updateDoc(doc(db,"pendingAgents",id),{status:'rejected'});alert('Agent rejected.');};
     window.depositToAgent=(id)=>{selectedAgent=agents.find(a=>a.id===id);if(!selectedAgent)return;document.getElementById('agentDepositUser').value=`${selectedAgent.name} (${selectedAgent.accountNumber})`;document.getElementById('agentDepositAmount').value='';openModal('agentDepositModal');};
     window.deleteAgent=async(id,name)=>{if(!confirm(`Delete agent ${name}?`))return;await deleteDoc(doc(db,"agents",id));alert('Agent deleted.');};
 
     document.getElementById('confirmAgentDepositBtn').addEventListener('click',async()=>{
-      const amt=parseFloat(document.getElementById('agentDepositAmount').value);
-      if(!amt||amt<=0)return alert('Invalid amount');
+      const amt=parseFloat(document.getElementById('agentDepositAmount').value);if(!amt||amt<=0)return alert('Invalid amount');
       await updateDoc(doc(db,"agents",selectedAgent.id),{balance:(selectedAgent.balance||0)+amt});
       await setDoc(doc(collection(db,"transactions")),{userEmail:selectedAgent.email,userName:selectedAgent.name,type:'agent_deposit',amount:amt,timestamp:new Date().toISOString(),note:'Admin deposit to agent'});
-      closeModal('agentDepositModal');alert('✅ Deposit successful!');
+      closeModal('agentDepositModal');alert('✅ Deposited!');
     });
 
-    // REQUESTS
-    window.approveRequest=async(id)=>{
-      const r=requests.find(x=>x.id===id);if(!r)return;
-      const u=users.find(x=>x.email===r.userEmail);if(!u)return;
-      const nb=r.type==='deposit'?u.balance+r.amount:u.balance-r.amount;
-      if(nb<0)return alert('Insufficient funds');
-      await updateDoc(doc(db,"users",u.id),{balance:nb});
-      await updateDoc(doc(db,"requests",id),{status:'approved'});
-      await setDoc(doc(collection(db,"transactions")),{userEmail:u.email,userName:u.name,type:r.type,amount:r.amount,timestamp:new Date().toISOString()});
-    };
+    // Requests
+    window.approveRequest=async(id)=>{const r=requests.find(x=>x.id===id);if(!r)return;const u=users.find(x=>x.email===r.userEmail);if(!u)return;const nb=r.type==='deposit'?u.balance+r.amount:u.balance-r.amount;if(nb<0)return alert('Insufficient funds');await updateDoc(doc(db,"users",u.id),{balance:nb});await updateDoc(doc(db,"requests",id),{status:'approved'});await setDoc(doc(collection(db,"transactions")),{userEmail:u.email,userName:u.name,type:r.type,amount:r.amount,timestamp:new Date().toISOString()});};
     window.rejectRequest=async(id)=>{await updateDoc(doc(db,"requests",id),{status:'rejected'});};
 
-    // LOANS
+    // Loans
     window.approveLoanRequest=async(id)=>{
-      const r=loanRequests.find(x=>x.id===id);if(!r)return;
-      const u=users.find(x=>x.email===r.userEmail);if(!u)return;
+      const r=loanRequests.find(x=>x.id===id);if(!r)return;const u=users.find(x=>x.email===r.userEmail);if(!u)return;
       const due=new Date();due.setDate(due.getDate()+r.duration);
-      const rate=r.interestRate||(r.duration/30)*0.10;
-      const interest=r.interestAmount||(r.amount*rate);
-      const total=r.totalRepayment||(r.amount+interest);
-      await updateDoc(doc(db,"loanRequests",id),{status:'approved'});
-      await setDoc(doc(collection(db,"loans")),{userEmail:r.userEmail,userName:r.userName,amount:r.amount,remainingAmount:total,duration:r.duration,dueDate:due.toISOString(),approvedAt:new Date().toISOString(),status:'active'});
+      const rate=r.interestRate||(r.duration/30)*0.10;const interest=r.interestAmount||(r.amount*rate);const total=r.totalRepayment||(r.amount+interest);
+      const totalDep=users.reduce((s,u)=>s+(u.balance||0),0);const totalLoan=activeLoans.filter(l=>l.status==='active').reduce((s,l)=>s+(l.remainingAmount||l.amount),0);const available=totalDep-totalLoan;
+      if(available<r.amount)return alert(`⚠️ Insufficient bank funds! Available: ${formatMoney(available)}`);
+      await updateDoc(doc(db,"loanRequests",id),{status:'approved'});await setDoc(doc(collection(db,"loans")),{userEmail:r.userEmail,userName:r.userName,amount:r.amount,remainingAmount:total,duration:r.duration,dueDate:due.toISOString(),approvedAt:new Date().toISOString(),status:'active'});
       await setDoc(doc(collection(db,"transactions")),{userEmail:u.email,userName:u.name,type:'loan_disbursement',amount:r.amount,timestamp:new Date().toISOString(),note:'Loan approved - debt, NOT added to balance'});
-      alert('✅ Loan approved! (NOT added to user balance)');
+      alert(`✅ Loan approved! (Interest: ${formatMoney(interest)} | Total: ${formatMoney(total)})`);
     };
     window.rejectLoanRequest=async(id)=>{await updateDoc(doc(db,"loanRequests",id),{status:'rejected'});};
-    
     window.recordLoanPayment=(id)=>{selectedLoan=activeLoans.find(l=>l.id===id);if(!selectedLoan)return;document.getElementById('loanPaymentUser').value=`${selectedLoan.userName} (${selectedLoan.userEmail})`;document.getElementById('loanPaymentAmount').value='';openModal('loanPaymentModal');};
 
     document.getElementById('confirmLoanPaymentBtn').addEventListener('click',async()=>{
-      const amt=parseFloat(document.getElementById('loanPaymentAmount').value);
-      if(!amt||amt<=0)return alert('Invalid amount');
-      const u=users.find(x=>x.email===selectedLoan.userEmail);if(!u)return alert('User not found');
-      if(u.balance<amt)return alert('User has insufficient balance');
+      const amt=parseFloat(document.getElementById('loanPaymentAmount').value);if(!amt||amt<=0)return alert('Invalid amount');
+      const u=users.find(x=>x.email===selectedLoan.userEmail);if(!u)return alert('User not found');if(u.balance<amt)return alert('User has insufficient balance');
       const rem=(selectedLoan.remainingAmount||selectedLoan.amount)-amt;
-      await updateDoc(doc(db,"users",u.id),{balance:u.balance-amt});
-      await updateDoc(doc(db,"loans",selectedLoan.id),{remainingAmount:Math.max(0,rem),status:rem<=0?'paid':'active',lastPayment:amt,lastPaymentDate:new Date().toISOString()});
+      await updateDoc(doc(db,"users",u.id),{balance:u.balance-amt});await updateDoc(doc(db,"loans",selectedLoan.id),{remainingAmount:Math.max(0,rem),status:rem<=0?'paid':'active',lastPayment:amt,lastPaymentDate:new Date().toISOString()});
       await setDoc(doc(collection(db,"transactions")),{userEmail:u.email,userName:u.name,type:'loan_repayment',amount:amt,timestamp:new Date().toISOString()});
       closeModal('loanPaymentModal');alert('Payment recorded!');
     });
 
+    // Distribute Profits
+    document.getElementById('distributeProfitsBtn').addEventListener('click',async()=>{
+      const totalDep=users.reduce((s,u)=>s+(u.balance||0),0);if(totalDep<=0)return alert('No deposits to distribute to.');
+      const loanRepayments=transactions.filter(t=>t.type==='loan_repayment').reduce((s,t)=>s+t.amount,0);
+      const profitDist=transactions.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0);
+      const undistributed=Math.max(0,loanRepayments*0.1-profitDist);if(undistributed<=0)return alert('No undistributed profits available.');
+      if(!confirm(`Distribute ${formatMoney(undistributed)} to all depositors?`))return;
+      let count=0;
+      for(const u of users){if(u.balance>0){const share=undistributed*(u.balance/totalDep);if(share>0){await updateDoc(doc(db,"users",u.id),{balance:u.balance+share});await setDoc(doc(collection(db,"transactions")),{userEmail:u.email,userName:u.name,type:'profit_share',amount:share,timestamp:new Date().toISOString(),note:`Profit share (${((u.balance/totalDep)*100).toFixed(2)}% pool)`});count++;}}}
+      alert(`✅ Profits distributed to ${count} depositors!`);
+    });
+
     window.openModal=(id)=>document.getElementById(id).style.display='flex';
     window.closeModal=(id)=>document.getElementById(id).style.display='none';
-
     document.getElementById('addUserBtn').addEventListener('click',()=>openModal('addUserModal'));
     document.getElementById('userSearch').addEventListener('input',renderUsersTable);
 
-    // Background checkers
-    setInterval(async()=>{
-      const s=await getDoc(doc(db,"settings","interest"));if(!s.exists())return;
-      const d=s.data(),now=new Date();
-      for(const l of activeLoans){
-        if(l.status==='active'&&new Date(l.dueDate)<now){
-          const lastPen=l.lastPenaltyDate?new Date(l.lastPenaltyDate):new Date(l.dueDate);
-          const monthsSince=Math.floor((now-lastPen)/(1000*60*60*24*30));
-          if(monthsSince>=1){
-            const penalty=(l.remainingAmount||l.amount)*((d.loanRate||10)/100);
-            const nr=(l.remainingAmount||l.amount)+penalty;
-            await updateDoc(doc(db,"loans",l.id),{remainingAmount:nr,status:'overdue',lastPenaltyDate:now.toISOString()});
-          }
-        }
-      }
-    },3600000);
+    // Background: overdue loan penalties
+    setInterval(async()=>{const s=await getDoc(doc(db,"settings","interest"));if(!s.exists())return;const d=s.data(),now=new Date();for(const l of activeLoans){if(l.status==='active'&&new Date(l.dueDate)<now){const lastPen=l.lastPenaltyDate?new Date(l.lastPenaltyDate):new Date(l.dueDate);const monthsSince=Math.floor((now-lastPen)/(1000*60*60*24*30));if(monthsSince>=1){const penalty=(l.remainingAmount||l.amount)*((d.loanRate||10)/100);await updateDoc(doc(db,"loans",l.id),{remainingAmount:(l.remainingAmount||l.amount)+penalty,status:'overdue',lastPenaltyDate:now.toISOString()});}}}},3600000);
   </script>
 </body>
 </html>
