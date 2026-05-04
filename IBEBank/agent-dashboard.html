@@ -17,10 +17,7 @@
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Inter', sans-serif; background: #f0f2f5; 
-      color: #1a1a1a; min-height: 100vh; display: flex; 
-    }
+    body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; display: flex; }
     
     .sidebar {
       width: var(--sidebar-width); background: linear-gradient(180deg, #0c4a6e 0%, #155e75 100%);
@@ -37,10 +34,7 @@
     }
     .sidebar-logo-text { font-size: 1.4rem; font-weight: 700; color: white; }
     .sidebar-logo-text span { color: var(--accent); }
-    .sidebar-tag { 
-      font-size: 0.7rem; background: var(--accent); color: var(--dark); 
-      padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 8px; 
-    }
+    .sidebar-tag { font-size: 0.7rem; background: var(--accent); color: var(--dark); padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 8px; }
     
     .sidebar-user { padding: 20px 24px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-avatar {
@@ -65,6 +59,7 @@
     .nav-item i { width: 22px; font-size: 1.1rem; text-align: center; }
     .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-item.active { background: var(--agent); color: white; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 0.6rem; padding: 3px 7px; border-radius: 20px; font-weight: 600; }
     
     .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.1); }
     .logout-btn {
@@ -85,6 +80,7 @@
     .stat-icon.agent { background: #cffafe; color: var(--agent); }
     .stat-icon.green { background: #d1fae5; color: var(--success); }
     .stat-icon.gold { background: #fef3c7; color: var(--accent); }
+    .stat-icon.red { background: #fee2e2; color: var(--danger); }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
     .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
     
@@ -97,13 +93,17 @@
     .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--agent); color: white; }
     .btn-primary:hover { background: var(--agent-light); }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
     .btn-block { width: 100%; justify-content: center; }
     
     .transaction-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
     .transaction-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 16px; background: #f8fafc; border-radius: 12px; gap: 12px;
+      transition: all 0.2s; cursor: pointer;
     }
+    .transaction-item:hover { background: #f0f4f8; }
+    .transaction-item.unread { background: #e0f2fe; border-left: 4px solid var(--agent); }
     .transaction-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .transaction-icon.incoming { background: #d1fae5; color: var(--success); }
     .transaction-icon.outgoing { background: #fee2e2; color: var(--danger); }
@@ -114,10 +114,15 @@
     .transaction-amount { font-weight: 600; white-space: nowrap; }
     .amount-positive { color: var(--success); }
     .amount-negative { color: var(--danger); }
+    .unread-dot { width: 8px; height: 8px; background: var(--agent); border-radius: 50%; display: inline-block; margin-right: 6px; }
     
     .info-card { background: #cffafe; border-radius: 14px; padding: 18px; border-left: 4px solid var(--agent); margin-bottom: 20px; }
     .recipient-preview { background: #d1fae5; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--success); display: none; }
     .recipient-notfound { background: #fee2e2; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--danger); color: #991b1b; display: none; }
+    
+    .tabs { display: flex; gap: 0; margin-bottom: 20px; background: #f3f4f6; border-radius: 10px; padding: 4px; }
+    .tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.2s; border: none; background: none; color: var(--gray); }
+    .tab.active { background: white; color: var(--agent); font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     
     .menu-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 200; width: 42px; height: 42px; border-radius: 12px; background: var(--agent); color: white; border: none; cursor: pointer; font-size: 1.2rem; }
     
@@ -145,14 +150,18 @@
     </div>
     
     <div class="sidebar-account">
-      <div class="sidebar-account-label">Agent Account Number</div>
+      <div class="sidebar-account-label">Agent Account</div>
       <div class="sidebar-account-number" id="sidebarAccountNumber">---</div>
     </div>
     
     <div class="sidebar-nav">
       <button class="nav-item active" data-section="dashboard"><i class="fas fa-th-large"></i> Dashboard</button>
+      <button class="nav-item" data-section="notifications">
+        <i class="fas fa-bell"></i> Notifications
+        <span class="nav-badge" id="unreadBadge" style="display:none;">0</span>
+      </button>
       <button class="nav-item" data-section="send"><i class="fas fa-paper-plane"></i> Send Money</button>
-      <button class="nav-item" data-section="transactions"><i class="fas fa-list-alt"></i> Transactions</button>
+      <button class="nav-item" data-section="sent"><i class="fas fa-history"></i> Sent History</button>
     </div>
     
     <div class="sidebar-footer">
@@ -166,46 +175,51 @@
     <!-- DASHBOARD -->
     <div class="content-section active" id="dashboard-section">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-wallet"></i></div><div class="stat-value" id="balance">TSh 0</div><div class="stat-label">Your Agent Balance</div></div>
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-paper-plane"></i></div><div class="stat-value" id="totalSent">TSh 0</div><div class="stat-label">Total Sent to Clients</div></div>
-        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-arrow-down"></i></div><div class="stat-value" id="totalReceived">TSh 0</div><div class="stat-label">Total Received (Admin)</div></div>
+        <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-wallet"></i></div><div class="stat-value" id="balance">TSh 0</div><div class="stat-label">Your Balance</div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-paper-plane"></i></div><div class="stat-value" id="totalSent">TSh 0</div><div class="stat-label">Total Sent</div></div>
+        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-arrow-down"></i></div><div class="stat-value" id="totalReceived">TSh 0</div><div class="stat-label">Total Received</div></div>
+        <div class="stat-card"><div class="stat-icon red"><i class="fas fa-bell"></i></div><div class="stat-value" id="unreadCount">0</div><div class="stat-label">New Notifications</div></div>
       </div>
       
-      <div class="info-card"><i class="fas fa-info-circle"></i> Your balance is separate from the main bank pool. Admin deposits money for you to serve customers.</div>
+      <div class="info-card"><i class="fas fa-info-circle"></i> Check <strong>Notifications</strong> for new received money. After viewing, they move to <strong>Sent History</strong>.</div>
       
-      <h3 style="margin-bottom:16px;">Recent Transactions</h3>
-      <div class="transaction-list" id="recentTransactions"></div>
+      <h3 style="margin-bottom:16px;">Recent Activity</h3>
+      <div class="transaction-list" id="recentTransactions"><p style="color:var(--gray);text-align:center;padding:20px;">Loading...</p></div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="content-section" id="notifications-section">
+      <div class="form-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3><i class="fas fa-bell"></i> New Received Money</h3>
+          <button class="btn btn-sm btn-primary" onclick="markAllAsRead()"><i class="fas fa-check-double"></i> Mark All Read</button>
+        </div>
+        <p style="color:var(--gray);font-size:0.85rem;margin-bottom:16px;">These are payments you received but haven't viewed yet. Click to mark as read.</p>
+        <div class="transaction-list" id="unreadTransactions"><p style="color:var(--gray);text-align:center;padding:20px;">No new notifications</p></div>
+      </div>
     </div>
 
     <!-- SEND MONEY -->
     <div class="content-section" id="send-section">
       <div class="form-card">
         <h3 style="margin-bottom:20px;"><i class="fas fa-paper-plane"></i> Send Money to Client</h3>
-        
-        <div class="info-card"><strong>Your Account:</strong> <span id="transferAccountNumber">---</span></div>
-        
-        <div class="form-group"><label class="form-label">Client Account Number</label><input type="text" id="recipientAccount" class="form-input" placeholder="Enter 10-digit client account number" maxlength="10"></div>
-        
+        <div class="info-card"><strong>Your Account:</strong> <span id="transferAccountNumber">---</span> | <strong>Balance:</strong> <span id="sendBalance">TSh 0</span></div>
+        <div class="form-group"><label class="form-label">Client Account Number</label><input type="text" id="recipientAccount" class="form-input" placeholder="Enter 10-digit client account number" maxlength="10" autocomplete="off"></div>
         <div class="recipient-preview" id="recipientPreview">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--agent),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">CL</div>
-            <div><h4 id="recipientName">Client Name</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> Client verified</p></div>
-          </div>
-        </div>
-        <div class="recipient-notfound" id="recipientNotFound"><i class="fas fa-exclamation-circle"></i> Account not found! Check the number and try again.</div>
-        
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;background:linear-gradient(135deg,var(--agent),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">CL</div><div><h4 id="recipientName">Client Name</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> Client verified</p></div></div></div>
+        <div class="recipient-notfound" id="recipientNotFound"><i class="fas fa-exclamation-circle"></i> Account not found!</div>
         <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="sendAmount" class="form-input" placeholder="Enter amount" min="0"></div>
         <div class="form-group"><label class="form-label">Description</label><input type="text" id="sendDescription" class="form-input" placeholder="Payment for..."></div>
-        
         <button class="btn btn-primary btn-block" id="sendMoneyBtn" disabled><i class="fas fa-paper-plane"></i> Send Money</button>
       </div>
     </div>
 
-    <!-- TRANSACTIONS -->
-    <div class="content-section" id="transactions-section">
+    <!-- SENT HISTORY -->
+    <div class="content-section" id="sent-section">
       <div class="form-card">
-        <h3 style="margin-bottom:20px;">All Transactions</h3>
-        <div class="transaction-list" id="allTransactions" style="max-height:600px;"></div>
+        <h3 style="margin-bottom:20px;"><i class="fas fa-history"></i> All Sent Transactions</h3>
+        <p style="color:var(--gray);font-size:0.85rem;margin-bottom:16px;">Complete history of all money you've sent to clients.</p>
+        <div class="transaction-list" id="sentTransactions"><p style="color:var(--gray);text-align:center;padding:20px;">No sent transactions yet</p></div>
       </div>
     </div>
   </div>
@@ -213,15 +227,12 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",
-      authDomain: "minibank-b76d6.firebaseapp.com",
-      projectId: "minibank-b76d6",
-      storageBucket: "minibank-b76d6.firebasestorage.app",
-      messagingSenderId: "1076277480681",
-      appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
+      apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8", authDomain: "minibank-b76d6.firebaseapp.com",
+      projectId: "minibank-b76d6", storageBucket: "minibank-b76d6.firebasestorage.app",
+      messagingSenderId: "1076277480681", appId: "1:1076277480681:web:38592a2bd360ab7e7db478"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -231,271 +242,115 @@
     let currentUser = null, agentData = null, foundClient = null, clientValid = false;
 
     const formatMoney = (val) => 'TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(val || 0));
-
-    // Helper to generate account number
-    function generateAccountNumber(uid) {
-      if (!uid) return '---';
-      let num = '';
-      for (let i = 0; i < uid.length; i++) { if (uid[i] >= '0' && uid[i] <= '9') num += uid[i]; }
-      while (num.length < 10) num += '0';
-      return num.substring(0, 10);
-    }
+    function generateAccountNumber(uid) { if(!uid)return'---';let n='';for(let i=0;i<uid.length;i++){if(uid[i]>='0'&&uid[i]<='9')n+=uid[i];}while(n.length<10)n+='0';return n.substring(0,10); }
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.replace('index.html'); return; }
-      currentUser = user;
-      console.log('🔍 Agent auth check for:', user.email);
-      
-      // Check if agent exists in Firestore
-      const agentDoc = await getDoc(doc(db, "agents", user.uid));
-      console.log('📄 Agent doc exists:', agentDoc.exists());
-      
-      if (!agentDoc.exists()) {
-        // Not an agent - redirect to appropriate dashboard
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) { 
-          console.log('➡️ Redirecting to client dashboard');
-          window.location.replace('client-dashboard.html'); 
-          return; 
-        }
-        await signOut(auth); 
-        window.location.replace('index.html'); 
-        return;
-      }
-      
-      agentData = agentDoc.data();
-      console.log('📊 Agent data:', agentData);
-      
-      if (agentData.status !== 'active') {
-        alert('Your agent account is pending approval. Please wait for admin to approve.');
-        await signOut(auth); 
-        window.location.replace('index.html'); 
-        return;
-      }
-      
-      // Generate account number if not exists
-      if (!agentData.accountNumber) {
-        const acc = generateAccountNumber(user.uid);
-        await updateDoc(doc(db, "agents", user.uid), { accountNumber: acc });
-        agentData.accountNumber = acc;
-        console.log('🆕 Generated account number:', acc);
-      }
-      
-      // Update UI
-      document.getElementById('sidebarName').textContent = agentData.name || 'Agent';
-      document.getElementById('sidebarEmail').textContent = user.email;
-      document.getElementById('sidebarInitials').textContent = (agentData.name || 'AG').substring(0, 2).toUpperCase();
-      document.getElementById('sidebarAccountNumber').textContent = agentData.accountNumber || '---';
-      document.getElementById('transferAccountNumber').textContent = agentData.accountNumber || '---';
-      
-      console.log('✅ Agent loaded successfully, starting realtime data...');
-      initRealtime();
+      if(!user){window.location.replace('index.html');return;}
+      currentUser=user;
+      try{
+        const agentDoc=await getDoc(doc(db,"agents",user.uid));
+        if(!agentDoc.exists()){const ud=await getDoc(doc(db,"users",user.uid));if(ud.exists()){window.location.replace('client-dashboard.html');return;}await signOut(auth);window.location.replace('index.html');return;}
+        agentData=agentDoc.data();
+        if(agentData.status!=='active'){alert('Pending approval.');await signOut(auth);window.location.replace('index.html');return;}
+        if(!agentData.accountNumber){const acc=generateAccountNumber(user.uid);await updateDoc(doc(db,"agents",user.uid),{accountNumber:acc});agentData.accountNumber=acc;}
+        document.getElementById('sidebarName').textContent=agentData.name||'Agent';
+        document.getElementById('sidebarEmail').textContent=user.email;
+        document.getElementById('sidebarInitials').textContent=(agentData.name||'AG').substring(0,2).toUpperCase();
+        document.getElementById('sidebarAccountNumber').textContent=agentData.accountNumber||'---';
+        document.getElementById('transferAccountNumber').textContent=agentData.accountNumber||'---';
+        initRealtime();
+      }catch(e){console.error(e);await signOut(auth);window.location.replace('index.html');}
     });
 
-    function initRealtime() {
-      // Listen to agent balance changes
-      onSnapshot(doc(db, "agents", currentUser.uid), (doc) => {
-        if (doc.exists()) { 
-          agentData = doc.data(); 
-          const bal = agentData.balance || 0;
-          document.getElementById('balance').textContent = formatMoney(bal);
-          console.log('💰 Balance updated:', bal);
-        }
-      }, (error) => {
-        console.error('❌ Balance listener error:', error);
-      });
-
-      // Listen to agent transactions
-      const tq = query(
-        collection(db, "transactions"), 
-        where("userEmail", "==", currentUser.email), 
-        orderBy("timestamp", "desc")
-      );
+    function initRealtime(){
+      onSnapshot(doc(db,"agents",currentUser.uid),(doc)=>{if(doc.exists()){agentData=doc.data();document.getElementById('balance').textContent=formatMoney(agentData.balance||0);document.getElementById('sendBalance').textContent=formatMoney(agentData.balance||0);updateSendBtn();}});
       
-      onSnapshot(tq, (snapshot) => {
-        const trans = [];
-        snapshot.forEach(doc => trans.push({ id: doc.id, ...doc.data() }));
-        console.log('📋 Transactions loaded:', trans.length);
+      const tq=query(collection(db,"transactions"),where("userEmail","==",currentUser.email),orderBy("timestamp","desc"));
+      onSnapshot(tq,(snapshot)=>{
+        const allTrans=[];
+        snapshot.forEach(doc=>allTrans.push({id:doc.id,...doc.data()}));
         
-        // Calculate totals
-        const totalSent = trans.filter(t => t.type === 'agent_transfer_out').reduce((s, t) => s + t.amount, 0);
-        const totalReceived = trans.filter(t => t.type === 'agent_deposit').reduce((s, t) => s + t.amount, 0);
+        const totalSent=allTrans.filter(t=>t.type==='agent_transfer_out').reduce((s,t)=>s+t.amount,0);
+        const totalReceived=allTrans.filter(t=>t.type==='agent_deposit'||t.type==='transfer_received'||t.type==='deposit').reduce((s,t)=>s+t.amount,0);
+        document.getElementById('totalSent').textContent=formatMoney(totalSent);
+        document.getElementById('totalReceived').textContent=formatMoney(totalReceived);
         
-        document.getElementById('totalSent').textContent = formatMoney(totalSent);
-        document.getElementById('totalReceived').textContent = formatMoney(totalReceived);
+        // Unread notifications (received money not marked as read)
+        const unreadTrans=allTrans.filter(t=>(t.type==='agent_deposit'||t.type==='transfer_received')&&!t.read);
+        document.getElementById('unreadCount').textContent=unreadTrans.length;
+        const badge=document.getElementById('unreadBadge');
+        if(unreadTrans.length>0){badge.textContent=unreadTrans.length;badge.style.display='inline';}else{badge.style.display='none';}
         
-        const renderItem = (t) => {
-          let icon, cls, sign, title, note = '';
+        // Render functions
+        const renderItem=(t,showUnread)=>{
+          let icon,cls,sign,title,note='';
+          if(t.type==='agent_deposit'){icon='building-columns';cls='incoming';sign='+';title='FROM ADMIN';if(t.note)note=`<div class="transaction-note">📝 ${t.note}</div>`;}
+          else if(t.type==='transfer_received'){icon='arrow-down';cls='incoming';sign='+';title=`FROM ${t.senderName||'USER'}`;if(t.senderName)note=`<div class="transaction-note">👤 ${t.senderName}</div>`;}
+          else if(t.type==='agent_transfer_out'){icon='paper-plane';cls='outgoing';sign='-';title=`SENT TO ${t.clientName||'CLIENT'}`;if(t.clientName)note=`<div class="transaction-note">👤 ${t.clientName}</div>`;if(t.description)note=`<div class="transaction-note">📝 ${t.description}</div>`;}
+          else{icon='exchange-alt';cls='incoming';sign='+';title=t.type.replace(/_/g,' ').toUpperCase();}
           
-          if (t.type === 'agent_deposit') {
-            icon = 'building-columns'; cls = 'incoming'; sign = '+';
-            title = 'FROM ADMIN';
-            if (t.note) note = `<div class="transaction-note">📝 ${t.note}</div>`;
-          } else if (t.type === 'agent_transfer_out') {
-            icon = 'paper-plane'; cls = 'outgoing'; sign = '-';
-            title = `SENT TO ${t.clientName || 'CLIENT'}`;
-            if (t.description) note = `<div class="transaction-note">📝 ${t.description}</div>`;
-            if (t.clientName) note = `<div class="transaction-note">👤 ${t.clientName}</div>`;
-          } else {
-            icon = 'exchange-alt'; cls = 'incoming'; sign = '+';
-            title = t.type.replace(/_/g, ' ').toUpperCase();
-          }
+          const unreadClass=(showUnread&&!t.read)?'unread':'';
+          const dot=(showUnread&&!t.read)?'<span class="unread-dot"></span>':'';
           
-          return `<div class="transaction-item">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div>
-              <div class="transaction-info">
-                <div class="transaction-title">${title}</div>
-                <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
-                ${note}
-              </div>
-            </div>
-            <div class="transaction-amount ${cls === 'outgoing' ? 'amount-negative' : 'amount-positive'}">${sign}${formatMoney(t.amount)}</div>
-          </div>`;
+          return `<div class="transaction-item ${unreadClass}" onclick="markAsRead('${t.id}')">
+            <div style="display:flex;align-items:center;gap:12px;"><div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div><div class="transaction-info"><div class="transaction-title">${dot}${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div></div>
+            <div class="transaction-amount ${cls==='outgoing'?'amount-negative':'amount-positive'}">${sign}${formatMoney(t.amount)}</div></div>`;
         };
         
-        const recentHtml = trans.slice(0, 10).map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
-        const allHtml = trans.map(renderItem).join('') || '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
-        
-        document.getElementById('recentTransactions').innerHTML = recentHtml;
-        document.getElementById('allTransactions').innerHTML = allHtml;
-      }, (error) => {
-        console.error('❌ Transactions listener error:', error);
-        document.getElementById('recentTransactions').innerHTML = '<p style="color:var(--danger);text-align:center;padding:20px;">Error loading transactions. Check console.</p>';
+        // Recent (all)
+        document.getElementById('recentTransactions').innerHTML=allTrans.slice(0,5).map(t=>renderItem(t,false)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
+        // Unread only
+        document.getElementById('unreadTransactions').innerHTML=unreadTrans.map(t=>renderItem(t,true)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No new notifications 🎉</p>';
+        // Sent only
+        const sentTrans=allTrans.filter(t=>t.type==='agent_transfer_out');
+        document.getElementById('sentTransactions').innerHTML=sentTrans.map(t=>renderItem(t,false)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No sent transactions yet</p>';
       });
     }
 
     // Navigation
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`${item.dataset.section}-section`).classList.add('active');
-        document.getElementById('pageTitle').textContent = item.textContent.trim();
-        if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
-      });
-    });
+    document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));document.getElementById(`${item.dataset.section}-section`).classList.add('active');document.getElementById('pageTitle').textContent=item.textContent.trim();if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('mobile-open');});});
+    document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('mobile-open'));
 
-    document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('mobile-open'));
+    // Mark as read
+    window.markAsRead=async(id)=>{await updateDoc(doc(db,"transactions",id),{read:true});};
+    window.markAllAsRead=async()=>{
+      const snap=await getDocs(query(collection(db,"transactions"),where("userEmail","==",currentUser.email),where("read","==",false)));
+      snap.forEach(async(d)=>{await updateDoc(d.ref,{read:true});});
+      alert('All marked as read!');
+    };
 
     // Client lookup
-    document.getElementById('recipientAccount').addEventListener('input', async (e) => {
-      const acc = e.target.value.trim();
-      console.log('🔍 Searching for account:', acc);
-      
-      if (acc.length < 10) { 
-        resetClientPreview(); 
-        return; 
-      }
-      
-      try {
-        const snap = await getDocs(query(collection(db, "users"), where("accountNumber", "==", acc)));
-        console.log('📄 Search results:', snap.size);
-        
-        if (snap.empty) { 
-          resetClientPreview(); 
-          document.getElementById('recipientNotFound').style.display = 'block'; 
-        } else {
-          const d = snap.docs[0]; 
-          foundClient = { id: d.id, ...d.data() };
-          console.log('✅ Client found:', foundClient.name);
-          
-          document.getElementById('recipientInitials').textContent = (foundClient.name || 'C').substring(0, 2).toUpperCase();
-          document.getElementById('recipientName').textContent = foundClient.name || 'Client';
-          document.getElementById('recipientPreview').style.display = 'block';
-          document.getElementById('recipientNotFound').style.display = 'none';
-          clientValid = true; 
-          updateSendBtn();
-        }
-      } catch (error) {
-        console.error('❌ Search error:', error);
-      }
+    document.getElementById('recipientAccount').addEventListener('input',async(e)=>{
+      const acc=e.target.value.trim();
+      if(acc.length<10){resetClientPreview();return;}
+      try{
+        const snap=await getDocs(collection(db,"users"));let found=null;
+        snap.forEach(doc=>{if(doc.data().accountNumber===acc)found={id:doc.id,...doc.data()};});
+        if(!found){resetClientPreview();document.getElementById('recipientNotFound').style.display='block';}
+        else{foundClient=found;document.getElementById('recipientInitials').textContent=(found.name||'C').substring(0,2).toUpperCase();document.getElementById('recipientName').textContent=found.name||'Client';document.getElementById('recipientPreview').style.display='block';document.getElementById('recipientNotFound').style.display='none';clientValid=true;updateSendBtn();}
+      }catch(e){console.error(e);}
     });
 
-    function resetClientPreview() {
-      document.getElementById('recipientPreview').style.display = 'none';
-      document.getElementById('recipientNotFound').style.display = 'none';
-      document.getElementById('sendMoneyBtn').disabled = true;
-      foundClient = null; 
-      clientValid = false;
-    }
-
-    document.getElementById('sendAmount').addEventListener('input', updateSendBtn);
-    
-    function updateSendBtn() {
-      const amt = parseFloat(document.getElementById('sendAmount').value) || 0;
-      const canSend = clientValid && amt > 0 && amt <= (agentData?.balance || 0);
-      document.getElementById('sendMoneyBtn').disabled = !canSend;
-      console.log('🔘 Send button enabled:', canSend);
-    }
+    function resetClientPreview(){document.getElementById('recipientPreview').style.display='none';document.getElementById('recipientNotFound').style.display='none';document.getElementById('sendMoneyBtn').disabled=true;foundClient=null;clientValid=false;}
+    document.getElementById('sendAmount').addEventListener('input',updateSendBtn);
+    function updateSendBtn(){const amt=parseFloat(document.getElementById('sendAmount').value)||0;const bal=agentData?.balance||0;document.getElementById('sendMoneyBtn').disabled=!(clientValid&&amt>0&&amt<=bal);}
 
     // Send money
-    document.getElementById('sendMoneyBtn').addEventListener('click', async () => {
-      const amt = parseFloat(document.getElementById('sendAmount').value);
-      const desc = document.getElementById('sendDescription').value || 'Agent payment';
-      
-      if (!amt || amt <= 0 || amt > (agentData?.balance || 0) || !foundClient) return;
-      if (!confirm(`Send ${formatMoney(amt)} to ${foundClient.name}?\n\nDescription: ${desc}`)) return;
-      
-      const btn = document.getElementById('sendMoneyBtn'); 
-      btn.disabled = true; 
-      btn.textContent = 'Sending...';
-      console.log('💰 Sending', amt, 'to', foundClient.name);
-      
-      try {
-        await runTransaction(db, async (t) => {
-          const ar = doc(db, "agents", currentUser.uid), cr = doc(db, "users", foundClient.id);
-          const ad = await t.get(ar), cd = await t.get(cr);
-          if (!ad.exists() || !cd.exists()) throw new Error("Account not found");
-          const ab = ad.data().balance || 0, cb = cd.data().balance || 0;
-          if (ab < amt) throw new Error("Insufficient balance");
-          t.update(ar, { balance: ab - amt }); 
-          t.update(cr, { balance: cb + amt });
-        });
-        
-        // Agent record
-        await setDoc(doc(collection(db, "transactions")), {
-          userEmail: currentUser.email, userName: agentData?.name,
-          type: 'agent_transfer_out', clientName: foundClient.name,
-          clientEmail: foundClient.email, clientAccount: foundClient.accountNumber,
-          amount: amt, description: desc, timestamp: new Date().toISOString()
-        });
-        
-        // Client record
-        await setDoc(doc(collection(db, "transactions")), {
-          userEmail: foundClient.email, userName: foundClient.name,
-          type: 'agent_deposit_received', agentName: agentData?.name,
-          agentBusiness: agentData?.businessName || 'Agent',
-          agentAccount: agentData.accountNumber,
-          amount: amt, description: desc, timestamp: new Date().toISOString()
-        });
-        
-        // Notify
-        await setDoc(doc(collection(db, "notifications")), {
-          userEmail: foundClient.email,
-          message: `💰 Received ${formatMoney(amt)} from Agent: ${agentData?.name} (${agentData?.businessName || 'Agent'}). ${desc}`,
-          timestamp: new Date().toISOString(), read: false
-        });
-        
-        document.getElementById('recipientAccount').value = '';
-        document.getElementById('sendAmount').value = '';
-        document.getElementById('sendDescription').value = '';
-        resetClientPreview();
-        alert('✅ Money sent successfully!');
-      } catch (e) { 
-        console.error('❌ Send error:', e);
-        alert('❌ ' + e.message); 
-      } finally { 
-        btn.disabled = false; 
-        btn.textContent = 'Send Money'; 
-      }
+    document.getElementById('sendMoneyBtn').addEventListener('click',async()=>{
+      const amt=parseFloat(document.getElementById('sendAmount').value);const desc=document.getElementById('sendDescription').value||'Agent payment';
+      if(!amt||amt<=0||amt>(agentData?.balance||0)||!foundClient)return;
+      if(!confirm(`Send ${formatMoney(amt)} to ${foundClient.name}?\n\n${desc}`))return;
+      const btn=document.getElementById('sendMoneyBtn');btn.disabled=true;btn.textContent='Sending...';
+      try{
+        await runTransaction(db,async(t)=>{const ar=doc(db,"agents",currentUser.uid),cr=doc(db,"users",foundClient.id);const ad=await t.get(ar),cd=await t.get(cr);if(!ad.exists()||!cd.exists())throw new Error("Account not found");const ab=ad.data().balance||0,cb=cd.data().balance||0;if(ab<amt)throw new Error("Insufficient");t.update(ar,{balance:ab-amt});t.update(cr,{balance:cb+amt});});
+        await setDoc(doc(collection(db,"transactions")),{userEmail:currentUser.email,userName:agentData?.name,type:'agent_transfer_out',clientName:foundClient.name,clientEmail:foundClient.email,clientAccount:foundClient.accountNumber,amount:amt,description:desc,timestamp:new Date().toISOString()});
+        await setDoc(doc(collection(db,"transactions")),{userEmail:foundClient.email,userName:foundClient.name,type:'agent_deposit_received',agentName:agentData?.name,agentBusiness:agentData?.businessName||'Agent',agentAccount:agentData.accountNumber,amount:amt,description:desc,timestamp:new Date().toISOString()});
+        await setDoc(doc(collection(db,"notifications")),{userEmail:foundClient.email,message:`💰 Received ${formatMoney(amt)} from Agent: ${agentData?.name}. ${desc}`,timestamp:new Date().toISOString(),read:false});
+        document.getElementById('recipientAccount').value=document.getElementById('sendAmount').value=document.getElementById('sendDescription').value='';resetClientPreview();alert('✅ Sent!');
+      }catch(e){alert('❌ '+e.message);}finally{btn.disabled=false;btn.textContent='Send Money';}
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => { 
-      await signOut(auth); 
-      window.location.replace('index.html'); 
-    });
+    document.getElementById('logoutBtn').addEventListener('click',async()=>{await signOut(auth);window.location.replace('index.html');});
   </script>
 </body>
 </html>
