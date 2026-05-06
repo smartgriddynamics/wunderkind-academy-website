@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Manager · Wunderkind Academy</title>
+    <link rel="icon" type="image/png" href="wunderkindscho-logo.PNG">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4a7bd9; --primary-dark: #2a5ab0; --success: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b;
+            --gray: #64748b; --light: #f8fafc; --white: #ffffff;
+            --sidebar-width: 270px;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; display: flex; }
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            position: fixed; left: 0; top: 0; z-index: 1000;
+            display: flex; flex-direction: column; transition: transform 0.3s ease;
+            overflow-y: auto; box-shadow: 5px 0 30px rgba(0,0,0,0.2);
+        }
+        .sidebar-header { padding: 25px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-logo { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #ffcc4d, #4a7bd9); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: white; }
+        .sidebar-brand h3 { color: white; font-size: 1.1rem; font-weight: 700; font-family: 'Quicksand', sans-serif; }
+        .sidebar-brand span { font-size: 0.7rem; color: rgba(255,255,255,0.5); display: block; }
+        .sidebar-nav { flex: 1; padding: 15px 0; overflow-y: auto; }
+        .nav-section { padding: 0 12px; margin-bottom: 20px; }
+        .nav-section-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); padding: 0 12px; margin-bottom: 10px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 15px; border-radius: 10px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.6); margin-bottom: 3px; font-size: 0.9rem; }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-item.active { background: linear-gradient(135deg, #4a7bd9, #6c9dff); color: white; box-shadow: 0 5px 15px rgba(74,123,217,0.3); }
+        .nav-item i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; }
+        .topbar { height: 70px; background: white; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0; }
+        .topbar-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { display: none; width: 40px; height: 40px; border-radius: 10px; border: none; background: #f1f5f9; color: var(--dark); font-size: 1.3rem; cursor: pointer; }
+        .page-title { font-size: 1.3rem; font-weight: 700; color: var(--dark); }
+        .content-area { padding: 25px 30px; }
+        .card { background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; margin-bottom: 25px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 10px; }
+        .btn { padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 7px; font-size: 0.85rem; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .btn-primary { background: var(--primary); color: white; } .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; } .btn-success:hover { background: #059669; transform: translateY(-1px); }
+        .btn-danger { background: var(--danger); color: white; } .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); } .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; } .btn-block { width: 100%; justify-content: center; }
+        .btn-purple { background: #8b5cf6; color: white; } .btn-purple:hover { background: #7c3aed; }
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .timetable-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .timetable-table th { background: var(--primary); color: white; padding: 14px 10px; font-size: 0.85rem; font-weight: 600; text-align: center; border: 1px solid #3b6fd4; }
+        .timetable-table td { padding: 12px 8px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.82rem; min-width: 120px; cursor: pointer; transition: all 0.2s; vertical-align: middle; }
+        .timetable-table td:hover { background: #f0f4ff; }
+        .timetable-table td.empty { color: #cbd5e1; } .timetable-table td.empty:hover { background: #e0e7ff; }
+        .timetable-table td.filled { font-weight: 500; }
+        .timetable-table td.break-cell { background: #fef3c7; font-weight: 600; color: #92400e; cursor: default; }
+        .time-col { font-weight: 600; background: #f8fafc; white-space: nowrap; min-width: 100px; cursor: default; }
+        .subject-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin: 2px; font-weight: 500; color: white; }
+        .teacher-name { display: block; font-size: 0.7rem; color: var(--gray); margin-top: 3px; }
+        .teacher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+        .teacher-export-card { background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .teacher-export-card:hover { border-color: var(--primary); box-shadow: 0 8px 25px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .teacher-export-card h4 { color: var(--primary); margin-bottom: 12px; font-size: 1.1rem; }
+        .teacher-schedule-item { padding: 8px 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .day-badge { background: var(--primary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .subject-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .subject-tag-item { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; color: white; }
+        .subject-tag-item .remove-tag { cursor: pointer; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+        .subject-tag-item .remove-tag:hover { background: rgba(255,255,255,0.6); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 20px; padding: 30px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal h3 { margin-bottom: 20px; color: var(--dark); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: var(--dark); }
+        .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74,123,217,0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .notification { position: fixed; top: 20px; right: 20px; background: white; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 9999; transform: translateX(400px); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; max-width: 380px; }
+        .notification.show { transform: translateX(0); }
+        .notification.success { border-left: 4px solid var(--success); }
+        .notification.error { border-left: 4px solid var(--danger); }
+        .notification-close { margin-left: auto; cursor: pointer; color: var(--gray); background: none; border: none; font-size: 1rem; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 5000; align-items: center; justify-content: center; flex-direction: column; gap: 15px; }
+        .loading-overlay.active { display: flex; }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer; }
+        .checkbox-list { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+        .checkbox-item:hover { background: #f8fafc; }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .sidebar-overlay.active { display: block; } .main-content { margin-left: 0; } .menu-toggle { display: flex; align-items: center; justify-content: center; } .content-area { padding: 15px; } }
+        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .timetable-table td { padding: 8px 4px; min-width: 80px; font-size: 0.7rem; } .teacher-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p style="font-weight:600;color:var(--dark);" id="loadingText">Generating Word Document...</p>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-logo">📅</div><div class="sidebar-brand"><h3>Timetable</h3><span>Management System</span></div></div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Classes</div>
+                <div class="nav-item active" onclick="selectClass('prep1', this)"><i class="fas fa-child"></i> Prep 1</div>
+                <div class="nav-item" onclick="selectClass('prep2', this)"><i class="fas fa-child"></i> Prep 2</div>
+                <div class="nav-item" onclick="selectClass('class1', this)"><i class="fas fa-book"></i> Class 1</div>
+                <div class="nav-item" onclick="selectClass('class2', this)"><i class="fas fa-book"></i> Class 2</div>
+                <div class="nav-item" onclick="selectClass('class3', this)"><i class="fas fa-book-open"></i> Class 3</div>
+                <div class="nav-item" onclick="selectClass('class4', this)"><i class="fas fa-book-open"></i> Class 4</div>
+                <div class="nav-item" onclick="selectClass('class5', this)"><i class="fas fa-graduation-cap"></i> Class 5</div>
+                <div class="nav-item" onclick="selectClass('class6', this)"><i class="fas fa-graduation-cap"></i> Class 6</div>
+                <div class="nav-item" onclick="selectClass('class7', this)"><i class="fas fa-user-graduate"></i> Class 7</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Management</div>
+                <div class="nav-item" onclick="showSubjectManager()"><i class="fas fa-cog"></i> Manage Subjects</div>
+                <div class="nav-item" onclick="showTeacherTimetables()"><i class="fas fa-chalkboard-teacher"></i> Teacher Timetables</div>
+                <div class="nav-item" onclick="showAllTimetables()"><i class="fas fa-table"></i> All Classes Overview</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Export</div>
+                <div class="nav-item" onclick="showExportOptions()"><i class="fas fa-download"></i> Export Documents</div>
+            </div>
+        </nav>
+        <div class="sidebar-footer"><button class="btn btn-danger btn-block" onclick="window.location.href='admin-dashboard.html'"><i class="fas fa-arrow-left"></i> Dashboard</button></div>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <div class="topbar-left"><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><h2 class="page-title" id="pageTitle">Prep 1 Timetable</h2></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-success btn-sm" onclick="exportToWord()"><i class="fas fa-file-word"></i> Export Word</button><button class="btn btn-primary btn-sm" onclick="saveTimetable()"><i class="fas fa-save"></i> Save</button></div>
+        </div>
+        <div class="content-area" id="contentArea"></div>
+    </main>
+
+    <div class="modal-overlay" id="slotModal"><div class="modal"><h3 id="slotModalTitle"><i class="fas fa-plus-circle"></i> Add Subject</h3><div class="form-group"><label>Subject</label><select id="slotSubject"></select></div><div class="form-row"><div class="form-group"><label>Start Time</label><input type="time" id="slotStartTime" value="08:00"></div><div class="form-group"><label>End Time</label><input type="time" id="slotEndTime" value="08:40"></div></div><div class="form-group" id="teacherGroup"><label>Teacher Name</label><input type="text" id="slotTeacher" placeholder="Enter teacher name"></div><input type="hidden" id="slotDay"><div style="display:flex;gap:10px;justify-content:flex-end;"><button class="btn btn-outline" onclick="closeSlotModal()">Cancel</button><button class="btn btn-primary" onclick="saveSlot()">Save</button></div><button class="btn btn-danger btn-sm" id="removeSlotBtn" style="display:none;margin-top:10px;" onclick="removeSlot()"><i class="fas fa-trash"></i> Remove</button></div></div>
+
+    <div class="modal-overlay" id="subjectManagerModal"><div class="modal" style="max-width:600px;"><h3><i class="fas fa-cog"></i> Manage Subjects</h3><div style="display:flex;gap:10px;margin-bottom:20px;"><input type="text" id="newSubjectName" placeholder="Subject name" style="flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;"><input type="color" id="newSubjectColor" value="#4a7bd9" style="width:50px;height:44px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;"><button class="btn btn-primary" onclick="addSubject()"><i class="fas fa-plus"></i> Add</button></div><div class="subject-tags" id="subjectTagsList"></div><div style="text-align:right;margin-top:15px;"><button class="btn btn-outline" onclick="closeSubjectManager()">Close</button><button class="btn btn-primary" onclick="saveSubjects()"><i class="fas fa-save"></i> Save</button></div></div></div>
+
+    <div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:650px;"><h3><i class="fas fa-download"></i> Export Teacher Timetables</h3><p style="color:var(--gray);margin-bottom:15px;">Select teachers to generate individual Word documents</p><div style="display:flex;gap:10px;margin-bottom:15px;"><button class="btn btn-outline btn-sm" onclick="toggleAllCheckboxes(true)">Select All</button><button class="btn btn-outline btn-sm" onclick="toggleAllCheckboxes(false)">Deselect All</button></div><div class="checkbox-list" id="teacherCheckboxList"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;"><button class="btn btn-outline" onclick="closeExportModal()">Cancel</button><button class="btn btn-purple" onclick="exportSelectedTeachers()"><i class="fas fa-file-word"></i> Export Selected</button><button class="btn btn-success" onclick="exportAllTeachersWord()"><i class="fas fa-file-archive"></i> Export All</button></div></div></div>
+
+    <div class="notification" id="notification"><i class="fas fa-check-circle"></i><div><h4 id="notifTitle" style="font-size:0.9rem;">Success</h4><p id="notifMessage" style="font-size:0.8rem;color:#64748b;"></p></div><button class="notification-close" onclick="hideNotification()">✕</button></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1QVeGY7ZnUWirkKuudvPNUbYbthdyugE",
+            authDomain: "analyticsbook-c4e8f.firebaseapp.com",
+            projectId: "analyticsbook-c4e8f",
+            storageBucket: "analyticsbook-c4e8f.firebasestorage.app",
+            messagingSenderId: "847316888383",
+            appId: "1:847316888383:web:51585a3945cb7e0296818a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const CLASS_NAMES = {'prep1':'Prep 1','prep2':'Prep 2','class1':'Class 1','class2':'Class 2','class3':'Class 3','class4':'Class 4','class5':'Class 5','class6':'Class 6','class7':'Class 7'};
+
+        let subjects = [
+            { name: 'Kiswahili', color: '#ef4444' },{ name: 'English', color: '#3b82f6' },
+            { name: 'Mathematics', color: '#8b5cf6' },{ name: 'Science', color: '#10b981' },
+            { name: 'Social Studies', color: '#f59e0b' },{ name: 'Civic Education', color: '#06b6d4' },
+            { name: 'Vocational Skills', color: '#ec4899' },{ name: 'ICT', color: '#6366f1' },
+            { name: 'Arts & Crafts', color: '#f97316' },{ name: 'Music', color: '#14b8a6' },
+            { name: 'Physical Education', color: '#84cc16' },{ name: 'Religion', color: '#a855f7' }
+        ];
+
+        let currentClass = 'prep1';
+        let currentTimetable = {};
+        // Store all teacher data in memory for instant access
+        let allTeachersData = [];
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'admin-panel.html'; return; }
+            await loadSubjects();
+            await loadTimetable();
+            await refreshTeacherCache();
+        });
+
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        };
+
+        function showNotification(title, message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.className = `notification ${type} show`;
+            document.getElementById('notifTitle').textContent = title;
+            document.getElementById('notifMessage').textContent = message;
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        window.hideNotification = () => document.getElementById('notification').classList.remove('show');
+
+        function showLoading(show, text = 'Generating Word Document...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        // Refresh teacher cache from Firebase
+        async function refreshTeacherCache() {
+            const snap = await getDocs(collection(db, 'teacherTimetables'));
+            allTeachersData = snap.docs.map(d => d.data());
+            console.log('Teacher cache refreshed:', allTeachersData.length, 'teachers');
+        }
+
+        // ========== SUBJECT MANAGEMENT ==========
+        async function loadSubjects() {
+            const docSnap = await getDoc(doc(db, 'settings', 'subjects'));
+            if (docSnap.exists() && docSnap.data().subjects) subjects = docSnap.data().subjects;
+        }
+        async function saveSubjectsToDB() {
+            await setDoc(doc(db, 'settings', 'subjects'), { subjects, updatedAt: new Date().toISOString() });
+        }
+        window.showSubjectManager = () => {
+            document.getElementById('subjectTagsList').innerHTML = subjects.map((s, i) => `<span class="subject-tag-item" style="background:${s.color};">${s.name} <span class="remove-tag" onclick="removeSubject(${i})">✕</span></span>`).join('') + '<span class="subject-tag-item" style="background:#92400e;">BREAK <small>(built-in)</small></span>';
+            document.getElementById('subjectManagerModal').classList.add('active');
+        };
+        window.closeSubjectManager = () => document.getElementById('subjectManagerModal').classList.remove('active');
+        window.addSubject = () => {
+            const name = document.getElementById('newSubjectName').value.trim();
+            const color = document.getElementById('newSubjectColor').value;
+            if (!name) return showNotification('Error', 'Enter subject name', 'error');
+            if (subjects.find(s => s.name.toLowerCase() === name.toLowerCase())) return showNotification('Error', 'Subject exists', 'error');
+            subjects.push({ name, color });
+            document.getElementById('newSubjectName').value = '';
+            document.getElementById('subjectTagsList').innerHTML = subjects.map((s, i) => `<span class="subject-tag-item" style="background:${s.color};">${s.name} <span class="remove-tag" onclick="removeSubject(${i})">✕</span></span>`).join('') + '<span class="subject-tag-item" style="background:#92400e;">BREAK <small>(built-in)</small></span>';
+        };
+        window.removeSubject = (index) => { if(confirm(`Remove "${subjects[index].name}"?`)) { subjects.splice(index, 1); document.getElementById('subjectTagsList').innerHTML = subjects.map((s, i) => `<span class="subject-tag-item" style="background:${s.color};">${s.name} <span class="remove-tag" onclick="removeSubject(${i})">✕</span></span>`).join('') + '<span class="subject-tag-item" style="background:#92400e;">BREAK <small>(built-in)</small></span>'; }};
+        window.saveSubjects = async () => { await saveSubjectsToDB(); closeSubjectManager(); renderTimetable(); showNotification('Saved!', 'Subjects updated'); };
+
+        // ========== CLASS SELECTION ==========
+        window.selectClass = async (className, element) => {
+            currentClass = className;
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (element) element.classList.add('active');
+            document.getElementById('pageTitle').textContent = `${CLASS_NAMES[className] || className} Timetable`;
+            await loadTimetable();
+        };
+        async function loadTimetable() {
+            const docSnap = await getDoc(doc(db, 'timetables', currentClass));
+            currentTimetable = docSnap.exists() ? (docSnap.data().slots || {}) : {};
+            DAYS.forEach(day => { if (!currentTimetable[day]) currentTimetable[day] = []; });
+            renderTimetable();
+        }
+        function getSubjectColor(name) { if (name === 'BREAK') return '#92400e'; const s = subjects.find(s => s.name === name); return s ? s.color : '#64748b'; }
+
+        function renderTimetable() {
+            const allSlots = [];
+            DAYS.forEach(day => { (currentTimetable[day] || []).forEach(slot => { if (!allSlots.find(s => s.startTime === slot.startTime && s.endTime === slot.endTime)) allSlots.push(slot); }); });
+            allSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+            if (allSlots.length === 0) allSlots.push({ startTime: '08:00', endTime: '08:40' });
+            document.getElementById('contentArea').innerHTML = `<div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-calendar-alt"></i> ${CLASS_NAMES[currentClass] || currentClass} Timetable</h3><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-outline btn-sm" onclick="addTimeSlot()"><i class="fas fa-plus"></i> Add Row</button><button class="btn btn-success btn-sm" onclick="exportToWord()"><i class="fas fa-file-word"></i> Word</button><button class="btn btn-primary btn-sm" onclick="saveTimetable()"><i class="fas fa-save"></i> Save</button></div></div><div class="table-wrapper"><table class="timetable-table"><thead><tr><th>Time</th>${DAYS.map(d => `<th>${d}</th>`).join('')}</tr></thead><tbody>${allSlots.map(slot => `<tr><td class="time-col">${slot.startTime}-${slot.endTime}<button class="btn btn-danger btn-sm" style="margin-top:4px;font-size:0.6rem;padding:2px 6px;" onclick="deleteTimeSlot('${slot.startTime}','${slot.endTime}')"><i class="fas fa-times"></i></button></td>${DAYS.map(day => {const ex=(currentTimetable[day]||[]).find(s=>s.startTime===slot.startTime&&s.endTime===slot.endTime);if(ex)return`<td class="${ex.subject==='BREAK'?'break-cell':'filled'}" onclick="openSlotModal('${day}','${slot.startTime}','${slot.endTime}')"><span class="subject-badge" style="background:${getSubjectColor(ex.subject)}">${ex.subject}</span>${ex.teacher?`<span class="teacher-name">👨‍🏫 ${ex.teacher}</span>`:''}</td>`;return`<td class="empty" onclick="openSlotModal('${day}','${slot.startTime}','${slot.endTime}')"><i class="fas fa-plus-circle"></i> Add</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+        }
+
+        window.openSlotModal = (day, startTime, endTime) => {
+            selectedDay = day;
+            const existing = (currentTimetable[day]||[]).find(s => s.startTime===startTime&&s.endTime===endTime);
+            document.getElementById('slotDay').value = day;
+            document.getElementById('slotStartTime').value = startTime;
+            document.getElementById('slotEndTime').value = endTime;
+            const select = document.getElementById('slotSubject');
+            select.innerHTML = '<option value="">Select</option><option value="BREAK">--- BREAK ---</option>'+subjects.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+            if (existing) {
+                editMode = true;
+                document.getElementById('slotModalTitle').innerHTML='<i class="fas fa-edit"></i> Edit';
+                select.value = existing.subject;
+                document.getElementById('slotTeacher').value = existing.teacher || '';
+                document.getElementById('removeSlotBtn').style.display='block';
+                document.getElementById('teacherGroup').style.display = existing.subject==='BREAK'?'none':'block';
+            } else {
+                editMode = false;
+                document.getElementById('slotModalTitle').innerHTML='<i class="fas fa-plus-circle"></i> Add';
+                select.value=''; document.getElementById('slotTeacher').value='';
+                document.getElementById('removeSlotBtn').style.display='none';
+                document.getElementById('teacherGroup').style.display='block';
+            }
+            select.onchange = function(){ document.getElementById('teacherGroup').style.display=this.value==='BREAK'?'none':'block'; };
+            document.getElementById('slotModal').classList.add('active');
+        };
+        window.closeSlotModal = () => { document.getElementById('slotModal').classList.remove('active'); };
+        window.saveSlot = () => {
+            const subject = document.getElementById('slotSubject').value;
+            const teacher = document.getElementById('slotTeacher').value.trim();
+            const st = document.getElementById('slotStartTime').value;
+            const et = document.getElementById('slotEndTime').value;
+            const day = document.getElementById('slotDay').value;
+            if(!subject) return showNotification('Error','Select subject','error');
+            if(subject!=='BREAK'&&!teacher) return showNotification('Error','Enter teacher','error');
+            if(!currentTimetable[day]) currentTimetable[day]=[];
+            currentTimetable[day]=currentTimetable[day].filter(s=>!(s.startTime===st&&s.endTime===et));
+            currentTimetable[day].push({subject,teacher:subject==='BREAK'?'':teacher,startTime:st,endTime:et});
+            currentTimetable[day].sort((a,b)=>a.startTime.localeCompare(b.startTime));
+            closeSlotModal(); renderTimetable(); saveSilent();
+            showNotification('Saved!',`${subject} updated`);
+        };
+        window.removeSlot = () => {const st=document.getElementById('slotStartTime').value,et=document.getElementById('slotEndTime').value,day=document.getElementById('slotDay').value;if(currentTimetable[day])currentTimetable[day]=currentTimetable[day].filter(s=>!(s.startTime===st&&s.endTime===et));closeSlotModal();renderTimetable();saveSilent();};
+        window.addTimeSlot = () => {const s=prompt('Start time (HH:MM):','10:00'),e=prompt('End time (HH:MM):','10:40');if(s&&e){DAYS.forEach(d=>{if(!currentTimetable[d])currentTimetable[d]=[];if(!currentTimetable[d].find(x=>x.startTime===s&&x.endTime===e))currentTimetable[d].push({subject:'',teacher:'',startTime:s,endTime:e});});renderTimetable();saveSilent();}};
+        window.deleteTimeSlot = (st,et) => {if(!confirm(`Delete ${st}-${et} from ALL days?`))return;DAYS.forEach(d=>{if(currentTimetable[d])currentTimetable[d]=currentTimetable[d].filter(x=>!(x.startTime===st&&x.endTime===et));});renderTimetable();saveSilent();};
+        async function saveSilent() {await setDoc(doc(db,'timetables',currentClass),{className:currentClass,slots:currentTimetable,updatedAt:new Date().toISOString()});await updateTeacherTimetables();}
+        window.saveTimetable = async () => { await saveSilent(); showNotification('Saved!',`${CLASS_NAMES[currentClass]} saved`); };
+
+        async function updateTeacherTimetables() {
+            const tMap={};
+            for(const cls of Object.keys(CLASS_NAMES)){
+                const snap=await getDoc(doc(db,'timetables',cls));
+                if(snap.exists()) Object.entries(snap.data().slots||{}).forEach(([day,slots])=>{slots.forEach(s=>{if(s.teacher&&s.subject!=='BREAK'){if(!tMap[s.teacher])tMap[s.teacher]=[];tMap[s.teacher].push({class:cls,day,subject:s.subject,startTime:s.startTime,endTime:s.endTime});}});});
+            }
+            const dOrder={Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4};
+            for(const [t,sched] of Object.entries(tMap)){sched.sort((a,b)=>dOrder[a.day]-dOrder[b.day]||a.startTime.localeCompare(b.startTime));await setDoc(doc(db,'teacherTimetables',t.replace(/\s+/g,'_')),{teacher:t,schedule:sched,updatedAt:new Date().toISOString()});}
+            await refreshTeacherCache();
+        }
+
+        // ========== TEACHER VIEWS ==========
+        window.showTeacherTimetables = async () => {
+            await refreshTeacherCache();
+            const teachers = allTeachersData;
+            document.getElementById('contentArea').innerHTML=`<div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-chalkboard-teacher"></i> Teacher Timetables (${teachers.length})</h3><div style="display:flex;gap:8px;"><button class="btn btn-purple btn-sm" onclick="exportAllTeachersWord()"><i class="fas fa-file-word"></i> Export All</button><button class="btn btn-success btn-sm" onclick="showExportOptions()"><i class="fas fa-download"></i> Export Options</button></div></div><div class="teacher-grid">${teachers.length===0?'<p style="grid-column:1/-1;text-align:center;color:var(--gray);">No teachers assigned yet. Add teachers to class timetables first.</p>':teachers.map(t=>`<div class="teacher-export-card"><h4>👨‍🏫 ${t.teacher}</h4><p style="font-size:0.8rem;color:var(--gray);margin-bottom:10px;">${t.schedule.length} classes/week</p>${t.schedule.slice(0,5).map(s=>`<div class="teacher-schedule-item"><span><span class="day-badge">${s.day}</span> ${s.startTime}-${s.endTime}</span><span style="font-size:0.8rem;">📚 ${s.subject} | 🏫 ${CLASS_NAMES[s.class]}</span></div>`).join('')}${t.schedule.length>5?`<p style="font-size:0.75rem;color:var(--gray);text-align:center;">+${t.schedule.length-5} more...</p>`:''}<button class="btn btn-outline btn-sm btn-block" style="margin-top:10px;" onclick="downloadTeacherByName('${t.teacher.replace(/'/g,"\\'")}')"><i class="fas fa-file-word"></i> Export ${t.teacher}'s Timetable</button></div>`).join('')}</div></div>`;
+        };
+
+        window.showAllTimetables = async () => {
+            let html='';
+            for(const cls of Object.keys(CLASS_NAMES)){const snap=await getDoc(doc(db,'timetables',cls));const has=snap.exists()&&Object.keys(snap.data().slots||{}).some(d=>(snap.data().slots[d]||[]).length>0);html+=`<div style="background:white;border:2px solid ${has?'var(--success)':'#e2e8f0'};border-radius:15px;padding:20px;text-align:center;cursor:pointer;transition:all 0.3s;" onclick="selectClass('${cls}')" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"><i class="fas ${has?'fa-check-circle':'fa-clock'}" style="font-size:2rem;color:${has?'var(--success)':'var(--gray)'};margin-bottom:10px;"></i><h4>${CLASS_NAMES[cls]}</h4><small style="color:var(--gray);">${has?'Set':'Not set'}</small></div>`;}
+            document.getElementById('contentArea').innerHTML=`<div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-table"></i> All Classes</h3></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;">${html}</div></div>`;
+        };
+
+        // ========== EXPORT FUNCTIONS ==========
+        window.showExportOptions = () => {
+            document.getElementById('teacherCheckboxList').innerHTML = allTeachersData.length === 0 
+                ? '<p style="text-align:center;color:var(--gray);padding:20px;">No teachers found.</p>'
+                : allTeachersData.map(t => `<div class="checkbox-item"><input type="checkbox" id="exp_${t.teacher.replace(/[^a-zA-Z0-9]/g,'_')}" value="${t.teacher.replace(/"/g,'&quot;').replace(/'/g,'&apos;')}" checked><label for="exp_${t.teacher.replace(/[^a-zA-Z0-9]/g,'_')}">👨‍🏫 <strong>${t.teacher}</strong> <small style="color:var(--gray);">(${t.schedule.length} classes)</small></label></div>`).join('');
+            document.getElementById('exportModal').classList.add('active');
+        };
+        window.closeExportModal = () => document.getElementById('exportModal').classList.remove('active');
+        document.getElementById('exportModal').addEventListener('click', function(e) { if (e.target === this) closeExportModal(); });
+        window.toggleAllCheckboxes = (select) => { document.querySelectorAll('#teacherCheckboxList input[type="checkbox"]').forEach(cb => cb.checked = select); };
+
+        window.exportSelectedTeachers = async () => {
+            const checked = document.querySelectorAll('#teacherCheckboxList input[type="checkbox"]:checked');
+            if (checked.length === 0) return showNotification('Error', 'Select at least one teacher', 'error');
+            const names = Array.from(checked).map(cb => cb.value.replace(/&quot;/g,'"').replace(/&apos;/g,"'"));
+            closeExportModal();
+            await downloadTeachersByName(names);
+        };
+
+        window.exportAllTeachersWord = async () => {
+            if (allTeachersData.length === 0) return showNotification('Error', 'No teachers to export', 'error');
+            closeExportModal();
+            const names = allTeachersData.map(t => t.teacher);
+            await downloadTeachersByName(names);
+        };
+
+        // THE KEY FUNCTION - Download by teacher name (global, can be called from onclick)
+        window.downloadTeacherByName = async (teacherName) => {
+            console.log('downloadTeacherByName called with:', teacherName);
+            await downloadTeachersByName([teacherName]);
+        };
+
+        // Core download function
+        async function downloadTeachersByName(teacherNames) {
+            for (let i = 0; i < teacherNames.length; i++) {
+                const name = teacherNames[i];
+                showLoading(true, `Generating ${name}'s timetable (${i+1}/${teacherNames.length})...`);
+                
+                try {
+                    // Find teacher in cache
+                    const teacherData = allTeachersData.find(t => t.teacher === name);
+                    
+                    if (teacherData && teacherData.schedule && teacherData.schedule.length > 0) {
+                        console.log('Found teacher in cache:', name, teacherData.schedule.length, 'slots');
+                        await generateWordDoc(name, teacherData.schedule);
+                    } else {
+                        // Fallback: try Firebase directly
+                        console.log('Looking up in Firebase for:', name);
+                        const docId = name.replace(/\s+/g, '_');
+                        const snap = await getDoc(doc(db, 'teacherTimetables', docId));
+                        if (snap.exists() && snap.data().schedule) {
+                            await generateWordDoc(name, snap.data().schedule);
+                        } else {
+                            console.log('No timetable found for:', name);
+                        }
+                    }
+                    
+                    // Small delay between downloads
+                    await new Promise(r => setTimeout(r, 300));
+                } catch (error) {
+                    console.error('Error generating doc for:', name, error);
+                }
+            }
+            
+            showLoading(false);
+            showNotification('Success!', `${teacherNames.length} teacher timetable(s) downloaded`);
+        }
+
+        // Generate Word document from schedule data
+        async function generateWordDoc(teacherName, schedule) {
+            const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType, WidthType, ShadingType } = docx;
+
+            const headerCells = ['Day', 'Time', 'Subject', 'Class'].map(h => new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, color: 'FFFFFF', size: 20 })], alignment: AlignmentType.CENTER })],
+                shading: { type: ShadingType.SOLID, color: '4a7bd9' }, width: { size: 25, type: WidthType.PERCENTAGE }
+            }));
+
+            const rows = schedule.map(s => new TableRow({ children: [
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: s.day, size: 18 })], alignment: AlignmentType.CENTER })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `${s.startTime}-${s.endTime}`, size: 18 })], alignment: AlignmentType.CENTER })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: s.subject, size: 18, color: getSubjectColor(s.subject).replace('#','') })], alignment: AlignmentType.CENTER })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: CLASS_NAMES[s.class] || s.class, size: 18 })], alignment: AlignmentType.CENTER })] })
+            ] }));
+
+            const doc = new Document({ sections: [{ children: [
+                new Paragraph({ children: [new TextRun({ text: 'WUNDERKIND ACADEMY', bold: true, size: 48, color: '1e293b' })], alignment: AlignmentType.CENTER, spacing: { after: 100 } }),
+                new Paragraph({ children: [new TextRun({ text: `${teacherName}'s Timetable`, bold: true, size: 36, color: '4a7bd9' })], alignment: AlignmentType.CENTER, spacing: { after: 80 } }),
+                new Paragraph({ children: [new TextRun({ text: `Generated: ${new Date().toLocaleDateString()}`, size: 22, color: '64748b' })], alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
+                new Table({ rows: [new TableRow({ children: headerCells }), ...rows], width: { size: 100, type: WidthType.PERCENTAGE } }),
+                new Paragraph({ text: '', spacing: { before: 300 } }),
+                new Paragraph({ children: [new TextRun({ text: 'Wunderkind Academy · Kishiri Mwanza, Tanzania · +255 749 281 607', size: 18, color: '94a3b8' })], alignment: AlignmentType.CENTER })
+            ] }] });
+
+            const blob = await Packer.toBlob(doc);
+            const safeName = teacherName.replace(/[^a-zA-Z0-9]/g, '_');
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeName}_Timetable.docx`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
+        }
+
+        // Export current class timetable
+        window.exportToWord = async () => {
+            showLoading(true);
+            try {
+                const allSlots = [];
+                DAYS.forEach(day => { (currentTimetable[day] || []).forEach(slot => { if (!allSlots.find(s => s.startTime === slot.startTime && s.endTime === slot.endTime)) allSlots.push(slot); }); });
+                allSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+                const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType, WidthType, ShadingType } = docx;
+
+                const headerCells = [new TableCell({children:[new Paragraph({children:[new TextRun({text:'Time',bold:true,color:'FFFFFF',size:20})],alignment:AlignmentType.CENTER})],shading:{type:ShadingType.SOLID,color:'4a7bd9'},width:{size:15,type:WidthType.PERCENTAGE}})];
+                DAYS.forEach(day => headerCells.push(new TableCell({children:[new Paragraph({children:[new TextRun({text:day,bold:true,color:'FFFFFF',size:20})],alignment:AlignmentType.CENTER})],shading:{type:ShadingType.SOLID,color:'4a7bd9'},width:{size:17,type:WidthType.PERCENTAGE}})));
+
+                const dataRows = allSlots.map(slot => new TableRow({children:[
+                    new TableCell({children:[new Paragraph({children:[new TextRun({text:`${slot.startTime} - ${slot.endTime}`,bold:true,size:18})],alignment:AlignmentType.CENTER})],shading:{type:ShadingType.SOLID,color:'f0f4ff'}}),
+                    ...DAYS.map(day => {const ex=(currentTimetable[day]||[]).find(s=>s.startTime===slot.startTime&&s.endTime===slot.endTime);const children=[];if(ex&&ex.subject){children.push(new Paragraph({children:[new TextRun({text:ex.subject,bold:true,size:18,color:getSubjectColor(ex.subject).replace('#','')})],alignment:AlignmentType.CENTER}));if(ex.teacher)children.push(new Paragraph({children:[new TextRun({text:ex.teacher,italics:true,size:16,color:'64748b'})],alignment:AlignmentType.CENTER}));}return new TableCell({children,shading:ex&&ex.subject==='BREAK'?{type:ShadingType.SOLID,color:'fef3c7'}:undefined});})
+                ]}));
+
+                const doc = new Document({sections:[{children:[
+                    new Paragraph({children:[new TextRun({text:'WUNDERKIND ACADEMY',bold:true,size:44,color:'1e293b'})],alignment:AlignmentType.CENTER,spacing:{after:80}}),
+                    new Paragraph({children:[new TextRun({text:`${CLASS_NAMES[currentClass]} Timetable`,bold:true,size:32,color:'4a7bd9'})],alignment:AlignmentType.CENTER,spacing:{after:80}}),
+                    new Paragraph({children:[new TextRun({text:`Generated: ${new Date().toLocaleDateString()}`,size:20,color:'64748b'})],alignment:AlignmentType.CENTER,spacing:{after:300}}),
+                    new Table({rows:[new TableRow({children:headerCells}),...dataRows],width:{size:100,type:WidthType.PERCENTAGE}}),
+                    new Paragraph({text:'',spacing:{before:200}}),
+                    new Paragraph({children:[new TextRun({text:'Wunderkind Academy · Kishiri Mwanza, Tanzania',size:16,color:'94a3b8'})],alignment:AlignmentType.CENTER})
+                ]}]});
+
+                const blob = await Packer.toBlob(doc);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `${currentClass}_timetable.docx`;
+                document.body.appendChild(a); a.click();
+                setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
+                showNotification('Success!', 'Class timetable downloaded');
+            } catch(e) { console.error(e); showNotification('Error','Failed','error'); }
+            showLoading(false);
+        };
+
+        document.getElementById('slotModal').addEventListener('click', function(e) { if (e.target === this) closeSlotModal(); });
+        document.getElementById('subjectManagerModal').addEventListener('click', function(e) { if (e.target === this) closeSubjectManager(); });
+    </script>
+</body>
+</html>
