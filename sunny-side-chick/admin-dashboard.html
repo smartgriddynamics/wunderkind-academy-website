@@ -13,7 +13,7 @@
     .sidebar {
       width: 260px; background: #1E3A8A; color: white; padding: 1.5rem;
       display: flex; flex-direction: column; position: fixed; top: 0; left: 0;
-      bottom: 0; z-index: 100;
+      bottom: 0; z-index: 100; overflow-y: auto;
     }
     .sidebar h2 { font-family: 'Fredoka', sans-serif; margin-bottom: 2rem; font-size: 1.5rem; }
     .sidebar h2 i { color: #FBBF24; margin-right: 0.5rem; }
@@ -63,37 +63,92 @@
     .btn-gold { background: #FBBF24; color: #1E3A8A; }
     .btn-gold:hover { background: #F59E0B; }
     .btn-red { background: #EF4444; color: white; }
+    .btn-green { background: #10B981; color: white; }
     .btn-outline { background: white; border: 2px solid #1E3A8A; color: #1E3A8A; }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
     
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th { background: #FEFCE8; padding: 0.8rem; text-align: left; color: #1E3A8A; }
     td { padding: 0.8rem; border-bottom: 1px solid #F3F4F6; }
     
-    .badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
     .badge-new { background: #FEFCE8; color: #B45309; }
     .badge-read { background: #ECFDF5; color: #065F46; }
+    .badge-active { background: #DBEAFE; color: #1E40AF; }
+    .badge-complete { background: #D1FAE5; color: #065F46; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    
+    .progress-bar {
+      height: 8px; background: #E5E7EB; border-radius: 10px; overflow: hidden; margin-top: 0.3rem;
+    }
+    .progress-fill {
+      height: 100%; background: #FBBF24; border-radius: 10px; transition: width 0.5s;
+    }
+    
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 0.3rem;
+      background: #F9FAFB; padding: 0.4rem 0.8rem; border-radius: 20px;
+      font-size: 0.85rem;
+    }
+    .checkbox-item input[type="checkbox"] { accent-color: #FBBF24; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: white; padding: 1.5rem; border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: center;
+    }
+    .stat-card i { font-size: 2rem; color: #FBBF24; margin-bottom: 0.5rem; }
+    .stat-card h4 { font-size: 2rem; color: #1E3A8A; }
+    .stat-card p { color: #6B7280; font-size: 0.9rem; }
     
     .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 2000; display: none; align-items: center; gap: 0.5rem; }
     .toast.show { display: flex; }
     .toast.success { border-left: 4px solid #10B981; }
+    .toast.error { border-left: 4px solid #EF4444; }
+    
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1500; display: none;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: white; border-radius: 25px; padding: 2rem;
+      max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+    }
     
     @media (max-width: 768px) {
       .sidebar { width: 200px; }
       .main-content { margin-left: 200px; }
       .form-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
   <div id="toast" class="toast">
-    <i class="fas fa-check-circle"></i>
+    <i class="fas" id="toastIcon"></i>
     <span id="toastMsg"></span>
+  </div>
+
+  <!-- Egg Detail Modal -->
+  <div class="modal-overlay" id="eggModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h3 style="color:#1E3A8A;"><i class="fas fa-egg"></i> Egg Batch Details</h3>
+        <i class="fas fa-times" style="cursor:pointer; font-size:1.3rem; color:#999;" onclick="closeEggModal()"></i>
+      </div>
+      <div id="eggModalContent"></div>
+    </div>
   </div>
 
   <aside class="sidebar">
     <h2><i class="fas fa-egg"></i> SunnySide</h2>
     <nav>
-      <a class="active" data-section="pricing"><i class="fas fa-tags"></i> Manage Pricing</a>
+      <a class="active" data-section="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a data-section="eggs"><i class="fas fa-egg"></i> Egg Tracker</a>
+      <a data-section="pricing"><i class="fas fa-tags"></i> Manage Pricing</a>
       <a data-section="inquiries"><i class="fas fa-envelope"></i> Inquiries</a>
       <a data-section="customers"><i class="fas fa-users"></i> Customers</a>
     </nav>
@@ -102,87 +157,67 @@
 
   <main class="main-content">
     <div class="header">
-      <h2 id="sectionTitle">Manage Pricing</h2>
+      <h2 id="sectionTitle">Dashboard Overview</h2>
       <span id="adminEmail" style="color:#6B7280;"></span>
     </div>
 
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardSection" class="section">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><i class="fas fa-egg"></i><h4 id="totalBatches">0</h4><p>Active Batches</p></div>
+        <div class="stat-card"><i class="fas fa-check-circle"></i><h4 id="totalEggs">0</h4><p>Total Eggs</p></div>
+        <div class="stat-card"><i class="fas fa-clock"></i><h4 id="hatchingSoon">0</h4><p>Hatching Soon</p></div>
+        <div class="stat-card"><i class="fas fa-envelope"></i><h4 id="newInquiries">0</h4><p>New Inquiries</p></div>
+      </div>
+      <div class="card">
+        <h3>Recent Batches</h3>
+        <div id="recentBatches"><p>Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- EGG TRACKER SECTION -->
+    <div id="eggsSection" class="section" style="display:none;">
+      <div id="eggTrackerContent">
+        <!-- Dynamic content loaded here -->
+      </div>
+    </div>
+
     <!-- PRICING SECTION -->
-    <div id="pricingSection" class="section">
+    <div id="pricingSection" class="section" style="display:none;">
       <div class="card">
         <h3>Add / Update Service Price</h3>
         <form id="pricingForm">
           <input type="hidden" id="priceId">
           <div class="form-grid">
-            <div class="form-group">
-              <label>Service Name</label>
-              <input type="text" id="priceName" placeholder="e.g., Egg Incubation" required>
-            </div>
-            <div class="form-group">
-              <label>Price (e.g., TZS 500)</label>
-              <input type="text" id="priceAmount" placeholder="TZS 500" required>
-            </div>
-            <div class="form-group">
-              <label>Unit</label>
-              <input type="text" id="priceUnit" placeholder="/ egg">
-            </div>
-            <div class="form-group">
-              <label>Icon (Font Awesome)</label>
-              <input type="text" id="priceIcon" placeholder="fa-temperature-high" value="fa-egg">
-            </div>
-            <div class="form-group">
-              <label>Order (number)</label>
-              <input type="number" id="priceOrder" value="1" min="1">
-            </div>
-            <div class="form-group">
-              <label>Featured?</label>
-              <select id="priceFeatured">
-                <option value="false">No</option>
-                <option value="true">Yes (Most Popular)</option>
-              </select>
-            </div>
+            <div class="form-group"><label>Service Name</label><input type="text" id="priceName" required></div>
+            <div class="form-group"><label>Price</label><input type="text" id="priceAmount" required></div>
+            <div class="form-group"><label>Unit</label><input type="text" id="priceUnit"></div>
+            <div class="form-group"><label>Icon (Font Awesome)</label><input type="text" id="priceIcon" value="fa-egg"></div>
+            <div class="form-group"><label>Order</label><input type="number" id="priceOrder" value="1"></div>
+            <div class="form-group"><label>Featured?</label><select id="priceFeatured"><option value="false">No</option><option value="true">Yes</option></select></div>
           </div>
-          <div class="form-group">
-            <label>Features (one per line)</label>
-            <textarea id="priceFeatures" rows="4" placeholder="21-day full cycle&#10;Temperature control&#10;Automatic turning"></textarea>
-          </div>
+          <div class="form-group"><label>Features (one per line)</label><textarea id="priceFeatures" rows="4"></textarea></div>
           <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Save Price</button>
           <button type="button" id="cancelEdit" class="btn btn-outline" style="display:none;">Cancel</button>
         </form>
       </div>
-
-      <div class="card">
-        <h3>Current Pricing List</h3>
-        <div id="pricingList">
-          <p>Loading...</p>
-        </div>
-      </div>
+      <div class="card"><h3>Current Pricing</h3><div id="pricingList"><p>Loading...</p></div></div>
     </div>
 
     <!-- INQUIRIES SECTION -->
     <div id="inquiriesSection" class="section" style="display:none;">
-      <div class="card">
-        <h3>Customer Inquiries</h3>
-        <div id="inquiriesList">
-          <p>Loading inquiries...</p>
-        </div>
-      </div>
+      <div class="card"><h3>Customer Inquiries</h3><div id="inquiriesList"><p>Loading...</p></div></div>
     </div>
 
     <!-- CUSTOMERS SECTION -->
     <div id="customersSection" class="section" style="display:none;">
-      <div class="card">
-        <h3>Customer List</h3>
-        <p>Customers who have made inquiries appear here.</p>
-        <div id="customersList">
-          <p>Loading...</p>
-        </div>
-      </div>
+      <div class="card"><h3>Customers</h3><div id="customersList"><p>Loading...</p></div></div>
     </div>
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -201,15 +236,14 @@
 
     // Auth check
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = 'admin-login.html';
-      } else {
+      if (!user) window.location.href = 'admin-login.html';
+      else {
         document.getElementById('adminEmail').textContent = user.email;
-        loadAllData();
+        loadDashboard();
+        loadPricing();
       }
     });
 
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
       signOut(auth).then(() => window.location.href = 'admin-login.html');
     });
@@ -223,21 +257,420 @@
         document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
         document.getElementById(section + 'Section').style.display = 'block';
         document.getElementById('sectionTitle').textContent = 
-          section === 'pricing' ? 'Manage Pricing' : 
+          section === 'dashboard' ? 'Dashboard Overview' :
+          section === 'eggs' ? 'Egg Incubation Tracker' :
+          section === 'pricing' ? 'Manage Pricing' :
           section === 'inquiries' ? 'Customer Inquiries' : 'Customers';
+        
+        if (section === 'dashboard') loadDashboard();
+        if (section === 'eggs') loadEggTracker();
         if (section === 'inquiries') loadInquiries();
         if (section === 'customers') loadCustomers();
       });
     });
 
-    function showToast(msg) {
+    function showToast(msg, type = 'success') {
       const toast = document.getElementById('toast');
       document.getElementById('toastMsg').textContent = msg;
-      toast.classList.add('show', 'success');
+      document.getElementById('toastIcon').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      toast.className = `toast ${type} show`;
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // PRICING CRUD
+    // ==================== EGG TRACKER SYSTEM ====================
+    
+    const INCUBATION_SCHEDULE = [
+      { day: 1, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 2, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 3, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 4, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 5, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 6, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: true },
+      { day: 7, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: true },
+      { day: 8, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 9, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 10, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 11, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 12, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 13, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: true },
+      { day: 14, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: true },
+      { day: 15, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 16, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 17, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 18, temp: "99.5°F (37.5°C)", humidity: "45% - 55%", turning: true, candling: false },
+      { day: 19, temp: "99.5°F (37.5°C)", humidity: "65% - 75%", turning: false, candling: false },
+      { day: 20, temp: "99.5°F (37.5°C)", humidity: "65% - 75%", turning: false, candling: false },
+      { day: 21, temp: "99.5°F (37.5°C)", humidity: "65% - 75%", turning: false, candling: false }
+    ];
+
+    async function createEggBatch(e) {
+      e.preventDefault();
+      const batchName = document.getElementById('batchName').value.trim();
+      const customerName = document.getElementById('batchCustomer').value.trim();
+      const totalEggs = parseInt(document.getElementById('batchEggs').value);
+      const startDate = document.getElementById('batchStartDate').value;
+      
+      if (!batchName || !totalEggs || !startDate) {
+        showToast('Please fill all required fields', 'error');
+        return;
+      }
+
+      // Create daily checklist
+      const checklist = INCUBATION_SCHEDULE.map(day => ({
+        day: day.day,
+        temp: day.temp,
+        humidity: day.humidity,
+        turningRequired: day.turning,
+        candlingRequired: day.candling,
+        tempChecked: false,
+        humidityChecked: false,
+        turningDone: day.turning ? false : null,
+        candlingDone: day.candling ? false : null,
+        notes: '',
+        completedAt: null
+      }));
+
+      try {
+        const batchData = {
+          batchName,
+          customerName: customerName || 'Walk-in',
+          totalEggs,
+          startDate: Timestamp.fromDate(new Date(startDate)),
+          expectedHatchDate: Timestamp.fromDate(new Date(new Date(startDate).getTime() + 21 * 24 * 60 * 60 * 1000)),
+          status: 'active',
+          checklist,
+          currentDay: 1,
+          fertileEggs: 0,
+          hatchedEggs: 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+
+        await addDoc(collection(db, "eggBatches"), batchData);
+        showToast('Batch created successfully!');
+        document.getElementById('newBatchForm').reset();
+        loadEggTracker();
+        loadDashboard();
+      } catch (error) {
+        console.error('Error creating batch:', error);
+        showToast('Error creating batch', 'error');
+      }
+    }
+
+    async function updateChecklist(batchId, dayIndex, field, value) {
+      try {
+        const batchRef = doc(db, "eggBatches", batchId);
+        const batchSnap = await getDocs(query(collection(db, "eggBatches")));
+        let batchData;
+        batchSnap.forEach(d => { if (d.id === batchId) batchData = { id: d.id, ...d.data() }; });
+        
+        if (!batchData) return;
+        
+        const checklist = [...batchData.checklist];
+        if (field === 'notes') {
+          checklist[dayIndex].notes = value;
+        } else {
+          checklist[dayIndex][field] = value;
+        }
+        checklist[dayIndex].completedAt = serverTimestamp();
+        
+        // Check if all required items for the day are done
+        const day = checklist[dayIndex];
+        const allDone = 
+          (day.tempChecked || !day.turningRequired) && 
+          (day.humidityChecked || !day.turningRequired) &&
+          (day.turningDone !== false || day.turningRequired === false) &&
+          (day.candlingDone !== false || day.candlingRequired === false);
+        
+        if (allDone && dayIndex + 1 === batchData.currentDay && batchData.currentDay < 21) {
+          // Auto-advance to next day
+          await updateDoc(batchRef, {
+            checklist,
+            currentDay: batchData.currentDay + 1,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await updateDoc(batchRef, { checklist, updatedAt: serverTimestamp() });
+        }
+        
+        loadEggTracker();
+        showToast('Checklist updated!');
+      } catch (error) {
+        console.error('Error updating checklist:', error);
+        showToast('Error updating', 'error');
+      }
+    }
+
+    async function updateBatchStatus(batchId, status, fertileEggs = null, hatchedEggs = null) {
+      try {
+        const batchRef = doc(db, "eggBatches", batchId);
+        const updateData = { status, updatedAt: serverTimestamp() };
+        if (fertileEggs !== null) updateData.fertileEggs = fertileEggs;
+        if (hatchedEggs !== null) updateData.hatchedEggs = hatchedEggs;
+        await updateDoc(batchRef, updateData);
+        showToast('Batch updated!');
+        loadEggTracker();
+        loadDashboard();
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error updating batch', 'error');
+      }
+    }
+
+    async function loadEggTracker() {
+      const content = document.getElementById('eggTrackerContent');
+      
+      // New Batch Form
+      let html = `
+        <div class="card">
+          <h3><i class="fas fa-plus-circle"></i> New Incubation Batch</h3>
+          <form id="newBatchForm" onsubmit="return false;">
+            <div class="form-grid">
+              <div class="form-group"><label>Batch Name *</label><input type="text" id="batchName" placeholder="Batch #1 - Broilers" required></div>
+              <div class="form-group"><label>Customer Name</label><input type="text" id="batchCustomer" placeholder="John Doe"></div>
+              <div class="form-group"><label>Total Eggs *</label><input type="number" id="batchEggs" min="1" value="30" required></div>
+              <div class="form-group"><label>Start Date *</label><input type="date" id="batchStartDate" required></div>
+            </div>
+            <button type="submit" class="btn btn-gold" id="createBatchBtn"><i class="fas fa-egg"></i> Create Batch</button>
+          </form>
+        </div>
+      `;
+
+      // Active Batches
+      html += '<div class="card"><h3><i class="fas fa-list"></i> Active Incubation Batches</h3><div id="activeBatchesList">Loading...</div></div>';
+      
+      content.innerHTML = html;
+      
+      // Add event listener to the form
+      document.getElementById('newBatchForm').addEventListener('submit', createEggBatch);
+      
+      // Load active batches
+      await renderActiveBatches();
+    }
+
+    async function renderActiveBatches() {
+      const listEl = document.getElementById('activeBatchesList');
+      try {
+        const q = query(collection(db, "eggBatches"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+          listEl.innerHTML = '<p style="color:#6B7280; text-align:center; padding:2rem;">No batches yet. Create your first incubation batch above.</p>';
+          return;
+        }
+
+        let html = '';
+        snapshot.forEach(docSnap => {
+          const batch = { id: docSnap.id, ...docSnap.data() };
+          const startDate = batch.startDate?.toDate() || new Date();
+          const hatchDate = batch.expectedHatchDate?.toDate() || new Date();
+          const today = new Date();
+          const progress = Math.min(100, Math.round(((today - startDate) / (hatchDate - startDate)) * 100));
+          const daysLeft = Math.max(0, Math.ceil((hatchDate - today) / (1000 * 60 * 60 * 24)));
+          
+          const currentDayData = batch.checklist?.[batch.currentDay - 1] || {};
+          
+          html += `
+            <div style="border:1px solid #E5E7EB; border-radius:15px; padding:1.5rem; margin-bottom:1rem; ${batch.status === 'complete' ? 'opacity:0.7;' : ''}">
+              <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <h4 style="color:#1E3A8A;">${batch.batchName}</h4>
+                  <p style="color:#6B7280; font-size:0.9rem;">
+                    <i class="fas fa-user"></i> ${batch.customerName} | 
+                    <i class="fas fa-egg"></i> ${batch.totalEggs} eggs |
+                    <i class="fas fa-calendar"></i> Started: ${startDate.toLocaleDateString()}
+                  </p>
+                  <p style="color:#6B7280; font-size:0.85rem;">
+                    Hatch date: ${hatchDate.toLocaleDateString()} | 
+                    Days left: <strong>${daysLeft}</strong> | 
+                    Day: <strong>${batch.currentDay}/21</strong>
+                  </p>
+                  <div class="progress-bar" style="width:200px;"><div class="progress-fill" style="width:${progress}%;"></div></div>
+                </div>
+                <div>
+                  <span class="badge badge-${batch.status === 'active' ? 'active' : 'complete'}">${batch.status}</span>
+                  ${batch.fertileEggs ? `<p style="font-size:0.85rem; margin-top:0.3rem;">Fertile: ${batch.fertileEggs} | Hatched: ${batch.hatchedEggs || 0}</p>` : ''}
+                </div>
+              </div>
+              
+              ${batch.status === 'active' ? `
+                <div style="margin-top:1rem; padding:1rem; background:#FEFCE8; border-radius:10px;">
+                  <strong>Day ${batch.currentDay} Checklist:</strong>
+                  <div class="checkbox-group" style="margin-top:0.5rem;">
+                    <label class="checkbox-item">
+                      <input type="checkbox" ${currentDayData.tempChecked ? 'checked' : ''} 
+                        onchange="window.updateChecklistItem('${batch.id}', ${batch.currentDay - 1}, 'tempChecked', this.checked)">
+                      🌡️ Temp: ${currentDayData.temp || INCUBATION_SCHEDULE[batch.currentDay-1]?.temp}
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" ${currentDayData.humidityChecked ? 'checked' : ''}
+                        onchange="window.updateChecklistItem('${batch.id}', ${batch.currentDay - 1}, 'humidityChecked', this.checked)">
+                      💧 Humidity: ${currentDayData.humidity || INCUBATION_SCHEDULE[batch.currentDay-1]?.humidity}
+                    </label>
+                    ${currentDayData.turningRequired !== false ? `
+                      <label class="checkbox-item">
+                        <input type="checkbox" ${currentDayData.turningDone ? 'checked' : ''}
+                          onchange="window.updateChecklistItem('${batch.id}', ${batch.currentDay - 1}, 'turningDone', this.checked)">
+                        🔄 Turning
+                      </label>
+                    ` : '<span class="badge badge-warning">No Turning</span>'}
+                    ${currentDayData.candlingRequired ? `
+                      <label class="checkbox-item">
+                        <input type="checkbox" ${currentDayData.candlingDone ? 'checked' : ''}
+                          onchange="window.updateChecklistItem('${batch.id}', ${batch.currentDay - 1}, 'candlingDone', this.checked)">
+                        🔦 Candling
+                      </label>
+                    ` : ''}
+                  </div>
+                  <input type="text" placeholder="Notes for day ${batch.currentDay}..." 
+                    value="${currentDayData.notes || ''}"
+                    onchange="window.updateChecklistItem('${batch.id}', ${batch.currentDay - 1}, 'notes', this.value)"
+                    style="width:100%; margin-top:0.5rem; padding:0.5rem; border-radius:10px; border:1px solid #E5E7EB;">
+                </div>
+              ` : ''}
+              
+              <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                ${batch.status === 'active' ? `
+                  <button class="btn btn-sm btn-green" onclick="window.completeBatch('${batch.id}')">
+                    <i class="fas fa-check"></i> Mark Complete
+                  </button>
+                ` : ''}
+                <button class="btn btn-sm btn-outline" onclick="window.viewBatchDetails('${batch.id}')">
+                  <i class="fas fa-eye"></i> Full Checklist
+                </button>
+                <button class="btn btn-sm btn-red" onclick="if(confirm('Delete this batch?')) window.deleteBatch('${batch.id}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        
+        listEl.innerHTML = html;
+      } catch (error) {
+        listEl.innerHTML = '<p style="color:red;">Error loading batches.</p>';
+        console.error(error);
+      }
+    }
+
+    // Global functions for onclick handlers
+    window.updateChecklistItem = async function(batchId, dayIndex, field, value) {
+      await updateChecklist(batchId, dayIndex, field, value);
+    };
+
+    window.completeBatch = function(batchId) {
+      const fertile = prompt('Number of fertile eggs:');
+      const hatched = prompt('Number of hatched chicks:');
+      if (fertile !== null && hatched !== null) {
+        updateBatchStatus(batchId, 'complete', parseInt(fertile), parseInt(hatched));
+      }
+    };
+
+    window.viewBatchDetails = function(batchId) {
+      // Show full checklist in modal
+      const modal = document.getElementById('eggModal');
+      const content = document.getElementById('eggModalContent');
+      
+      getDocs(query(collection(db, "eggBatches"))).then(snapshot => {
+        snapshot.forEach(doc => {
+          if (doc.id === batchId) {
+            const batch = doc.data();
+            let html = `<h4>${batch.batchName} - Full 21-Day Checklist</h4>`;
+            html += '<div style="max-height:400px; overflow-y:auto;">';
+            batch.checklist.forEach((day, i) => {
+              const dayNum = i + 1;
+              html += `
+                <div style="padding:0.5rem; border-bottom:1px solid #eee; ${dayNum === batch.currentDay ? 'background:#FEFCE8;' : ''}">
+                  <strong>Day ${dayNum}</strong> ${dayNum === batch.currentDay ? '← Current' : ''}
+                  <span style="font-size:0.8rem; color:#6B7280;">
+                    | Temp: ${day.tempChecked ? '✅' : '⬜'} 
+                    | Humidity: ${day.humidityChecked ? '✅' : '⬜'}
+                    | Turning: ${day.turningRequired ? (day.turningDone ? '✅' : '⬜') : 'N/A'}
+                    | Candling: ${day.candlingRequired ? (day.candlingDone ? '✅' : '⬜') : 'N/A'}
+                    ${day.notes ? `| 📝 ${day.notes}` : ''}
+                  </span>
+                </div>
+              `;
+            });
+            html += '</div>';
+            content.innerHTML = html;
+          }
+        });
+        modal.classList.add('active');
+      });
+    };
+
+    window.closeEggModal = function() {
+      document.getElementById('eggModal').classList.remove('active');
+    };
+
+    window.deleteBatch = async function(batchId) {
+      await deleteDoc(doc(db, "eggBatches", batchId));
+      showToast('Batch deleted');
+      loadEggTracker();
+      loadDashboard();
+    };
+
+    document.getElementById('eggModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEggModal();
+    });
+
+    // ==================== DASHBOARD ====================
+    async function loadDashboard() {
+      try {
+        const batchesSnap = await getDocs(collection(db, "eggBatches"));
+        let activeBatches = 0, totalEggs = 0, hatchingSoon = 0;
+        const today = new Date();
+        
+        batchesSnap.forEach(doc => {
+          const batch = doc.data();
+          if (batch.status === 'active') {
+            activeBatches++;
+            totalEggs += batch.totalEggs || 0;
+            const hatchDate = batch.expectedHatchDate?.toDate();
+            if (hatchDate) {
+              const daysLeft = Math.ceil((hatchDate - today) / (1000 * 60 * 60 * 24));
+              if (daysLeft <= 3 && daysLeft >= 0) hatchingSoon++;
+            }
+          }
+        });
+
+        document.getElementById('totalBatches').textContent = activeBatches;
+        document.getElementById('totalEggs').textContent = totalEggs;
+        document.getElementById('hatchingSoon').textContent = hatchingSoon;
+
+        // New inquiries count
+        const inqSnap = await getDocs(query(collection(db, "inquiries"), where("status", "==", "new")));
+        document.getElementById('newInquiries').textContent = inqSnap.size;
+
+        // Recent batches
+        const recentSnap = await getDocs(query(collection(db, "eggBatches"), orderBy("createdAt", "desc"), where("status", "==", "active")));
+        let recentHtml = '';
+        if (recentSnap.empty) {
+          recentHtml = '<p style="color:#6B7280;">No active batches.</p>';
+        } else {
+          let count = 0;
+          recentSnap.forEach(doc => {
+            if (count < 5) {
+              const batch = doc.data();
+              const startDate = batch.startDate?.toDate() || new Date();
+              recentHtml += `
+                <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid #F3F4F6;">
+                  <span><strong>${batch.batchName}</strong> - ${batch.customerName}</span>
+                  <span>Day ${batch.currentDay}/21</span>
+                </div>
+              `;
+              count++;
+            }
+          });
+        }
+        document.getElementById('recentBatches').innerHTML = recentHtml;
+      } catch (error) {
+        console.error('Dashboard error:', error);
+      }
+    }
+
+    // ==================== PRICING ====================
     document.getElementById('pricingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('priceId').value;
@@ -251,7 +684,7 @@
         icon: document.getElementById('priceIcon').value.trim() || 'fa-egg',
         order: parseInt(document.getElementById('priceOrder').value) || 1,
         featured: document.getElementById('priceFeatured').value === 'true',
-        features: features,
+        features,
         updatedAt: serverTimestamp()
       };
 
@@ -260,10 +693,7 @@
           await updateDoc(doc(db, "pricing", id), priceData);
           showToast('Price updated!');
         } else {
-          await addDoc(collection(db, "pricing"), {
-            ...priceData,
-            createdAt: serverTimestamp()
-          });
+          await addDoc(collection(db, "pricing"), { ...priceData, createdAt: serverTimestamp() });
           showToast('Price added!');
         }
         document.getElementById('pricingForm').reset();
@@ -271,8 +701,7 @@
         document.getElementById('cancelEdit').style.display = 'none';
         loadPricing();
       } catch (error) {
-        console.error('Error saving price:', error);
-        showToast('Error saving price');
+        showToast('Error saving price', 'error');
       }
     });
 
@@ -288,21 +717,19 @@
         const q = query(collection(db, "pricing"), orderBy("order", "asc"));
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#6B7280;">No pricing added yet.</p>';
+          list.innerHTML = '<p>No pricing added yet.</p>';
           return;
         }
         let html = '<table><thead><tr><th>Name</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead><tbody>';
         snapshot.forEach(docSnap => {
           const d = docSnap.data();
           html += `<tr>
-            <td><strong>${d.name}</strong></td>
-            <td>${d.price} ${d.unit || ''}</td>
+            <td><strong>${d.name}</strong></td><td>${d.price} ${d.unit || ''}</td>
             <td>${d.featured ? '⭐' : '-'}</td>
             <td>
-              <button class="btn btn-outline edit-price" data-id="${docSnap.id}" style="padding:0.4rem 0.8rem; margin-right:0.3rem;"><i class="fas fa-edit"></i></button>
-              <button class="btn btn-red delete-price" data-id="${docSnap.id}" style="padding:0.4rem 0.8rem;"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>`;
+              <button class="btn btn-sm btn-outline edit-price" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-red delete-price" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+            </td></tr>`;
         });
         html += '</tbody></table>';
         list.innerHTML = html;
@@ -310,7 +737,7 @@
         document.querySelectorAll('.edit-price').forEach(btn => {
           btn.addEventListener('click', async (e) => {
             const id = e.currentTarget.dataset.id;
-            const docSnap = await getDocs(query(collection(db, "pricing")));
+            const docSnap = await getDocs(collection(db, "pricing"));
             docSnap.forEach(d => {
               if (d.id === id) {
                 const data = d.data();
@@ -348,27 +775,18 @@
       try {
         const q = query(collection(db, "inquiries"), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-          list.innerHTML = '<p>No inquiries yet.</p>';
-          return;
-        }
+        if (snapshot.empty) { list.innerHTML = '<p>No inquiries yet.</p>'; return; }
         let html = '<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>';
         snapshot.forEach(doc => {
           const d = doc.data();
           const date = d.createdAt?.toDate?.() || new Date();
-          html += `<tr>
-            <td>${d.name || '-'}</td>
-            <td>${d.phone || '-'}</td>
-            <td>${d.service || '-'}</td>
+          html += `<tr><td>${d.name || '-'}</td><td>${d.phone || '-'}</td><td>${d.service || '-'}</td>
             <td><span class="badge badge-${d.status === 'read' ? 'read' : 'new'}">${d.status || 'new'}</span></td>
-            <td>${date.toLocaleDateString()}</td>
-          </tr>`;
+            <td>${date.toLocaleDateString()}</td></tr>`;
         });
         html += '</tbody></table>';
         list.innerHTML = html;
-      } catch (error) {
-        list.innerHTML = '<p>Error loading inquiries.</p>';
-      }
+      } catch (error) { list.innerHTML = '<p>Error loading inquiries.</p>'; }
     }
 
     async function loadCustomers() {
@@ -381,23 +799,14 @@
           const d = doc.data();
           if (d.phone) customers.set(d.phone, { name: d.name, phone: d.phone, email: d.email });
         });
-        if (customers.size === 0) {
-          list.innerHTML = '<p>No customers yet.</p>';
-          return;
-        }
+        if (customers.size === 0) { list.innerHTML = '<p>No customers yet.</p>'; return; }
         let html = '<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th></tr></thead><tbody>';
         customers.forEach(c => {
           html += `<tr><td>${c.name || '-'}</td><td>${c.phone}</td><td>${c.email || '-'}</td></tr>`;
         });
         html += '</tbody></table>';
         list.innerHTML = html;
-      } catch (error) {
-        list.innerHTML = '<p>Error loading customers.</p>';
-      }
-    }
-
-    function loadAllData() {
-      loadPricing();
+      } catch (error) { list.innerHTML = '<p>Error loading customers.</p>'; }
     }
   </script>
 </body>
