@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Sunny Side Chick</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #F3F4F6; display: flex; min-height: 100vh; }
+    
+    .sidebar {
+      width: 260px; background: #1E3A8A; color: white; padding: 1.5rem;
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0;
+      bottom: 0; z-index: 100;
+    }
+    .sidebar h2 { font-family: 'Fredoka', sans-serif; margin-bottom: 2rem; font-size: 1.5rem; }
+    .sidebar h2 i { color: #FBBF24; margin-right: 0.5rem; }
+    .sidebar nav a {
+      display: block; color: rgba(255,255,255,0.8); padding: 0.8rem 1rem;
+      border-radius: 12px; text-decoration: none; margin-bottom: 0.3rem;
+      transition: 0.2s; cursor: pointer;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(255,255,255,0.1); color: #FBBF24;
+    }
+    .sidebar .logout-btn {
+      margin-top: auto; background: rgba(255,255,255,0.1);
+      border: none; color: white; padding: 0.7rem; border-radius: 12px;
+      cursor: pointer; font-weight: 500;
+    }
+    
+    .main-content {
+      margin-left: 260px; flex: 1; padding: 2rem;
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 2rem; background: white; padding: 1rem 1.5rem;
+      border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    
+    .card {
+      background: white; border-radius: 20px; padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 2rem;
+    }
+    .card h3 { color: #1E3A8A; margin-bottom: 1.5rem; font-family: 'Fredoka', sans-serif; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { font-weight: 500; color: #1E3A8A; display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 0.7rem; border-radius: 15px;
+      border: 1.5px solid #E5E7EB; font-family: 'Poppins', sans-serif;
+    }
+    .form-group textarea { resize: vertical; }
+    
+    .btn {
+      padding: 0.7rem 1.5rem; border-radius: 25px; font-weight: 600;
+      cursor: pointer; border: none; font-family: 'Poppins', sans-serif;
+      transition: 0.2s; display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-gold { background: #FBBF24; color: #1E3A8A; }
+    .btn-gold:hover { background: #F59E0B; }
+    .btn-red { background: #EF4444; color: white; }
+    .btn-outline { background: white; border: 2px solid #1E3A8A; color: #1E3A8A; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #FEFCE8; padding: 0.8rem; text-align: left; color: #1E3A8A; }
+    td { padding: 0.8rem; border-bottom: 1px solid #F3F4F6; }
+    
+    .badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .badge-new { background: #FEFCE8; color: #B45309; }
+    .badge-read { background: #ECFDF5; color: #065F46; }
+    
+    .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 2000; display: none; align-items: center; gap: 0.5rem; }
+    .toast.show { display: flex; }
+    .toast.success { border-left: 4px solid #10B981; }
+    
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .main-content { margin-left: 200px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg"></span>
+  </div>
+
+  <aside class="sidebar">
+    <h2><i class="fas fa-egg"></i> SunnySide</h2>
+    <nav>
+      <a class="active" data-section="pricing"><i class="fas fa-tags"></i> Manage Pricing</a>
+      <a data-section="inquiries"><i class="fas fa-envelope"></i> Inquiries</a>
+      <a data-section="customers"><i class="fas fa-users"></i> Customers</a>
+    </nav>
+    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </aside>
+
+  <main class="main-content">
+    <div class="header">
+      <h2 id="sectionTitle">Manage Pricing</h2>
+      <span id="adminEmail" style="color:#6B7280;"></span>
+    </div>
+
+    <!-- PRICING SECTION -->
+    <div id="pricingSection" class="section">
+      <div class="card">
+        <h3>Add / Update Service Price</h3>
+        <form id="pricingForm">
+          <input type="hidden" id="priceId">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Service Name</label>
+              <input type="text" id="priceName" placeholder="e.g., Egg Incubation" required>
+            </div>
+            <div class="form-group">
+              <label>Price (e.g., TZS 500)</label>
+              <input type="text" id="priceAmount" placeholder="TZS 500" required>
+            </div>
+            <div class="form-group">
+              <label>Unit</label>
+              <input type="text" id="priceUnit" placeholder="/ egg">
+            </div>
+            <div class="form-group">
+              <label>Icon (Font Awesome)</label>
+              <input type="text" id="priceIcon" placeholder="fa-temperature-high" value="fa-egg">
+            </div>
+            <div class="form-group">
+              <label>Order (number)</label>
+              <input type="number" id="priceOrder" value="1" min="1">
+            </div>
+            <div class="form-group">
+              <label>Featured?</label>
+              <select id="priceFeatured">
+                <option value="false">No</option>
+                <option value="true">Yes (Most Popular)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Features (one per line)</label>
+            <textarea id="priceFeatures" rows="4" placeholder="21-day full cycle&#10;Temperature control&#10;Automatic turning"></textarea>
+          </div>
+          <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Save Price</button>
+          <button type="button" id="cancelEdit" class="btn btn-outline" style="display:none;">Cancel</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Current Pricing List</h3>
+        <div id="pricingList">
+          <p>Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INQUIRIES SECTION -->
+    <div id="inquiriesSection" class="section" style="display:none;">
+      <div class="card">
+        <h3>Customer Inquiries</h3>
+        <div id="inquiriesList">
+          <p>Loading inquiries...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS SECTION -->
+    <div id="customersSection" class="section" style="display:none;">
+      <div class="card">
+        <h3>Customer List</h3>
+        <p>Customers who have made inquiries appear here.</p>
+        <div id="customersList">
+          <p>Loading...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTxZsakhVdnVPf_VM2PGXvqqLXpTPndcY",
+      authDomain: "sunny-side-chick.firebaseapp.com",
+      projectId: "sunny-side-chick",
+      storageBucket: "sunny-side-chick.firebasestorage.app",
+      messagingSenderId: "297928024324",
+      appId: "1:297928024324:web:e3c2cb113271ce6880b051",
+      measurementId: "G-KRLKVD8871"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Auth check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'admin-login.html';
+      } else {
+        document.getElementById('adminEmail').textContent = user.email;
+        loadAllData();
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => window.location.href = 'admin-login.html');
+    });
+
+    // Navigation
+    document.querySelectorAll('.sidebar nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
+        e.target.classList.add('active');
+        const section = e.target.dataset.section;
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById(section + 'Section').style.display = 'block';
+        document.getElementById('sectionTitle').textContent = 
+          section === 'pricing' ? 'Manage Pricing' : 
+          section === 'inquiries' ? 'Customer Inquiries' : 'Customers';
+        if (section === 'inquiries') loadInquiries();
+        if (section === 'customers') loadCustomers();
+      });
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show', 'success');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // PRICING CRUD
+    document.getElementById('pricingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('priceId').value;
+      const featuresText = document.getElementById('priceFeatures').value.trim();
+      const features = featuresText ? featuresText.split('\n').map(f => f.trim()).filter(f => f) : [];
+      
+      const priceData = {
+        name: document.getElementById('priceName').value.trim(),
+        price: document.getElementById('priceAmount').value.trim(),
+        unit: document.getElementById('priceUnit').value.trim(),
+        icon: document.getElementById('priceIcon').value.trim() || 'fa-egg',
+        order: parseInt(document.getElementById('priceOrder').value) || 1,
+        featured: document.getElementById('priceFeatured').value === 'true',
+        features: features,
+        updatedAt: serverTimestamp()
+      };
+
+      try {
+        if (id) {
+          await updateDoc(doc(db, "pricing", id), priceData);
+          showToast('Price updated!');
+        } else {
+          await addDoc(collection(db, "pricing"), {
+            ...priceData,
+            createdAt: serverTimestamp()
+          });
+          showToast('Price added!');
+        }
+        document.getElementById('pricingForm').reset();
+        document.getElementById('priceId').value = '';
+        document.getElementById('cancelEdit').style.display = 'none';
+        loadPricing();
+      } catch (error) {
+        console.error('Error saving price:', error);
+        showToast('Error saving price');
+      }
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', () => {
+      document.getElementById('pricingForm').reset();
+      document.getElementById('priceId').value = '';
+      document.getElementById('cancelEdit').style.display = 'none';
+    });
+
+    async function loadPricing() {
+      const list = document.getElementById('pricingList');
+      try {
+        const q = query(collection(db, "pricing"), orderBy("order", "asc"));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          list.innerHTML = '<p style="color:#6B7280;">No pricing added yet.</p>';
+          return;
+        }
+        let html = '<table><thead><tr><th>Name</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead><tbody>';
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          html += `<tr>
+            <td><strong>${d.name}</strong></td>
+            <td>${d.price} ${d.unit || ''}</td>
+            <td>${d.featured ? '⭐' : '-'}</td>
+            <td>
+              <button class="btn btn-outline edit-price" data-id="${docSnap.id}" style="padding:0.4rem 0.8rem; margin-right:0.3rem;"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-red delete-price" data-id="${docSnap.id}" style="padding:0.4rem 0.8rem;"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        list.innerHTML = html;
+        
+        document.querySelectorAll('.edit-price').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            const docSnap = await getDocs(query(collection(db, "pricing")));
+            docSnap.forEach(d => {
+              if (d.id === id) {
+                const data = d.data();
+                document.getElementById('priceId').value = id;
+                document.getElementById('priceName').value = data.name || '';
+                document.getElementById('priceAmount').value = data.price || '';
+                document.getElementById('priceUnit').value = data.unit || '';
+                document.getElementById('priceIcon').value = data.icon || '';
+                document.getElementById('priceOrder').value = data.order || 1;
+                document.getElementById('priceFeatured').value = data.featured ? 'true' : 'false';
+                document.getElementById('priceFeatures').value = (data.features || []).join('\n');
+                document.getElementById('cancelEdit').style.display = 'inline-block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            });
+          });
+        });
+
+        document.querySelectorAll('.delete-price').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            if (confirm('Delete this price?')) {
+              await deleteDoc(doc(db, "pricing", e.currentTarget.dataset.id));
+              showToast('Price deleted');
+              loadPricing();
+            }
+          });
+        });
+      } catch (error) {
+        list.innerHTML = '<p style="color:red;">Error loading prices.</p>';
+      }
+    }
+
+    async function loadInquiries() {
+      const list = document.getElementById('inquiriesList');
+      try {
+        const q = query(collection(db, "inquiries"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          list.innerHTML = '<p>No inquiries yet.</p>';
+          return;
+        }
+        let html = '<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const date = d.createdAt?.toDate?.() || new Date();
+          html += `<tr>
+            <td>${d.name || '-'}</td>
+            <td>${d.phone || '-'}</td>
+            <td>${d.service || '-'}</td>
+            <td><span class="badge badge-${d.status === 'read' ? 'read' : 'new'}">${d.status || 'new'}</span></td>
+            <td>${date.toLocaleDateString()}</td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        list.innerHTML = html;
+      } catch (error) {
+        list.innerHTML = '<p>Error loading inquiries.</p>';
+      }
+    }
+
+    async function loadCustomers() {
+      const list = document.getElementById('customersList');
+      try {
+        const q = query(collection(db, "inquiries"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        const customers = new Map();
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.phone) customers.set(d.phone, { name: d.name, phone: d.phone, email: d.email });
+        });
+        if (customers.size === 0) {
+          list.innerHTML = '<p>No customers yet.</p>';
+          return;
+        }
+        let html = '<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th></tr></thead><tbody>';
+        customers.forEach(c => {
+          html += `<tr><td>${c.name || '-'}</td><td>${c.phone}</td><td>${c.email || '-'}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        list.innerHTML = html;
+      } catch (error) {
+        list.innerHTML = '<p>Error loading customers.</p>';
+      }
+    }
+
+    function loadAllData() {
+      loadPricing();
+    }
+  </script>
+</body>
+</html>
