@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Sunny Side Chick | Incubator Sales & Hatching Services</title>
+  <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FBBF24'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%231E3A8A'%3E🐣%3C/text%3E%3C/svg%3E">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #ffffff; color: #333; overflow-x: hidden; }
+    h1, h2, h3, h4 { font-family: 'Fredoka', sans-serif; }
+    
+    :root {
+      --primary-blue: #1E3A8A;
+      --primary-gold: #FBBF24;
+      --secondary-blue: #3B82F6;
+      --light-bg: #FEFCE8;
+      --text-dark: #1F2937;
+      --text-light: #6B7280;
+    }
+
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; padding: 1rem 5%;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 1000; transition: all 0.3s ease;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .navbar.scrolled { padding: 0.7rem 5%; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    
+    .logo { display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: var(--primary-blue); font-size: 1.7rem; font-weight: 700; }
+    .logo i { color: var(--primary-gold); font-size: 2rem; }
+    .logo span { color: #B45309; }
+    
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 500; transition: 0.2s; font-size: 0.95rem; }
+    .nav-links a:hover { color: var(--primary-gold); }
+    .nav-links .login-btn { background: var(--primary-gold); color: #1E3A8A !important; padding: 0.5rem 1.8rem; border-radius: 40px; font-weight: 600; box-shadow: 0 6px 14px rgba(251,191,36,0.25); }
+
+    .admin-hidden {
+      position: fixed; bottom: 25px; right: 25px; width: 48px; height: 48px;
+      border-radius: 50%; background: #1E3A8A; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; opacity: 0.15; transition: 0.3s;
+      z-index: 999; color: white;
+    }
+    .admin-hidden:hover { opacity: 1; background: #FBBF24; color: #1E3A8A; transform: scale(1.08); }
+
+    .hero {
+      min-height: 90vh; background: linear-gradient(135deg, #FEFCE8 0%, #FFFBEB 100%);
+      display: flex; align-items: center; padding: 6rem 5% 2rem; position: relative; overflow: hidden;
+    }
+    .hero-content { flex: 1; z-index: 2; }
+    .hero-content h1 { font-size: 3.8rem; font-weight: 800; line-height: 1.2; color: #1E3A8A; }
+    .hero-content h1 span { color: #D97706; }
+    .hero-content p { font-size: 1.2rem; color: #4B5563; margin: 1.5rem 0 2rem; }
+    
+    .btn { padding: 0.9rem 2.2rem; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.3s; cursor: pointer; border: none; }
+    .btn-primary { background: #FBBF24; color: #1E3A8A; box-shadow: 0 10px 20px rgba(251,191,36,0.3); }
+    .btn-primary:hover { background: #F59E0B; transform: translateY(-2px); }
+    .btn-outline { border: 2px solid #1E3A8A; color: #1E3A8A; margin-left: 1rem; background: transparent; }
+    .hero-image { flex: 1; text-align: center; }
+    .hero-image i { font-size: 15rem; color: #FBBF24; filter: drop-shadow(0 20px 25px rgba(0,0,0,0.1)); }
+
+    section { padding: 80px 5%; }
+    .section-title { text-align: center; margin-bottom: 3.5rem; }
+    .section-title h2 { font-size: 2.7rem; color: #1E3A8A; }
+    .section-title p { color: #6B7280; font-size: 1.1rem; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1300px; margin: 0 auto; }
+    .pricing-card {
+      background: white; padding: 2.2rem 1.8rem; border-radius: 35px;
+      box-shadow: 0 25px 45px rgba(0,0,0,0.05); transition: all 0.25s;
+      border: 1px solid rgba(30,58,138,0.08); display: flex; flex-direction: column; position: relative;
+    }
+    .pricing-card:hover { transform: translateY(-8px); border-color: #FBBF24; box-shadow: 0 30px 50px rgba(251,191,36,0.12); }
+    .pricing-card.featured { border: 2px solid #FBBF24; background: #FFFDF5; }
+    .pricing-badge { position: absolute; top: 18px; right: -2px; background: #FBBF24; color: #1E3A8A; padding: 0.3rem 2rem; font-weight: 700; font-size: 0.8rem; border-radius: 0 20px 20px 0; }
+    .pricing-icon { font-size: 2.5rem; color: #FBBF24; margin-bottom: 1rem; }
+    .pricing-card h3 { font-size: 1.9rem; color: #1E3A8A; margin-bottom: 0.3rem; }
+    .pricing-price { font-size: 2.2rem; font-weight: 800; color: #1E3A8A; margin: 1rem 0; }
+    .pricing-price span { font-size: 1rem; font-weight: 400; color: #6B7280; }
+    .pricing-features { list-style: none; margin: 1.5rem 0; flex: 1; }
+    .pricing-features li { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.9rem; color: #374151; }
+    .pricing-features li i { color: #FBBF24; font-size: 1rem; }
+    .pricing-btn { background: #1E3A8A; color: white; border: none; padding: 0.9rem; border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 0.8rem; width: 100%; font-size: 1rem; }
+    .pricing-btn:hover { background: #FBBF24; color: #1E3A8A; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .feature-card { background: #FEFCE8; padding: 2rem; border-radius: 28px; text-align: center; }
+    .feature-card i { font-size: 2.3rem; color: #D97706; margin-bottom: 1rem; }
+
+    .incubation-table-wrapper { max-width: 1000px; margin: 2rem auto; overflow-x: auto; background: white; border-radius: 28px; padding: 1.5rem; box-shadow: 0 15px 35px rgba(0,0,0,0.04); }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #FBBF24; color: #1E3A8A; padding: 0.8rem; font-weight: 600; }
+    td, th { padding: 0.7rem; border-bottom: 1px solid #F3F4F6; }
+
+    .footer { background: #1E3A8A; color: #F3F4F6; padding: 50px 5% 20px; text-align: center; }
+
+    .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 35px; padding: 2.5rem; max-width: 450px; width: 90%; position: relative; }
+    .close-modal { position: absolute; top: 1rem; right: 1.5rem; cursor: pointer; font-size: 1.5rem; color: #999; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; margin: 0.7rem 0; border-radius: 30px; border: 1px solid #ddd; font-family: 'Poppins', sans-serif; }
+    .submit-btn { background: #FBBF24; border: none; width: 100%; padding: 1rem; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 1rem 1.5rem; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 3000; display: none; align-items: center; gap: 0.5rem; }
+    .toast.show { display: flex; }
+    .toast.success { border-left: 4px solid #28a745; }
+    .toast.error { border-left: 4px solid #dc3545; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero { flex-direction: column; text-align: center; }
+      .hero-content h1 { font-size: 2.5rem; }
+      .btn-outline { margin-left: 0; margin-top: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-hidden" onclick="window.location.href='admin-login.html'" title="Admin Access">
+    <i class="fas fa-crown"></i>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i class="fas" id="toastIcon"></i>
+    <span id="toastMessage"></span>
+  </div>
+
+  <nav class="navbar" id="navbar">
+    <a href="#" class="logo">
+      <i class="fas fa-egg"></i> Sunny<span>Side</span> Chick
+    </a>
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#guide">Hatching Guide</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#" class="login-btn" onclick="openInquiryModal(event)">Book Service</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Healthy Chicks, <span>Happy Farms.</span></h1>
+      <p>Professional egg incubation services, quality chicks, and adult chickens. We bring life to your poultry dreams with care and precision.</p>
+      <div>
+        <a href="#pricing" class="btn btn-primary"><i class="fas fa-tag"></i> See Pricing</a>
+        <a href="#contact" class="btn btn-outline"><i class="fas fa-phone"></i> Contact Us</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <i class="fas fa-egg"></i>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Our <span style="color:#FBBF24;">Services & Pricing</span></h2>
+      <p>Choose the best plan for your poultry needs</p>
+    </div>
+    <div class="pricing-grid" id="pricingGrid">
+      <div style="text-align:center; padding:2rem; grid-column:1/-1;">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#FBBF24;"></i>
+        <p>Loading prices...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="guide" style="background: #FEFCE8;">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Chicken Egg <span style="color:#FBBF24;">Hatching Chart</span></h2>
+      <p>Temperature & humidity guide for 21 days</p>
+    </div>
+    <div class="incubation-table-wrapper" data-aos="fade-up">
+      <table>
+        <thead><tr><th>Day</th><th>Temperature</th><th>Humidity</th><th>Egg Turning</th><th>Candling</th></tr></thead>
+        <tbody>
+          <tr><td>1-5</td><td>99.5°F (37.5°C)</td><td>45% - 55%</td><td>Yes</td><td>No</td></tr>
+          <tr><td>6-7</td><td>99.5°F (37.5°C)</td><td>45% - 55%</td><td>Yes</td><td>Yes (Day 6-7)</td></tr>
+          <tr><td>8-12</td><td>99.5°F (37.5°C)</td><td>45% - 55%</td><td>Yes</td><td>No</td></tr>
+          <tr><td>13-14</td><td>99.5°F (37.5°C)</td><td>45% - 55%</td><td>Yes</td><td>Yes (Day 13-14)</td></tr>
+          <tr><td>15-18</td><td>99.5°F (37.5°C)</td><td>45% - 55%</td><td>Yes</td><td>Not at All</td></tr>
+          <tr><td>19-21</td><td>99.5°F (37.5°C)</td><td>65% - 75%</td><td>Not at All</td><td>Not at All</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="section-title"><h2>Why Sunny Side Chick?</h2></div>
+    <div class="features-grid">
+      <div class="feature-card"><i class="fas fa-clinic-medical"></i><h4>High Hatch Rate</h4><p>Modern incubators with precise control.</p></div>
+      <div class="feature-card"><i class="fas fa-shipping-fast"></i><h4>Delivery</h4><p>We deliver chicks & chickens safely.</p></div>
+      <div class="feature-card"><i class="fas fa-user-md"></i><h4>Vet Support</h4><p>Healthy and vaccinated stock.</p></div>
+    </div>
+  </section>
+
+  <section id="contact" style="background:#FEFCE8;">
+    <div class="section-title"><h2>Contact Us</h2></div>
+    <div style="max-width:500px; margin:auto; text-align:center;">
+      <p><i class="fas fa-phone"></i> +255 712 345 678</p>
+      <p><i class="fas fa-envelope"></i> hello@sunnysidechick.co.tz</p>
+      <p><i class="fas fa-map-marker-alt"></i> Dar es Salaam, Tanzania</p>
+      <button class="btn btn-primary" onclick="openInquiryModal(event)"><i class="fas fa-headset"></i> Request Callback</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2026 Sunny Side Chick. Fresh from the incubator to your farm.</p>
+  </footer>
+
+  <!-- Inquiry Modal -->
+  <div class="modal" id="inquiryModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeInquiryModal()">&times;</span>
+      <h3 style="color:#1E3A8A; margin-bottom:1.5rem;">Quick Inquiry</h3>
+      <form id="inquiryForm">
+        <div class="form-group"><input type="text" id="inqName" placeholder="Your Name *" required></div>
+        <div class="form-group"><input type="tel" id="inqPhone" placeholder="Phone number *" required></div>
+        <div class="form-group"><input type="email" id="inqEmail" placeholder="Email Address"></div>
+        <div class="form-group">
+          <select id="inqService">
+            <option value="">Select Service</option>
+            <option>Incubation Service</option>
+            <option>Day-Old Chicks</option>
+            <option>Adult Chickens</option>
+          </select>
+        </div>
+        <div class="form-group"><textarea id="inqMessage" placeholder="Additional message..." rows="3"></textarea></div>
+        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Send Inquiry</button>
+        <p id="inqFormMsg" style="margin-top:10px; text-align:center;"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTxZsakhVdnVPf_VM2PGXvqqLXpTPndcY",
+      authDomain: "sunny-side-chick.firebaseapp.com",
+      projectId: "sunny-side-chick",
+      storageBucket: "sunny-side-chick.firebasestorage.app",
+      messagingSenderId: "297928024324",
+      appId: "1:297928024324:web:e3c2cb113271ce6880b051",
+      measurementId: "G-KRLKVD8871"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const analytics = getAnalytics(app);
+
+    // Initialize AOS
+    AOS.init({ duration: 800, once: true });
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Toast function
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      toast.className = `toast ${type}`;
+      toastIcon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Modal functions
+    window.openInquiryModal = function(e) {
+      if(e) e.preventDefault();
+      document.getElementById('inquiryModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeInquiryModal = function() {
+      document.getElementById('inquiryModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    };
+    document.getElementById('inquiryModal').addEventListener('click', function(e) {
+      if (e.target === this) closeInquiryModal();
+    });
+
+    // Handle inquiry form submission
+    document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgEl = document.getElementById('inqFormMsg');
+      msgEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      
+      try {
+        await addDoc(collection(db, "inquiries"), {
+          name: document.getElementById('inqName').value.trim(),
+          phone: document.getElementById('inqPhone').value.trim(),
+          email: document.getElementById('inqEmail').value.trim() || null,
+          service: document.getElementById('inqService').value || null,
+          message: document.getElementById('inqMessage').value.trim() || null,
+          status: 'new',
+          createdAt: serverTimestamp()
+        });
+        
+        msgEl.innerHTML = '<span style="color:green;">✓ Inquiry sent! We will contact you soon.</span>';
+        document.getElementById('inquiryForm').reset();
+        showToast('Inquiry sent successfully!', 'success');
+        setTimeout(() => { msgEl.innerHTML = ''; closeInquiryModal(); }, 2500);
+      } catch (error) {
+        console.error('Error:', error);
+        msgEl.innerHTML = '<span style="color:red;">Error sending. Please try again.</span>';
+        showToast('Failed to send inquiry', 'error');
+      }
+    });
+
+    // Load pricing from Firebase
+    async function loadPricing() {
+      const pricingGrid = document.getElementById('pricingGrid');
+      
+      try {
+        const pricesRef = collection(db, "pricing");
+        const q = query(pricesRef, orderBy("order", "asc"));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          // Default pricing if Firestore is empty
+          const defaultPrices = [
+            {
+              name: "Egg Incubation",
+              price: "TZS 500",
+              unit: "/ egg",
+              icon: "fa-temperature-high",
+              features: ["21-day full cycle", "Temperature & humidity control", "Automatic turning", "Candling check included"],
+              featured: false,
+              type: "incubation"
+            },
+            {
+              name: "Day-Old Chicks",
+              price: "TZS 3,500",
+              unit: "/ chick",
+              icon: "fa-kiwi-bird",
+              features: ["Vaccinated & healthy", "Broiler & layers available", "Minimum order 50 chicks", "Delivery available"],
+              featured: true,
+              type: "chicks"
+            },
+            {
+              name: "Adult Chickens",
+              price: "TZS 18,000",
+              unit: "/ bird",
+              icon: "fa-drumstick-bite",
+              features: ["4-5 months old", "Ready to lay or meat", "Healthy stock", "Bulk discounts"],
+              featured: false,
+              type: "adult"
+            }
+          ];
+          renderPricing(defaultPrices);
+          return;
+        }
+        
+        const prices = [];
+        querySnapshot.forEach((doc) => {
+          prices.push({ id: doc.id, ...doc.data() });
+        });
+        renderPricing(prices);
+        
+      } catch (error) {
+        console.error('Error loading pricing:', error);
+        pricingGrid.innerHTML = '<p style="text-align:center; color:red;">Error loading prices. Please refresh.</p>';
+      }
+    }
+
+    function renderPricing(prices) {
+      const pricingGrid = document.getElementById('pricingGrid');
+      let html = '';
+      
+      prices.forEach((item, index) => {
+        const features = item.features || [];
+        const featureList = features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('');
+        
+        html += `
+          <div class="pricing-card ${item.featured ? 'featured' : ''}" data-aos="fade-up" data-aos-delay="${index * 100}">
+            ${item.featured ? '<div class="pricing-badge">Most Popular</div>' : ''}
+            <div class="pricing-icon"><i class="fas ${item.icon || 'fa-egg'}"></i></div>
+            <h3>${item.name}</h3>
+            <div class="pricing-price">${item.price} <span>${item.unit || ''}</span></div>
+            <ul class="pricing-features">${featureList}</ul>
+            <button class="pricing-btn" onclick="openInquiryModal(event)">
+              <i class="fas fa-calendar-check"></i> ${item.type === 'incubation' ? 'Book Now' : 'Inquire'}
+            </button>
+          </div>
+        `;
+      });
+      
+      pricingGrid.innerHTML = html;
+      // Refresh AOS for new elements
+      AOS.refresh();
+    }
+
+    // Load pricing on page load
+    loadPricing();
+    
+    console.log('Sunny Side Chick - Firebase connected. Admin panel at /admin-login.html');
+  </script>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</body>
+</html>

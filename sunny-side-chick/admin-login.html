@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Sunny Side Chick</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #FEFCE8 0%, #FBBF24 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-container {
+      background: white;
+      padding: 3rem;
+      border-radius: 35px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .login-container h1 {
+      font-family: 'Fredoka', sans-serif;
+      color: #1E3A8A;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+    }
+    .login-container p { color: #6B7280; margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.2rem; text-align: left; }
+    .form-group label { font-weight: 500; color: #1E3A8A; display: block; margin-bottom: 0.3rem; }
+    .form-group input {
+      width: 100%; padding: 0.9rem; border-radius: 25px;
+      border: 2px solid #E5E7EB; font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus { outline: none; border-color: #FBBF24; }
+    .login-btn {
+      background: #FBBF24; color: #1E3A8A; border: none;
+      padding: 0.9rem; width: 100%; border-radius: 30px;
+      font-weight: 700; font-size: 1rem; cursor: pointer;
+      transition: 0.3s; margin-top: 1rem;
+    }
+    .login-btn:hover { background: #F59E0B; }
+    .error-msg { color: #dc3545; margin-top: 1rem; font-size: 0.9rem; }
+    .back-link { display: block; margin-top: 1.5rem; color: #1E3A8A; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <i class="fas fa-crown" style="font-size:3rem; color:#FBBF24;"></i>
+    <h1>Admin Access</h1>
+    <p>Sunny Side Chick Management</p>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="admin@sunnyside.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+      </button>
+      <div id="loginError" class="error-msg"></div>
+    </form>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Website</a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTxZsakhVdnVPf_VM2PGXvqqLXpTPndcY",
+      authDomain: "sunny-side-chick.firebaseapp.com",
+      projectId: "sunny-side-chick",
+      storageBucket: "sunny-side-chick.firebasestorage.app",
+      messagingSenderId: "297928024324",
+      appId: "1:297928024324:web:e3c2cb113271ce6880b051",
+      measurementId: "G-KRLKVD8871"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Check if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = 'admin-dashboard.html';
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('loginError');
+      errorEl.textContent = '';
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'admin-dashboard.html';
+      } catch (error) {
+        console.error('Login error:', error);
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+          errorEl.textContent = 'Invalid email or password.';
+        } else if (error.code === 'auth/invalid-email') {
+          errorEl.textContent = 'Invalid email format.';
+        } else {
+          errorEl.textContent = 'Login failed. Please try again.';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
