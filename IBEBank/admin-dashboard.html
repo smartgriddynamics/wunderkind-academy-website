@@ -131,6 +131,7 @@
         <button class="nav-item" data-section="users"><i class="fas fa-users"></i> Users</button>
         <button class="nav-item" data-section="registrations"><i class="fas fa-user-clock"></i> Registrations<span class="nav-badge" id="registrationCount">0</span></button>
         <button class="nav-item" data-section="agents"><i class="fas fa-store"></i> Agents<span class="nav-badge" id="agentRequestCount">0</span></button>
+        <button class="nav-item" data-section="agent-balance-requests"><i class="fas fa-money-bill-wave"></i> Agent Requests<span class="nav-badge" id="agentBalanceRequestCount">0</span></button>
         <button class="nav-item" data-section="requests"><i class="fas fa-clock"></i> Requests<span class="nav-badge" id="requestCount">0</span></button>
         <button class="nav-item" data-section="loans"><i class="fas fa-hand-holding-usd"></i> Loans<span class="nav-badge" id="loanRequestCount">0</span></button>
       </div>
@@ -159,6 +160,15 @@
     <div class="content-section" id="users-section"><div class="table-card"><div class="table-header"><h3>Users</h3><div style="display:flex;gap:10px;"><div class="search-box"><i class="fas fa-search"></i><input type="text" id="userSearch" placeholder="Search..."></div><button class="btn btn-primary" id="addUserBtn"><i class="fas fa-plus"></i> Add</button></div></div><table><thead><tr><th>User</th><th>Account #</th><th>Balance</th><th>Loan Debt</th><th>Pool %</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div>
     <div class="content-section" id="registrations-section"><div class="table-card"><div class="table-header"><h3>Pending Registrations</h3></div><div id="registrationsList" class="requests-list"></div></div></div>
     <div class="content-section" id="agents-section"><div class="table-card"><div class="table-header"><h3>Pending Agents</h3></div><div id="pendingAgentsList" class="requests-list"></div></div><div class="table-card" style="margin-top:20px;"><div class="table-header"><h3>Active Agents</h3></div><table><thead><tr><th>Agent</th><th>Account #</th><th>Balance</th><th>Actions</th></tr></thead><tbody id="agentsTableBody"></tbody></table></div></div>
+    
+    <!-- AGENT BALANCE REQUESTS SECTION -->
+    <div class="content-section" id="agent-balance-requests-section">
+      <div class="table-card">
+        <div class="table-header"><h3>Agent Balance Requests</h3></div>
+        <div id="agentBalanceRequestsList" class="requests-list"></div>
+      </div>
+    </div>
+    
     <div class="content-section" id="requests-section"><div class="table-card"><div class="table-header"><h3>Pending Requests</h3></div><div id="requestsList" class="requests-list"></div></div></div>
     <div class="content-section" id="loans-section"><div class="loan-summary"><div class="loan-stat"><div class="value" id="activeLoansCount">0</div><div class="label">Active</div></div><div class="loan-stat"><div class="value" id="pendingLoansCount">0</div><div class="label">Pending</div></div><div class="loan-stat"><div class="value" id="overdueLoansCount">0</div><div class="label">Overdue</div></div><div class="loan-stat"><div class="value" id="totalLoanAmount">TSh 0</div><div class="label">Total Lent</div></div></div><div class="table-card"><div class="table-header"><h3>Loan Requests (10%/month)</h3></div><div id="loanRequestsList" class="requests-list"></div></div><div class="table-card" style="margin-top:20px;"><div class="table-header"><h3>Active Loans</h3></div><table><thead><tr><th>User</th><th>Amount</th><th>Remaining</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="activeLoansBody"></tbody></table></div></div>
     
@@ -200,7 +210,74 @@ function initRealtimeData(){
   const regQ=query(collection(db,"pendingRegistrations"),where("status","==","pending"));onSnapshot(regQ,(snap)=>{pendingRegistrations=[];snap.forEach(d=>pendingRegistrations.push({id:d.id,...d.data()}));document.getElementById('registrationCount').textContent=pendingRegistrations.length;renderRegistrations();});
   const agentsQ=query(collection(db,"agents"),where("status","==","active"));onSnapshot(agentsQ,(snap)=>{agents=[];snap.forEach(d=>agents.push({id:d.id,...d.data()}));renderAgents();updateAgentStats();});
   const pendingAgentsQ=query(collection(db,"pendingAgents"),where("status","==","pending"));onSnapshot(pendingAgentsQ,(snap)=>{pendingAgents=[];snap.forEach(d=>pendingAgents.push({id:d.id,...d.data()}));document.getElementById('agentRequestCount').textContent=pendingAgents.length;renderPendingAgents();});
+  
+  // Agent balance requests listener
+  const abrQ=query(collection(db,"balanceRequests"),where("status","==","pending"));
+  onSnapshot(abrQ,(snap)=>{
+    const balanceReqs=[];
+    snap.forEach(d=>balanceReqs.push({id:d.id,...d.data()}));
+    balanceReqs.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    document.getElementById('agentBalanceRequestCount').textContent=balanceReqs.length;
+    renderAgentBalanceRequests(balanceReqs);
+  });
 }
+
+function renderAgentBalanceRequests(reqs){
+  const container=document.getElementById('agentBalanceRequestsList');
+  if(!container)return;
+  if(reqs.length===0){
+    container.innerHTML='<p style="text-align:center;color:var(--gray);padding:40px;">No pending balance requests</p>';
+    return;
+  }
+  container.innerHTML=reqs.map(r=>`
+    <div class="request-card">
+      <div class="request-header">
+        <span class="request-user">
+          <strong>${r.agentName||'Agent'}</strong>
+          ${r.businessName?`(${r.businessName})`:''}
+        </span>
+        <span class="request-amount">${formatMoney(r.amount)}</span>
+      </div>
+      <p style="margin-top:4px;">
+        <span style="color:var(--gray);">📧 ${r.agentEmail||'N/A'}</span>
+        ${r.agentAccount?`<span style="color:var(--gray);margin-left:12px;">🔢 ${r.agentAccount}</span>`:''}
+      </p>
+      ${r.reason?`<p style="margin-top:4px;color:var(--gray);">📝 ${r.reason}</p>`:''}
+      <p style="margin-top:4px;font-size:0.8rem;color:var(--gray);">📅 ${new Date(r.timestamp).toLocaleString()}</p>
+      <div class="request-actions">
+        <button class="btn-approve" onclick="approveAgentBalanceRequest('${r.id}')"><i class="fas fa-check"></i> Approve</button>
+        <button class="btn-reject" onclick="rejectAgentBalanceRequest('${r.id}')"><i class="fas fa-times"></i> Decline</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.approveAgentBalanceRequest=async(id)=>{
+  try{
+    const reqDoc=await getDoc(doc(db,"balanceRequests",id));
+    if(!reqDoc.exists())return alert('Request not found');
+    const req=reqDoc.data();
+    const agentDoc=await getDoc(doc(db,"agents",req.agentId));
+    if(!agentDoc.exists())return alert('Agent not found');
+    const agent=agentDoc.data();
+    const td=users.reduce((s,u)=>s+(u.balance||0),0);
+    const tla=activeLoans.filter(l=>l.status==='active').reduce((s,l)=>s+(l.remainingAmount||l.amount),0);
+    const available=td-tla;
+    if(available<req.amount)return alert(`Insufficient bank funds! Available: ${formatMoney(available)}`);
+    await updateDoc(doc(db,"agents",req.agentId),{balance:(agent.balance||0)+req.amount});
+    await updateDoc(doc(db,"balanceRequests",id),{status:'approved',approvedAt:new Date().toISOString(),adminNote:'Approved'});
+    await setDoc(doc(collection(db,"transactions")),{userEmail:req.agentEmail,userName:req.agentName,type:'agent_deposit',amount:req.amount,note:req.reason||'Balance request approved',timestamp:new Date().toISOString(),read:false});
+    alert(`✅ Approved! Sent ${formatMoney(req.amount)} to ${req.agentName}`);
+  }catch(e){alert('❌ Error: '+e.message);}
+};
+
+window.rejectAgentBalanceRequest=async(id)=>{
+  const reason=prompt('Reason for declining (optional):');
+  try{
+    await updateDoc(doc(db,"balanceRequests",id),{status:'declined',declinedAt:new Date().toISOString(),adminNote:reason||'Declined'});
+    alert('Request declined');
+  }catch(e){alert('❌ Error: '+e.message);}
+};
 
 function updateDashboard(){const td=users.reduce((s,u)=>s+(u.balance||0),0),tla=activeLoans.filter(l=>l.status==='active').reduce((s,l)=>s+(l.remainingAmount||l.amount),0),av=td-tla,ps=transactions.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0);document.getElementById('totalDeposits').textContent=formatMoney(td);document.getElementById('availableBalance').textContent=formatMoney(av);document.getElementById('totalUsers').textContent=users.length;document.getElementById('totalLoans').textContent=formatMoney(tla);document.getElementById('totalAgents').textContent=agents.length;document.getElementById('totalProfitShared').textContent=formatMoney(ps);document.getElementById('availableForLoans').textContent=formatMoney(av);getDoc(doc(db,"settings","interest")).then(s=>{document.getElementById('loanInterestDisplay').textContent=(s.exists()?(s.data().loanRate||10):10)+'%';});}
 function updateAgentStats(){document.getElementById('totalAgents').textContent=agents.length;}
@@ -217,7 +294,6 @@ function updateTransactionsDisplay(){const tb=document.getElementById('allTransa
 function populateUserSelect(){const s=document.getElementById('userSelect');if(s)s.innerHTML='<option value="">Select a user</option>'+users.map(u=>`<option value="${u.id}">${u.name} (${u.email})</option>`).join('');}
 document.getElementById('userSelect').addEventListener('change',(e)=>{const uid=e.target.value;if(uid)loadUserAnalytics(uid);else document.getElementById('userAnalytics').style.display='none';});
 
-// ========== FIXED: loadUserAnalytics with CORRECT +/- signs ==========
 function loadUserAnalytics(uid){
   const user=users.find(u=>u.id===uid);if(!user)return;
   const ut=transactions.filter(t=>t.userEmail===user.email);
@@ -227,32 +303,18 @@ function loadUserAnalytics(uid){
   document.getElementById('analyticsBalance').textContent=formatMoney(user.balance||0);
   document.getElementById('analyticsPoolShare').textContent=ps+'%';
   document.getElementById('analyticsLoanDebt').textContent=formatMoney(debt);
-  
   const ctx1=document.getElementById('userBalanceHistoryChart').getContext('2d');if(userAnalyticsChart)userAnalyticsChart.destroy();
   const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(29-i));return d.toLocaleDateString();});
   userAnalyticsChart=new Chart(ctx1,{type:'line',data:{labels:days,datasets:[{data:days.map(()=>user.balance||0),borderColor:'#1a3a5c',backgroundColor:'rgba(26,58,92,0.08)',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-  
   const ctx2=document.getElementById('userTransactionChart').getContext('2d');if(userTransactionChart)userTransactionChart.destroy();
   const dep=ut.filter(t=>t.type==='deposit'||t.type==='transfer_received'||t.type==='agent_deposit_received').reduce((s,t)=>s+t.amount,0);
   const wit=ut.filter(t=>t.type==='withdrawal'||t.type==='transfer_sent'||t.type==='loan_repayment'||t.type==='loan_auto_deduct').reduce((s,t)=>s+t.amount,0);
   const prof=ut.filter(t=>t.type==='profit_share').reduce((s,t)=>s+t.amount,0);
   userTransactionChart=new Chart(ctx2,{type:'doughnut',data:{labels:['Deposits/Received','Withdrawals/Sent','Profit Share'],datasets:[{data:[dep,wit,prof],backgroundColor:['#10b981','#ef4444','#c9a23d']}]},options:{responsive:true,maintainAspectRatio:false}});
-  
-  // *** THIS IS THE FIXED PART - CORRECT +/- SIGNS ***
-  document.getElementById('userTransactionsBody').innerHTML = ut.slice(0, 10).map(t => {
-    const isOutgoing = t.type === 'withdrawal' || t.type === 'transfer_sent' || t.type === 'loan_repayment' || t.type === 'loan_auto_deduct';
-    const isNeutral = t.type === 'loan_disbursement';
-    let sign, color;
-    if (isOutgoing) { sign = '-'; color = '#ef4444'; }
-    else if (isNeutral) { sign = '📋'; color = '#92400e'; }
-    else { sign = '+'; color = '#10b981'; }
-    return `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.type.replace(/_/g, ' ').toUpperCase()}</td><td style="color:${color};font-weight:600;">${sign === '📋' ? '📋' : sign}${formatMoney(Math.abs(t.amount))}</td></tr>`;
-  }).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;">No transactions</td></tr>';
-  
-  document.getElementById('userAnalytics').style.display = 'block';
+  document.getElementById('userTransactionsBody').innerHTML=ut.slice(0,10).map(t=>{const isOutgoing=t.type==='withdrawal'||t.type==='transfer_sent'||t.type==='loan_repayment'||t.type==='loan_auto_deduct';const isNeutral=t.type==='loan_disbursement';let sign,color;if(isOutgoing){sign='-';color='#ef4444';}else if(isNeutral){sign='📋';color='#92400e';}else{sign='+';color='#10b981';}return`<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.type.replace(/_/g,' ').toUpperCase()}</td><td style="color:${color};font-weight:600;">${sign==='📋'?'📋':sign}${formatMoney(Math.abs(t.amount))}</td></tr>`;}).join('')||'<tr><td colspan="3" style="text-align:center;padding:20px;">No transactions</td></tr>';
+  document.getElementById('userAnalytics').style.display='block';
 }
 
-// User Management
 document.getElementById('createUserBtn').addEventListener('click',async()=>{const n=document.getElementById('newUserName').value.trim(),e=document.getElementById('newUserEmail').value.trim().toLowerCase(),p=document.getElementById('newUserPassword').value,b=parseFloat(document.getElementById('newUserBalance').value)||0;if(!n||!e||!p)return alert('All fields required');try{const uc=await createUserWithEmailAndPassword(auth,e,p),acc=generateAccountNumber(uc.user.uid);await setDoc(doc(db,"users",uc.user.uid),{name:n,email:e,balance:b,accountNumber:acc,createdAt:new Date().toISOString(),uid:uc.user.uid});closeModal('addUserModal');document.getElementById('newUserName').value=document.getElementById('newUserEmail').value='';document.getElementById('newUserBalance').value='0';alert('Created!');}catch(ex){alert(ex.code==='auth/email-already-in-use'?'Email exists':ex.message);}});
 window.handleDeposit=(email)=>{const u=users.find(x=>x.email===email);if(!u)return;selectedUser=u;currentTransactionType='deposit';document.getElementById('transactionModalTitle').textContent='Deposit';document.getElementById('transactionUser').value=`${u.name} (${u.email})`;openModal('transactionModal');};
 window.handleWithdraw=(email)=>{const u=users.find(x=>x.email===email);if(!u)return;selectedUser=u;currentTransactionType='withdraw';document.getElementById('transactionModalTitle').textContent='Withdraw';document.getElementById('transactionUser').value=`${u.name} (${u.email})`;openModal('transactionModal');};

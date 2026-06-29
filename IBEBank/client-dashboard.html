@@ -93,6 +93,7 @@
     .stat-icon.gold { background: #fef3c7; color: var(--accent); }
     .stat-icon.purple { background: #e0e7ff; color: #8b5cf6; }
     .stat-icon.teal { background: #ccfbf1; color: #0d9488; }
+    .stat-icon.orange { background: #fff7ed; color: #ea580c; }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
     .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
     
@@ -131,6 +132,7 @@
     .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark); font-size: 0.9rem; }
     .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: 10px; font-size: 0.95rem; }
     .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); }
+    .form-input[type="date"] { padding: 12px 16px; }
     
     .btn {
       padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;
@@ -141,7 +143,12 @@
     .btn-primary:hover { background: var(--primary-dark); }
     .btn-accent { background: var(--accent); color: var(--dark); }
     .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
     .btn-block { width: 100%; justify-content: center; }
+    .btn-icon { background: none; border: none; padding: 8px; border-radius: 8px; cursor: pointer; color: var(--gray); transition: all 0.2s; }
+    .btn-icon:hover { background: #f3f4f6; color: var(--primary); }
+    .btn-icon.danger:hover { background: #fee2e2; color: var(--danger); }
     
     .debt-warning-card { background: #fef3c7; border-radius: 14px; padding: 18px; border-left: 4px solid var(--danger); margin-bottom: 20px; }
     .info-card { background: #dbeafe; border-radius: 14px; padding: 18px; border-left: 4px solid var(--primary); margin-bottom: 20px; }
@@ -153,18 +160,47 @@
     .calc-result-card { background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 16px; padding: 24px; color: white; margin-top: 20px; text-align: center; }
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-    .modal { background: white; border-radius: 20px; padding: 30px; max-width: 440px; width: 90%; }
+    .modal { background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-close { cursor: pointer; font-size: 1.3rem; color: var(--gray); }
+    .modal-close { cursor: pointer; font-size: 1.3rem; color: var(--gray); background: none; border: none; }
     
     .notif-panel { position: fixed; top: 90px; right: 20px; width: 340px; max-height: 480px; background: white; border-radius: 18px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); overflow: hidden; display: none; z-index: 1000; }
     
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
     .status-active { background: #d1fae5; color: #065f46; }
     .status-overdue { background: #fee2e2; color: #991b1b; }
+    .status-paused { background: #fef3c7; color: #92400e; }
     
     .recipient-preview { background: #d1fae5; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--success); display: none; }
     .recipient-notfound { background: #fee2e2; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--danger); color: #991b1b; display: none; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab { padding: 10px 20px; border-radius: 10px; cursor: pointer; border: 2px solid var(--gray-light); background: white; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; }
+    .tab:hover { border-color: var(--accent); }
+    .tab.active { background: var(--accent); color: var(--dark); border-color: var(--accent); font-weight: 600; }
+    
+    /* IBE Pay Styles */
+    .worker-list-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: white; border-radius: 10px;
+      margin-bottom: 8px; gap: 12px; border: 1px solid var(--gray-light);
+    }
+    .worker-list-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .worker-list-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #ea580c, #f59e0b);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;
+    }
+    .payroll-card {
+      background: white; border-radius: 18px; padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 16px;
+    }
+    .payroll-card-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+    }
+    .payroll-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     
     .menu-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 200; width: 42px; height: 42px; border-radius: 12px; background: var(--primary); color: white; border: none; cursor: pointer; font-size: 1.2rem; }
     
@@ -204,6 +240,9 @@
         <button class="nav-item" data-section="loan"><i class="fas fa-hand-holding-usd"></i> Loans</button>
         <button class="nav-item" data-section="request"><i class="fas fa-paper-plane"></i> Requests<span class="nav-badge" id="requestBadge">0</span></button>
       </div>
+      <div class="nav-section"><div class="nav-section-label">IBE Pay</div>
+        <button class="nav-item" data-section="ibepay"><i class="fas fa-people-arrows"></i> IBE Pay</button>
+      </div>
       <div class="nav-section"><div class="nav-section-label">Tools</div>
         <button class="nav-item" data-section="calculator"><i class="fas fa-calculator"></i> Calculator</button>
         <button class="nav-item" data-section="transactions"><i class="fas fa-list-alt"></i> History</button>
@@ -224,8 +263,8 @@
         <div class="stat-card highlight"><div class="stat-icon teal"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="expectedBalance">TSh 0</div><div class="stat-label">✨ Expected Balance</div></div>
         <div class="stat-card"><div class="stat-icon red"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value" id="activeLoanDebt">TSh 0</div><div class="stat-label">Active Loan Debt</div></div>
         <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-calculator"></i></div><div class="stat-value" id="netBalance">TSh 0</div><div class="stat-label">Net Balance</div></div>
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-gift"></i></div><div class="stat-value" id="totalProfitShare">TSh 0</div><div class="stat-label">Profit Earned</div></div>
-        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div><div class="stat-value" id="pendingProfitShare">TSh 0</div><div class="stat-label">⏳ Pending Profit</div></div>
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-people-arrows"></i></div><div class="stat-value" id="payrollMonthlyCost">TSh 0</div><div class="stat-label">Monthly Payroll Cost</div></div>
+        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-gift"></i></div><div class="stat-value" id="totalProfitShare">TSh 0</div><div class="stat-label">Profit Earned</div></div>
       </div>
       
       <div class="expected-balance-card">
@@ -311,6 +350,73 @@
       </div>
     </div>
 
+    <!-- IBE PAY SECTION -->
+    <div class="content-section" id="ibepay-section">
+      <div class="stats-grid" style="margin-bottom:24px;">
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-people-arrows"></i></div><div class="stat-value" id="ibepayActivePayrolls">0</div><div class="stat-label">Active Payrolls</div></div>
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div class="stat-value" id="ibepayTotalWorkers">0</div><div class="stat-label">Total Workers</div></div>
+        <div class="stat-card"><div class="stat-icon red"><i class="fas fa-money-bill-wave"></i></div><div class="stat-value" id="ibepayMonthlyCost">TSh 0</div><div class="stat-label">Monthly Cost</div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-calendar-check"></i></div><div class="stat-value" id="ibepayNextPayout">—</div><div class="stat-label">Last Payment</div></div>
+      </div>
+      
+      <div class="tabs" id="ibepayTabs">
+        <button class="tab active" data-tab="payrolls">My Payrolls</button>
+        <button class="tab" data-tab="create">Create Payroll</button>
+      </div>
+      
+      <!-- My Payrolls Tab -->
+      <div id="ibepay-payrolls-tab">
+        <div id="payrollsList"><p style="text-align:center;color:var(--gray);padding:40px;">Loading payrolls...</p></div>
+      </div>
+      
+      <!-- Create Payroll Tab -->
+      <div id="ibepay-create-tab" style="display:none;">
+        <div class="form-card">
+          <h3 style="margin-bottom:20px;"><i class="fas fa-plus-circle"></i> Create New Payroll</h3>
+          <div class="form-group">
+            <label class="form-label">Payroll Name</label>
+            <input type="text" id="payrollName" class="form-input" placeholder="e.g., Staff Salaries October">
+          </div>
+          
+          <!-- Payment Date -->
+          <div class="form-group">
+            <label class="form-label">📅 Payment Date</label>
+            <input type="date" id="payrollPaymentDate" class="form-input">
+          </div>
+          
+          <!-- Worker Entry -->
+          <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <h4 style="margin-bottom:12px;">Add Workers</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:0.8rem;">Account Number</label>
+                <input type="text" id="workerAccInput" class="form-input" placeholder="10-digit account" maxlength="10">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:0.8rem;">Salary (TSh)</label>
+                <input type="number" id="workerSalaryInput" class="form-input" placeholder="Amount" min="0">
+              </div>
+              <button class="btn btn-primary btn-sm" id="addWorkerBtn" style="height:44px;"><i class="fas fa-plus"></i> Add</button>
+            </div>
+            <div id="workerPreview" style="display:none;margin-top:8px;padding:10px;background:#d1fae5;border-radius:8px;"></div>
+            <div id="workerNotFound" style="display:none;margin-top:8px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;"></div>
+          </div>
+          
+          <!-- Workers List -->
+          <div id="workersList" style="margin-bottom:16px;">
+            <p style="color:var(--gray);font-size:0.9rem;text-align:center;">No workers added yet</p>
+          </div>
+          
+          <div style="background:#fffbeb;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+            <span><strong>Total:</strong></span>
+            <span style="font-size:1.3rem;font-weight:700;color:var(--danger);" id="totalSalaryDisplay">TSh 0</span>
+          </div>
+          
+          <button class="btn btn-accent btn-block" id="createPayrollBtn"><i class="fas fa-save"></i> Create Payroll</button>
+        </div>
+      </div>
+    </div>
+
     <!-- CALCULATOR -->
     <div class="content-section" id="calculator-section">
       <div class="form-card">
@@ -341,6 +447,55 @@
     </div>
   </div>
 
+  <!-- Add Worker to Existing Payroll Modal -->
+  <div class="modal-overlay" id="addWorkerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="card-title"><i class="fas fa-user-plus"></i> Add Worker to Payroll</h3>
+        <button class="modal-close" onclick="closeModal('addWorkerModal')">&times;</button>
+      </div>
+      <p style="color:var(--gray);margin-bottom:16px;" id="modalPayrollName">Payroll: —</p>
+      
+      <div class="form-group">
+        <label class="form-label">Worker Account Number</label>
+        <input type="text" id="modalWorkerAccInput" class="form-input" placeholder="Enter 10-digit account number" maxlength="10">
+      </div>
+      <div id="modalWorkerPreview" style="display:none;background:#d1fae5;border-radius:10px;padding:12px;margin-bottom:12px;"></div>
+      <div id="modalWorkerNotFound" style="display:none;background:#fee2e2;border-radius:10px;padding:12px;margin-bottom:12px;color:#991b1b;"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Monthly Salary (TSh)</label>
+        <input type="number" id="modalWorkerSalary" class="form-input" placeholder="Amount per month" min="0">
+      </div>
+      
+      <button class="btn btn-primary btn-block" id="confirmAddWorkerBtn"><i class="fas fa-plus"></i> Add Worker</button>
+      <button class="btn btn-danger btn-block" style="margin-top:8px;" onclick="closeModal('addWorkerModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Edit Payroll Modal -->
+  <div class="modal-overlay" id="editPayrollModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="card-title"><i class="fas fa-edit"></i> Edit Payroll</h3>
+        <button class="modal-close" onclick="closeModal('editPayrollModal')">&times;</button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Payroll Name</label>
+        <input type="text" id="editPayrollName" class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">📅 Payment Date</label>
+        <input type="date" id="editPayrollPaymentDate" class="form-input">
+      </div>
+      
+      <button class="btn btn-primary btn-block" id="saveEditPayrollBtn"><i class="fas fa-save"></i> Save Changes</button>
+      <button class="btn btn-danger btn-block" style="margin-top:8px;" onclick="closeModal('editPayrollModal')">Cancel</button>
+    </div>
+  </div>
+
   <div class="notif-panel" id="notificationsPanel">
     <div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;"><h4>Notifications</h4><button onclick="markAllRead()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600;">Mark all read</button></div>
     <div style="max-height:400px;overflow-y:auto;" id="notificationsList"></div>
@@ -358,7 +513,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot, updateDoc, getDocs, runTransaction, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8", authDomain: "minibank-b76d6.firebaseapp.com",
@@ -369,7 +524,9 @@
     const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app);
     let currentUser = null, userData = null, chart = null, currentRequestType = 'deposit';
     let allTransactions = [], foundRecipientData = null, transferValid = false, transferType = 'user';
-    let allUsers = [], allActiveLoans = [];
+    let allUsers = [], allActiveLoans = [], payrolls = [], tempWorkers = [], foundWorkerForAdd = null;
+    let currentPayrollForAddWorker = null, foundModalWorker = null;
+    let editingPayrollId = null;
 
     const formatMoney = (val) => {
       if (val < 0) return '-TSh ' + new Intl.NumberFormat('en-TZ').format(Math.round(Math.abs(val)));
@@ -378,7 +535,16 @@
 
     function generateAccountNumber(uid) { if(!uid)return'---';let n='';for(let i=0;i<uid.length;i++){if(uid[i]>='0'&&uid[i]<='9')n+=uid[i];}while(n.length<10)n+='0';return n.substring(0,10); }
 
-    onAuthStateChanged(auth, async (user) => { if(!user){window.location.replace('index.html');return;} currentUser=user; await loadUserData(); initRealtimeData(); });
+    // Set default date to today
+    document.getElementById('payrollPaymentDate').value = new Date().toISOString().split('T')[0];
+
+    onAuthStateChanged(auth, async (user) => { 
+      if(!user){window.location.replace('index.html');return;} 
+      currentUser=user; 
+      await loadUserData(); 
+      initRealtimeData(); 
+      if (currentUser) { initPayrollRealtime(); }
+    });
 
     async function loadUserData() {
       try {
@@ -410,6 +576,425 @@
       onSnapshot(lq,(snap)=>{const loans=[];snap.forEach(d=>loans.push({id:d.id,...d.data()}));renderActiveLoans(loans);updateNetBalance();updateExpectedBalance();checkAndAutoDeduct(loans);});
     }
 
+    // ============ IBE PAY ============
+    function initPayrollRealtime() {
+      onSnapshot(collection(db, "payrolls"), (snap) => {
+        payrolls = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.ownerId === currentUser?.uid || data.ownerEmail === currentUser?.email) {
+            payrolls.push({ id: d.id, ...data });
+          }
+        });
+        payrolls.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        renderPayrolls();
+        updatePayrollStats();
+      });
+    }
+
+    function updatePayrollStats() {
+      const active = payrolls.filter(p => p.status === 'active');
+      const totalWorkers = active.reduce((s, p) => s + (p.workers?.length || 0), 0);
+      const monthlyCost = active.reduce((s, p) => s + (p.totalAmount || 0), 0);
+      
+      document.getElementById('ibepayActivePayrolls').textContent = active.length;
+      document.getElementById('ibepayTotalWorkers').textContent = totalWorkers;
+      document.getElementById('ibepayMonthlyCost').textContent = formatMoney(monthlyCost);
+      document.getElementById('payrollMonthlyCost').textContent = formatMoney(monthlyCost);
+      
+      const lastPayment = active.filter(p => p.lastPaymentDate).sort((a, b) => new Date(b.lastPaymentDate) - new Date(a.lastPaymentDate))[0];
+      document.getElementById('ibepayNextPayout').textContent = lastPayment ? new Date(lastPayment.lastPaymentDate).toLocaleDateString() : 'Never';
+    }
+
+    function renderPayrolls() {
+      const container = document.getElementById('payrollsList');
+      if (!container) return;
+      
+      if (payrolls.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">No payrolls yet. Create one!</p>';
+        return;
+      }
+      
+      container.innerHTML = payrolls.map(p => {
+        const total = p.totalAmount || (p.workers || []).reduce((s, w) => s + (w.salary || 0), 0);
+        const lastPaid = p.lastPaymentDate ? new Date(p.lastPaymentDate).toLocaleDateString() : 'Never';
+        const paymentDate = p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : 'Not set';
+        const workerCount = (p.workers || []).length;
+        
+        return `
+          <div class="payroll-card" style="border-left: 4px solid ${p.status === 'active' ? 'var(--success)' : 'var(--warning)'};">
+            <div class="payroll-card-header">
+              <div>
+                <h3 style="margin-bottom:4px;">
+                  <i class="fas fa-people-arrows" style="color:var(--accent);"></i> ${p.name || 'Untitled'}
+                </h3>
+                <p style="color:var(--gray);font-size:0.85rem;">
+                  👥 ${workerCount} worker${workerCount !== 1 ? 's' : ''} | 
+                  💰 ${formatMoney(total)}/mo | 
+                  📅 Payment Date: ${paymentDate} |
+                  <span class="status-badge status-${p.status || 'active'}">${(p.status || 'active').toUpperCase()}</span>
+                </p>
+                <p style="color:var(--gray);font-size:0.8rem;">
+                  📅 Last paid: ${lastPaid}
+                  ${p.createdAt ? `| Created: ${new Date(p.createdAt).toLocaleDateString()}` : ''}
+                </p>
+              </div>
+              <div class="payroll-actions">
+                <button class="btn btn-sm btn-primary" onclick="openAddWorkerModal('${p.id}')">
+                  <i class="fas fa-user-plus"></i> Add Worker
+                </button>
+                <button class="btn btn-sm btn-accent" onclick="openEditPayrollModal('${p.id}')">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-success" onclick="payNow('${p.id}')">
+                  <i class="fas fa-paper-plane"></i> Pay Now
+                </button>
+                <button class="btn btn-sm ${p.status === 'active' ? 'btn-danger' : 'btn-success'}" 
+                  onclick="togglePayroll('${p.id}')">
+                  ${p.status === 'active' ? '⏸ Pause' : '▶ Activate'}
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deletePayroll('${p.id}', '${p.name}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            
+            ${workerCount > 0 ? `
+              <div style="margin-top:16px;border-top:1px solid var(--gray-light);padding-top:16px;">
+                <h4 style="margin-bottom:12px;font-size:0.9rem;color:var(--gray);">WORKERS</h4>
+                ${(p.workers || []).map((w, i) => `
+                  <div class="worker-list-item" style="background:#f8fafc;">
+                    <div class="worker-list-info">
+                      <div class="worker-list-avatar">${(w.name || 'W').substring(0,2).toUpperCase()}</div>
+                      <div>
+                        <strong>${w.name || 'Worker'}</strong>
+                        <span style="font-size:0.75rem;color:var(--gray);display:block;">🔢 ${w.accountNumber || '---'}</span>
+                      </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                      <span style="font-weight:600;color:var(--success);">${formatMoney(w.salary || 0)}/mo</span>
+                      <button class="btn-icon danger" onclick="removeWorkerFromPayroll('${p.id}', ${i})"><i class="fas fa-times"></i></button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : '<p style="color:var(--gray);font-size:0.85rem;margin-top:12px;">No workers added yet</p>'}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Open edit payroll modal
+    window.openEditPayrollModal = (payrollId) => {
+      const payroll = payrolls.find(p => p.id === payrollId);
+      if (!payroll) return;
+      editingPayrollId = payrollId;
+      document.getElementById('editPayrollName').value = payroll.name || '';
+      document.getElementById('editPayrollPaymentDate').value = payroll.paymentDate || '';
+      openModal('editPayrollModal');
+    };
+
+    // Save edit payroll
+    document.getElementById('saveEditPayrollBtn').addEventListener('click', async () => {
+      const name = document.getElementById('editPayrollName').value.trim();
+      const paymentDate = document.getElementById('editPayrollPaymentDate').value;
+      
+      if (!name) return alert('Please enter a payroll name');
+      
+      try {
+        await updateDoc(doc(db, "payrolls", editingPayrollId), {
+          name: name,
+          paymentDate: paymentDate
+        });
+        closeModal('editPayrollModal');
+        alert('✅ Payroll updated!');
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    });
+
+    // Open modal to add worker to existing payroll
+    window.openAddWorkerModal = (payrollId) => {
+      const payroll = payrolls.find(p => p.id === payrollId);
+      if (!payroll) return;
+      currentPayrollForAddWorker = payroll;
+      document.getElementById('modalPayrollName').textContent = `Payroll: ${payroll.name}`;
+      document.getElementById('modalWorkerAccInput').value = '';
+      document.getElementById('modalWorkerSalary').value = '';
+      document.getElementById('modalWorkerPreview').style.display = 'none';
+      document.getElementById('modalWorkerNotFound').style.display = 'none';
+      foundModalWorker = null;
+      openModal('addWorkerModal');
+    };
+
+    // Modal worker lookup
+    document.getElementById('modalWorkerAccInput').addEventListener('input', async (e) => {
+      const acc = e.target.value.trim();
+      if (acc.length < 10) {
+        document.getElementById('modalWorkerPreview').style.display = 'none';
+        document.getElementById('modalWorkerNotFound').style.display = 'none';
+        foundModalWorker = null;
+        return;
+      }
+      
+      if (currentPayrollForAddWorker && (currentPayrollForAddWorker.workers || []).some(w => w.accountNumber === acc)) {
+        document.getElementById('modalWorkerPreview').style.display = 'none';
+        document.getElementById('modalWorkerNotFound').style.display = 'block';
+        document.getElementById('modalWorkerNotFound').innerHTML = '<i class="fas fa-exclamation-circle"></i> Worker already in this payroll!';
+        foundModalWorker = null;
+        return;
+      }
+      
+      try {
+        const snap = await getDocs(query(collection(db, "users"), where("accountNumber", "==", acc)));
+        if (snap.empty) {
+          document.getElementById('modalWorkerPreview').style.display = 'none';
+          document.getElementById('modalWorkerNotFound').style.display = 'block';
+          document.getElementById('modalWorkerNotFound').innerHTML = '<i class="fas fa-exclamation-circle"></i> Account not found!';
+          foundModalWorker = null;
+        } else {
+          const d = snap.docs[0];
+          foundModalWorker = { id: d.id, ...d.data() };
+          document.getElementById('modalWorkerNotFound').style.display = 'none';
+          document.getElementById('modalWorkerPreview').style.display = 'block';
+          document.getElementById('modalWorkerPreview').innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="worker-list-avatar">${(foundModalWorker.name || 'W').substring(0,2).toUpperCase()}</div>
+              <div>
+                <strong>${foundModalWorker.name}</strong>
+                <span style="font-size:0.8rem;color:var(--gray);display:block;">📧 ${foundModalWorker.email}</span>
+              </div>
+            </div>
+          `;
+        }
+      } catch(e) { console.error(e); }
+    });
+
+    // Confirm add worker to existing payroll
+    document.getElementById('confirmAddWorkerBtn').addEventListener('click', async () => {
+      if (!currentPayrollForAddWorker) return;
+      if (!foundModalWorker) { alert('Please enter a valid account number'); return; }
+      
+      const salary = parseFloat(document.getElementById('modalWorkerSalary').value);
+      if (!salary || salary <= 0) { alert('Please enter a valid salary'); return; }
+      
+      const currentTotal = (currentPayrollForAddWorker.workers || []).reduce((s, w) => s + w.salary, 0);
+      const newTotal = currentTotal + salary;
+      
+      if (!confirm(`Add ${foundModalWorker.name}?\nSalary: ${formatMoney(salary)}/mo\nNew total: ${formatMoney(newTotal)}`)) return;
+      
+      try {
+        const newWorkers = [...(currentPayrollForAddWorker.workers || []), {
+          accountNumber: foundModalWorker.accountNumber,
+          name: foundModalWorker.name,
+          email: foundModalWorker.email,
+          userId: foundModalWorker.id,
+          salary: salary
+        }];
+        
+        const newTotalAmount = newWorkers.reduce((s, w) => s + w.salary, 0);
+        
+        await updateDoc(doc(db, "payrolls", currentPayrollForAddWorker.id), {
+          workers: newWorkers,
+          totalAmount: newTotalAmount
+        });
+        
+        closeModal('addWorkerModal');
+        alert('✅ Worker added successfully!');
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    });
+
+    // Remove worker from existing payroll
+    window.removeWorkerFromPayroll = async (payrollId, workerIndex) => {
+      const payroll = payrolls.find(p => p.id === payrollId);
+      if (!payroll) return;
+      const worker = (payroll.workers || [])[workerIndex];
+      if (!worker) return;
+      
+      if (!confirm(`Remove ${worker.name} from this payroll?`)) return;
+      
+      const newWorkers = [...payroll.workers];
+      newWorkers.splice(workerIndex, 1);
+      const newTotalAmount = newWorkers.reduce((s, w) => s + w.salary, 0);
+      
+      try {
+        await updateDoc(doc(db, "payrolls", payrollId), {
+          workers: newWorkers,
+          totalAmount: newTotalAmount
+        });
+        alert('✅ Worker removed');
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    };
+
+    // Pay Now
+    window.payNow = async (payrollId) => {
+      const payroll = payrolls.find(p => p.id === payrollId);
+      if (!payroll) return;
+      const workers = payroll.workers || [];
+      if (workers.length === 0) return alert('No workers in this payroll');
+      const totalAmount = payroll.totalAmount || workers.reduce((s, w) => s + w.salary, 0);
+      
+      if (payroll.lastPaymentDate) {
+        const lastPaid = new Date(payroll.lastPaymentDate);
+        const now = new Date();
+        if (lastPaid.getMonth() === now.getMonth() && lastPaid.getFullYear() === now.getFullYear()) {
+          if (!confirm('Already paid this month. Pay again?')) return;
+        }
+      }
+      
+      if (!confirm(`Pay ${workers.length} workers now?\nTotal: ${formatMoney(totalAmount)}`)) return;
+      if ((userData?.balance || 0) < totalAmount) return alert(`Insufficient balance! Need ${formatMoney(totalAmount)}, have ${formatMoney(userData?.balance || 0)}`);
+      
+      try {
+        await runTransaction(db, async (t) => {
+          const ownerRef = doc(db, "users", currentUser.uid);
+          const ownerDoc = await t.get(ownerRef);
+          const ownerBal = ownerDoc.data().balance || 0;
+          if (ownerBal < totalAmount) throw new Error("Insufficient funds");
+          t.update(ownerRef, { balance: ownerBal - totalAmount });
+          for (const worker of workers) {
+            const workerRef = doc(db, "users", worker.userId);
+            const workerDoc = await t.get(workerRef);
+            if (workerDoc.exists()) {
+              const workerBal = workerDoc.data().balance || 0;
+              t.update(workerRef, { balance: workerBal + worker.salary });
+            }
+          }
+        });
+        
+        await setDoc(doc(collection(db, "transactions")), { userEmail: currentUser.email, userName: userData?.name, type: 'payroll_sent', amount: totalAmount, description: `Payroll: ${payroll.name} - ${workers.length} workers`, timestamp: new Date().toISOString() });
+        
+        for (const worker of workers) {
+          await setDoc(doc(collection(db, "notifications")), { userEmail: worker.email, message: `💰 Salary received: ${formatMoney(worker.salary)} from ${userData?.name} (${payroll.name})`, timestamp: new Date().toISOString(), read: false });
+          await setDoc(doc(collection(db, "transactions")), { userEmail: worker.email, userName: worker.name, type: 'payroll_received', amount: worker.salary, description: `Salary from ${userData?.name} - ${payroll.name}`, timestamp: new Date().toISOString() });
+        }
+        
+        await updateDoc(doc(db, "payrolls", payrollId), { lastPaymentDate: new Date().toISOString() });
+        alert(`✅ Paid ${formatMoney(totalAmount)} to ${workers.length} workers!`);
+      } catch(e) { alert('❌ Payment failed: ' + e.message); }
+    };
+
+    window.togglePayroll = async (payrollId) => {
+      const payroll = payrolls.find(p => p.id === payrollId);
+      if (!payroll) return;
+      await updateDoc(doc(db, "payrolls", payrollId), { status: payroll.status === 'active' ? 'paused' : 'active' });
+    };
+
+    window.deletePayroll = async (payrollId, name) => {
+      if (!confirm(`Delete "${name}"?`)) return;
+      await deleteDoc(doc(db, "payrolls", payrollId));
+    };
+
+    // IBE Pay Tabs
+    document.querySelectorAll('#ibepayTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#ibepayTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('ibepay-payrolls-tab').style.display = tab.dataset.tab === 'payrolls' ? 'block' : 'none';
+        document.getElementById('ibepay-create-tab').style.display = tab.dataset.tab === 'create' ? 'block' : 'none';
+      });
+    });
+
+    // Worker account lookup (Create tab)
+    document.getElementById('workerAccInput').addEventListener('input', async (e) => {
+      const acc = e.target.value.trim();
+      if (acc.length < 10) { document.getElementById('workerPreview').style.display = 'none'; document.getElementById('workerNotFound').style.display = 'none'; foundWorkerForAdd = null; return; }
+      if (tempWorkers.some(w => w.accountNumber === acc)) { document.getElementById('workerPreview').style.display = 'none'; document.getElementById('workerNotFound').style.display = 'block'; document.getElementById('workerNotFound').innerHTML = '<i class="fas fa-exclamation-circle"></i> Worker already added!'; foundWorkerForAdd = null; return; }
+      try {
+        const snap = await getDocs(query(collection(db, "users"), where("accountNumber", "==", acc)));
+        if (snap.empty) { document.getElementById('workerPreview').style.display = 'none'; document.getElementById('workerNotFound').style.display = 'block'; document.getElementById('workerNotFound').innerHTML = '<i class="fas fa-exclamation-circle"></i> Account not found!'; foundWorkerForAdd = null; }
+        else {
+          const d = snap.docs[0]; foundWorkerForAdd = { id: d.id, ...d.data() };
+          document.getElementById('workerNotFound').style.display = 'none'; document.getElementById('workerPreview').style.display = 'block';
+          document.getElementById('workerPreview').innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div class="worker-list-avatar">${(foundWorkerForAdd.name || 'W').substring(0,2).toUpperCase()}</div><div><strong>${foundWorkerForAdd.name}</strong><span style="font-size:0.8rem;color:var(--gray);display:block;">📧 ${foundWorkerForAdd.email}</span></div></div>`;
+        }
+      } catch(e) { console.error(e); }
+    });
+
+    // Add worker to temp list (Create tab)
+    document.getElementById('addWorkerBtn').addEventListener('click', () => {
+      if (!foundWorkerForAdd) { alert('Please enter a valid account number'); return; }
+      const salary = parseFloat(document.getElementById('workerSalaryInput').value);
+      if (!salary || salary <= 0) { alert('Please enter a valid salary'); return; }
+      tempWorkers.push({ accountNumber: foundWorkerForAdd.accountNumber, name: foundWorkerForAdd.name, email: foundWorkerForAdd.email, userId: foundWorkerForAdd.id, salary: salary });
+      document.getElementById('workerAccInput').value = ''; document.getElementById('workerSalaryInput').value = '';
+      document.getElementById('workerPreview').style.display = 'none'; foundWorkerForAdd = null;
+      renderTempWorkers();
+    });
+
+    function renderTempWorkers() {
+      const container = document.getElementById('workersList');
+      const totalDisplay = document.getElementById('totalSalaryDisplay');
+      if (tempWorkers.length === 0) { container.innerHTML = '<p style="color:var(--gray);font-size:0.9rem;text-align:center;">No workers added yet</p>'; totalDisplay.textContent = 'TSh 0'; return; }
+      const total = tempWorkers.reduce((s, w) => s + w.salary, 0);
+      totalDisplay.textContent = formatMoney(total);
+      container.innerHTML = tempWorkers.map((w, i) => `
+        <div class="worker-list-item">
+          <div class="worker-list-info"><div class="worker-list-avatar">${(w.name || 'W').substring(0,2).toUpperCase()}</div><div><strong>${w.name}</strong><span style="font-size:0.75rem;color:var(--gray);display:block;">🔢 ${w.accountNumber}</span></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-weight:600;color:var(--success);">${formatMoney(w.salary)}/mo</span><button class="btn-icon danger" onclick="removeTempWorker(${i})"><i class="fas fa-times"></i></button></div>
+        </div>
+      `).join('');
+    }
+
+    window.removeTempWorker = (index) => { tempWorkers.splice(index, 1); renderTempWorkers(); };
+
+    // Create Payroll
+    document.getElementById('createPayrollBtn').addEventListener('click', async () => {
+      const name = document.getElementById('payrollName').value.trim();
+      const paymentDate = document.getElementById('payrollPaymentDate').value;
+      
+      if (!name) return alert('Please enter a payroll name');
+      if (tempWorkers.length === 0) return alert('Please add at least one worker');
+      if (!paymentDate) return alert('Please select a payment date');
+      
+      const totalAmount = tempWorkers.reduce((s, w) => s + w.salary, 0);
+      const formattedDate = new Date(paymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      if (!confirm(`Create "${name}" with ${tempWorkers.length} workers?\nPayment Date: ${formattedDate}\nTotal: ${formatMoney(totalAmount)}`)) return;
+      
+      const btn = document.getElementById('createPayrollBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating...';
+      
+      try {
+        await addDoc(collection(db, "payrolls"), {
+          ownerId: currentUser.uid,
+          ownerEmail: currentUser.email,
+          ownerName: userData?.name || 'Client',
+          name: name,
+          paymentDate: paymentDate,
+          workers: JSON.parse(JSON.stringify(tempWorkers)),
+          totalAmount: totalAmount,
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          lastPaymentDate: null
+        });
+        
+        document.getElementById('payrollName').value = '';
+        document.getElementById('payrollPaymentDate').value = new Date().toISOString().split('T')[0];
+        tempWorkers = [];
+        renderTempWorkers();
+        
+        const payrollsTab = document.querySelector('#ibepayTabs [data-tab="payrolls"]');
+        if (payrollsTab) payrollsTab.click();
+        
+        alert('✅ Payroll created successfully!');
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Payroll';
+      }
+    });
+
+    // Modal helpers
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
     function updateExpectedBalance() {
       const bal=userData?.balance||0;
       const totalDep=allUsers.reduce((s,u)=>s+(u.balance||0),0);
@@ -420,7 +1005,6 @@
       const userLoans=allActiveLoans.filter(l=>l.userEmail===currentUser?.email);
       const loanDebt=userLoans.reduce((s,l)=>s+(l.remainingAmount||l.amount||0),0);
       const expected=bal+pendingProfit-loanDebt;
-      document.getElementById('pendingProfitShare').textContent=formatMoney(pendingProfit);
       document.getElementById('expectedBalance').textContent=formatMoney(expected);
       document.getElementById('expectedBalance').style.color=expected<0?'var(--danger)':expected>bal?'var(--success)':'var(--dark)';
       const bd=document.getElementById('expectedBreakdown');
@@ -447,8 +1031,10 @@
         else if(t.type==='loan_disbursement'){icon='hand-holding-usd';sign='📋';cls='neutral';}
         else if(t.type==='loan_repayment'){icon='money-bill';sign='-';cls='outgoing';}
         else if(t.type==='loan_auto_deduct'){icon='credit-card';sign='-';cls='outgoing';title='AUTO LOAN PAYMENT';}
+        else if(t.type==='payroll_sent'){icon='people-arrows';sign='-';cls='outgoing';title='PAYROLL PAYMENT';}
+        else if(t.type==='payroll_received'){icon='people-arrows';sign='+';cls='incoming';title=`SALARY FROM ${t.description?.split(' - ')[0]?.replace('Salary from ','')||'EMPLOYER'}`;}
         let note='';
-        if(t.description&&(t.type==='transfer_sent'||t.type==='transfer_received'))note=`<div class="transaction-note">📝 ${t.description}</div>`;
+        if(t.description&&(t.type==='transfer_sent'||t.type==='transfer_received'||t.type==='payroll_sent'||t.type==='payroll_received'))note=`<div class="transaction-note">📝 ${t.description}</div>`;
         return `<div class="transaction-item"><div style="display:flex;align-items:center;gap:12px;"><div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div><div class="transaction-info"><div class="transaction-title">${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div></div><div class="transaction-amount ${sign==='-'?'amount-negative':sign==='📋'?'amount-neutral':'amount-positive'}">${sign==='📋'?'📋':sign}${formatMoney(Math.abs(t.amount))}</div></div>`;
       };
       document.getElementById('recentTransactions').innerHTML=transactions.slice(0,5).map(renderItem).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
@@ -473,14 +1059,11 @@
     async function checkAndAutoDeduct(loans){const now=new Date();for(const l of loans){const due=new Date(l.dueDate);if(now>=due&&(l.status==='active'||l.status==='overdue')&&(l.remainingAmount||l.amount)>0){const lastD=l.lastAutoDeductDate?new Date(l.lastAutoDeductDate):null;const daysSince=lastD?(now-lastD)/(1000*60*60*24):999;if(!lastD||daysSince>=1){const ub=userData?.balance||0;const deduct=Math.min(l.remainingAmount||l.amount,Math.max(0,ub));if(deduct>0){const nb=ub-deduct,nr=(l.remainingAmount||l.amount)-deduct;await updateDoc(doc(db,"users",currentUser.uid),{balance:nb});await updateDoc(doc(db,"loans",l.id),{remainingAmount:nr,status:nr<=0?'paid':'active',lastAutoDeductDate:now.toISOString(),lastPayment:deduct,lastPaymentDate:now.toISOString()});await setDoc(doc(collection(db,"transactions")),{userEmail:currentUser.email,userName:userData?.name,type:'loan_auto_deduct',amount:deduct,loanId:l.id,timestamp:now.toISOString(),description:'Auto-deducted loan payment'});}else{const s=await getDoc(doc(db,"settings","interest"));const rate=s.exists()?(s.data().loanRate||10):10;const penalty=(l.remainingAmount||l.amount)*(rate/100);await updateDoc(doc(db,"loans",l.id),{remainingAmount:(l.remainingAmount||l.amount)+penalty,status:'overdue',lastAutoDeductDate:now.toISOString()});}}}}}
 
     // Navigation
-    document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));document.getElementById(`${item.dataset.section}-section`).classList.add('active');document.getElementById('pageTitle').textContent=item.textContent.trim().replace(/\d+/,'').trim();if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('mobile-open');});});
+    document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));const sectionId=`${item.dataset.section}-section`;const section=document.getElementById(sectionId);if(section)section.classList.add('active');document.getElementById('pageTitle').textContent=item.textContent.trim().replace(/\d+/,'').trim();if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('mobile-open');});});
     document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('mobile-open'));
-    document.getElementById('notificationBell')?.addEventListener('click',()=>{const p=document.getElementById('notificationsPanel');p.style.display=p.style.display==='block'?'none':'block';});
 
-    // Transfer Type
+    // Transfer
     window.onTransferTypeChange=function(){transferType=document.getElementById('transferType').value;document.getElementById('recipientAccount').value='';resetTransferPreview();};
-
-    // Transfer recipient lookup
     document.getElementById('recipientAccount').addEventListener('input',async(e)=>{
       const acc=e.target.value.trim();if(acc.length<10){resetTransferPreview();return;}
       if(acc===userData?.accountNumber){resetTransferPreview();document.getElementById('recipientNotFound').style.display='block';return;}
@@ -490,14 +1073,10 @@
       if(snap.empty){resetTransferPreview();document.getElementById('recipientNotFound').style.display='block';}
       else{const d=snap.docs[0];foundRecipientData={id:d.id,...d.data(),isAgent:transferType==='agent'};document.getElementById('recipientInitials').textContent=(foundRecipientData.name||'U').substring(0,2).toUpperCase();document.getElementById('recipientName').textContent=foundRecipientData.name||'User';document.getElementById('recipientType').textContent=foundRecipientData.isAgent?'🏪 Agent Verified':'✅ Client Verified';document.getElementById('recipientPreview').style.display='block';document.getElementById('recipientNotFound').style.display='none';transferValid=true;updateTransferSummary();}
     });
-
     function resetTransferPreview(){document.getElementById('recipientPreview').style.display='none';document.getElementById('recipientNotFound').style.display='none';document.getElementById('transferSummary').style.display='none';document.getElementById('sendTransferBtn').disabled=true;foundRecipientData=null;transferValid=false;}
-
     document.getElementById('transferAmount').addEventListener('input',updateTransferSummary);
     document.getElementById('transferDescription').addEventListener('input',updateTransferSummary);
-
     function updateTransferSummary(){const amt=parseFloat(document.getElementById('transferAmount').value)||0;const desc=document.getElementById('transferDescription').value||'No description';if(transferValid&&amt>0){document.getElementById('summaryFrom').textContent=`${userData?.name||'You'} (${userData?.accountNumber})`;document.getElementById('summaryTo').textContent=`${foundRecipientData.name} (${foundRecipientData.accountNumber})`;document.getElementById('summaryAmount').textContent=formatMoney(amt);document.getElementById('summaryDescription').textContent=desc;const nb=(userData?.balance||0)-amt;const nbe=document.getElementById('summaryNewBalance');nbe.textContent=formatMoney(nb);nbe.style.color=nb<0?'var(--danger)':'var(--dark)';document.getElementById('transferSummary').style.display='block';document.getElementById('sendTransferBtn').disabled=!(amt<=(userData?.balance||0)&&amt>0);}else{document.getElementById('transferSummary').style.display='none';document.getElementById('sendTransferBtn').disabled=true;}}
-
     document.getElementById('sendTransferBtn').addEventListener('click',async()=>{
       const amt=parseFloat(document.getElementById('transferAmount').value);const desc=document.getElementById('transferDescription').value||'Transfer';
       if(!amt||amt<=0||amt>(userData?.balance||0)||!foundRecipientData)return;
@@ -512,11 +1091,11 @@
       }catch(e){alert('❌ '+e.message);}finally{btn.disabled=false;btn.textContent='Send Transfer';}
     });
 
-    // Loan Calculator
+    // Loan
     document.getElementById('calculateLoanBtn').addEventListener('click',()=>{const amt=parseFloat(document.getElementById('calcLoanAmount').value)||0;const dur=parseInt(document.getElementById('calcLoanDuration').value)||30;if(amt<=0)return;const months=dur/30,rate=0.10*months,interest=amt*rate,total=amt+interest;document.getElementById('loanCalcPrincipal').textContent=formatMoney(amt);document.getElementById('loanCalcInterest').textContent=formatMoney(interest);document.getElementById('loanCalcTotal').textContent=formatMoney(total);document.getElementById('loanCalcTotalRepayment').textContent=formatMoney(total);document.getElementById('loanCalcResult').style.display='block';document.getElementById('loanAmount').value=amt;document.getElementById('loanDuration').value=dur;});
     document.getElementById('requestLoanBtn').addEventListener('click',async()=>{const amt=parseFloat(document.getElementById('loanAmount').value);const dur=parseInt(document.getElementById('loanDuration').value);if(!amt||amt<=0)return alert('Enter amount');const months=dur/30,rate=0.10*months,interest=amt*rate,total=amt+interest;if(!confirm(`Loan: ${formatMoney(amt)}\nInterest (${rate*100}%): ${formatMoney(interest)}\nTotal: ${formatMoney(total)}\n\nSubmit?`))return;await setDoc(doc(collection(db,"loanRequests")),{userEmail:currentUser.email,userName:userData?.name,amount:amt,duration:dur,interestRate:rate,interestAmount:interest,totalRepayment:total,status:'pending',timestamp:new Date().toISOString()});document.getElementById('loanAmount').value='';alert('✅ Submitted!');});
 
-    // Profit Calculator
+    // Calculator
     document.getElementById('calculateProfitBtn').addEventListener('click',()=>{const ti=parseFloat(document.getElementById('calcTotalInterest').value)||0;const yb=parseFloat(document.getElementById('calcYourBalance').value)||0;const td=parseFloat(document.getElementById('calcTotalDeposits').value)||1;document.getElementById('profitShareAmount').textContent=formatMoney(ti*(yb/td));document.getElementById('profitCalcResult').style.display='block';});
 
     // Request
@@ -526,7 +1105,6 @@
     document.getElementById('modalSubmitBtn').addEventListener('click',async()=>{const amt=parseFloat(document.getElementById('modalAmount').value);if(!amt||amt<=0)return alert('Invalid amount');if(currentRequestType==='withdraw'&&amt>(userData?.balance||0))return alert('Insufficient balance!');await setDoc(doc(collection(db,"requests")),{userEmail:currentUser.email,userName:userData?.name,type:currentRequestType,amount:amt,note:document.getElementById('modalNote').value,status:'pending',timestamp:new Date().toISOString()});closeRequestModal();alert('✅ Submitted!');});
 
     document.getElementById('logoutBtn').addEventListener('click',async()=>{await signOut(auth);window.location.replace('index.html');});
-    document.addEventListener('click',(e)=>{const p=document.getElementById('notificationsPanel'),b=document.getElementById('notificationBell');if(!p?.contains(e.target)&&!b?.contains(e.target))p.style.display='none';});
     window.markAllRead=async()=>{const snap=await getDocs(query(collection(db,"notifications"),where("userEmail","==",currentUser.email),where("read","==",false)));snap.forEach(async(d)=>{await updateDoc(d.ref,{read:true});});};
   </script>
 </body>
