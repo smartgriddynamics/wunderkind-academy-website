@@ -97,7 +97,6 @@
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
     .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
     
-    /* Balance eye toggle */
     .balance-toggle-btn {
       background: none; border: none; cursor: pointer; color: var(--gray);
       font-size: 1.2rem; padding: 4px; border-radius: 50%; transition: all 0.2s;
@@ -106,6 +105,15 @@
     .balance-toggle-btn:hover { color: var(--primary); background: #f0f4f8; }
     .balance-hidden { filter: blur(8px); user-select: none; transition: filter 0.3s; }
     .balance-visible { filter: blur(0); transition: filter 0.3s; }
+    
+    .top-balance-bar {
+      background: white; border-radius: 18px; padding: 16px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .top-balance-bar .balance-display { display: flex; align-items: center; gap: 12px; }
+    .top-balance-bar .balance-amount { font-size: 1.5rem; font-weight: 700; }
+    .top-balance-bar .balance-label { color: var(--gray); font-size: 0.85rem; }
     
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
     .card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
@@ -182,6 +190,7 @@
     .status-active { background: #d1fae5; color: #065f46; }
     .status-overdue { background: #fee2e2; color: #991b1b; }
     .status-paused { background: #fef3c7; color: #92400e; }
+    .status-paid { background: #d1fae5; color: #065f46; }
     
     .recipient-preview { background: #d1fae5; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--success); display: none; }
     .recipient-notfound { background: #fee2e2; border-radius: 12px; padding: 16px; margin-bottom: 18px; border-left: 4px solid var(--danger); color: #991b1b; display: none; }
@@ -191,7 +200,6 @@
     .tab:hover { border-color: var(--accent); }
     .tab.active { background: var(--accent); color: var(--dark); border-color: var(--accent); font-weight: 600; }
     
-    /* IBE Pay Styles */
     .worker-list-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 16px; background: white; border-radius: 10px;
@@ -214,15 +222,7 @@
     }
     .payroll-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     
-    /* Top bar balance display */
-    .top-balance-bar {
-      background: white; border-radius: 18px; padding: 16px 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04); margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-    }
-    .top-balance-bar .balance-display { display: flex; align-items: center; gap: 12px; }
-    .top-balance-bar .balance-amount { font-size: 1.5rem; font-weight: 700; }
-    .top-balance-bar .balance-label { color: var(--gray); font-size: 0.85rem; }
+    .auto-badge { background: #dbeafe; color: var(--primary); padding: 3px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
     
     .menu-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 200; width: 42px; height: 42px; border-radius: 12px; background: var(--primary); color: white; border: none; cursor: pointer; font-size: 1.2rem; }
     
@@ -280,7 +280,6 @@
 
     <!-- DASHBOARD -->
     <div class="content-section active" id="dashboard-section">
-      <!-- Top Balance Bar with Eye Toggle -->
       <div class="top-balance-bar">
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="stat-icon blue" style="margin-bottom:0;"><i class="fas fa-wallet"></i></div>
@@ -295,10 +294,7 @@
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
-          <div style="text-align:right;">
-            <div class="balance-label">Account</div>
-            <div style="font-weight:600;" id="topAccountNumber">---</div>
-          </div>
+          <div style="text-align:right;"><div class="balance-label">Account</div><div style="font-weight:600;" id="topAccountNumber">---</div></div>
         </div>
       </div>
       
@@ -333,32 +329,13 @@
       <div class="form-card">
         <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-exchange-alt"></i> Transfer Money</h3>
         <div class="info-card"><strong>Your Account:</strong> <span id="transferAccountNumber">---</span></div>
-        
-        <div class="form-group">
-          <label class="form-label">Send To</label>
-          <select id="transferType" class="form-select" onchange="onTransferTypeChange()">
-            <option value="user">Bank User (Client)</option>
-            <option value="agent">Bank Agent</option>
-          </select>
-        </div>
-        
+        <div class="form-group"><label class="form-label">Send To</label><select id="transferType" class="form-select" onchange="onTransferTypeChange()"><option value="user">Bank User (Client)</option><option value="agent">Bank Agent</option></select></div>
         <div class="form-group"><label class="form-label">Recipient Account Number</label><input type="text" id="recipientAccount" class="form-input" placeholder="Enter account number" maxlength="10"></div>
-        
-        <div class="recipient-preview" id="recipientPreview">
-          <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">--</div><div><h4 id="recipientName">---</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> <span id="recipientType">Verified</span></p></div></div></div>
+        <div class="recipient-preview" id="recipientPreview"><div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;" id="recipientInitials">--</div><div><h4 id="recipientName">---</h4><p style="color:#065f46;font-size:0.85rem;"><i class="fas fa-check-circle"></i> <span id="recipientType">Verified</span></p></div></div></div>
         <div class="recipient-notfound" id="recipientNotFound"><i class="fas fa-exclamation-circle"></i> Account not found!</div>
-        
         <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="transferAmount" class="form-input" placeholder="Enter amount" min="0"></div>
         <div class="form-group"><label class="form-label">Description</label><input type="text" id="transferDescription" class="form-input" placeholder="Payment for..."></div>
-        
-        <div id="transferSummary" style="display:none;background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:20px;">
-          <h4 style="margin-bottom:12px;">Summary</h4>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>From:</span><span><strong id="summaryFrom">You</strong></span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>To:</span><span><strong id="summaryTo">---</strong></span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Amount:</span><span><strong id="summaryAmount">TSh 0</strong></span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Description:</span><span><strong id="summaryDescription">---</strong></span></div>
-          <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #e2e8f0;"><span>After Transfer:</span><span><strong id="summaryNewBalance">TSh 0</strong></span></div>
-        </div>
+        <div id="transferSummary" style="display:none;background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:20px;"><h4 style="margin-bottom:12px;">Summary</h4><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>From:</span><span><strong id="summaryFrom">You</strong></span></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>To:</span><span><strong id="summaryTo">---</strong></span></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Amount:</span><span><strong id="summaryAmount">TSh 0</strong></span></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Description:</span><span><strong id="summaryDescription">---</strong></span></div><div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #e2e8f0;"><span>After Transfer:</span><span><strong id="summaryNewBalance">TSh 0</strong></span></div></div>
         <button class="btn btn-primary btn-block" id="sendTransferBtn" disabled><i class="fas fa-paper-plane"></i> Send Transfer</button>
       </div>
     </div>
@@ -367,24 +344,12 @@
     <div class="content-section" id="loan-section">
       <div class="form-card">
         <h3 class="card-title" style="margin-bottom:20px;"><i class="fas fa-hand-holding-usd"></i> Loan Management</h3>
-        <div class="debt-warning-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;"><span><strong>Total Debt:</strong></span><span style="font-size:1.3rem;font-weight:700;color:var(--danger);" id="loanSectionDebt">TSh 0</span></div>
-          <p style="font-size:0.8rem;color:#92400e;margin-top:6px;">10% interest per month. Auto-deducted on due date!</p>
-        </div>
-        <div class="loan-stats-grid">
-          <div class="loan-stat-card"><div style="font-size:1.5rem;font-weight:700;" id="activeLoanAmount">TSh 0</div><div style="color:var(--gray);font-size:0.85rem;">Active Loans</div></div>
-          <div class="loan-stat-card"><div style="font-size:1.5rem;font-weight:700;" id="nextPaymentDue">—</div><div style="color:var(--gray);font-size:0.85rem;">Next Due Date</div></div>
-        </div>
+        <div class="debt-warning-card"><div style="display:flex;justify-content:space-between;align-items:center;"><span><strong>Total Debt:</strong></span><span style="font-size:1.3rem;font-weight:700;color:var(--danger);" id="loanSectionDebt">TSh 0</span></div><p style="font-size:0.8rem;color:#92400e;margin-top:6px;">10% interest per month. Auto-deducted on due date!</p></div>
+        <div class="loan-stats-grid"><div class="loan-stat-card"><div style="font-size:1.5rem;font-weight:700;" id="activeLoanAmount">TSh 0</div><div style="color:var(--gray);font-size:0.85rem;">Active Loans</div></div><div class="loan-stat-card"><div style="font-size:1.5rem;font-weight:700;" id="nextPaymentDue">—</div><div style="color:var(--gray);font-size:0.85rem;">Next Due Date</div></div></div>
         <h4 style="margin:20px 0;font-weight:600;">Calculator (10%/month)</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="form-group"><label class="form-label">Amount</label><input type="number" id="calcLoanAmount" class="form-input" value="100000"></div>
-          <div class="form-group"><label class="form-label">Duration</label><select id="calcLoanDuration" class="form-select"><option value="30">30 Days (10%)</option><option value="60">60 Days (20%)</option><option value="90" selected>90 Days (30%)</option><option value="180">180 Days (60%)</option></select></div>
-        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"><div class="form-group"><label class="form-label">Amount</label><input type="number" id="calcLoanAmount" class="form-input" value="100000"></div><div class="form-group"><label class="form-label">Duration</label><select id="calcLoanDuration" class="form-select"><option value="30">30 Days (10%)</option><option value="60">60 Days (20%)</option><option value="90" selected>90 Days (30%)</option><option value="180">180 Days (60%)</option></select></div></div>
         <button class="btn btn-accent btn-block" id="calculateLoanBtn" style="margin:12px 0;"><i class="fas fa-calculator"></i> Calculate</button>
-        <div class="calc-result-card" id="loanCalcResult" style="display:none;">
-          <p style="font-size:0.85rem;opacity:0.9;">Total to Repay</p><div style="font-size:2rem;font-weight:800;" id="loanCalcTotalRepayment">TSh 0</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;"><div><div style="font-size:0.7rem;opacity:0.8;">Loan</div><div id="loanCalcPrincipal">TSh 0</div></div><div><div style="font-size:0.7rem;opacity:0.8;">Interest</div><div id="loanCalcInterest">TSh 0</div></div><div><div style="font-size:0.7rem;opacity:0.8;">Total</div><div id="loanCalcTotal">TSh 0</div></div></div>
-        </div>
+        <div class="calc-result-card" id="loanCalcResult" style="display:none;"><p style="font-size:0.85rem;opacity:0.9;">Total to Repay</p><div style="font-size:2rem;font-weight:800;" id="loanCalcTotalRepayment">TSh 0</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;"><div><div style="font-size:0.7rem;opacity:0.8;">Loan</div><div id="loanCalcPrincipal">TSh 0</div></div><div><div style="font-size:0.7rem;opacity:0.8;">Interest</div><div id="loanCalcInterest">TSh 0</div></div><div><div style="font-size:0.7rem;opacity:0.8;">Total</div><div id="loanCalcTotal">TSh 0</div></div></div></div>
         <h4 style="margin:20px 0;font-weight:600;">Request Loan</h4>
         <div class="form-group"><label class="form-label">Amount (TSh)</label><input type="number" id="loanAmount" class="form-input"></div>
         <div class="form-group"><label class="form-label">Duration</label><select id="loanDuration" class="form-select"><option value="30">30 Days</option><option value="60">60 Days</option><option value="90">90 Days</option><option value="180">180 Days</option></select></div>
@@ -408,15 +373,14 @@
         <button class="tab" data-tab="create">Create Payroll</button>
       </div>
       
-      <div id="ibepay-payrolls-tab">
-        <div id="payrollsList"><p style="text-align:center;color:var(--gray);padding:40px;">Loading payrolls...</p></div>
-      </div>
+      <div id="ibepay-payrolls-tab"><div id="payrollsList"><p style="text-align:center;color:var(--gray);padding:40px;">Loading payrolls...</p></div></div>
       
       <div id="ibepay-create-tab" style="display:none;">
         <div class="form-card">
           <h3 style="margin-bottom:20px;"><i class="fas fa-plus-circle"></i> Create New Payroll</h3>
           <div class="form-group"><label class="form-label">Payroll Name</label><input type="text" id="payrollName" class="form-input" placeholder="e.g., Staff Salaries October"></div>
-          <div class="form-group"><label class="form-label">📅 Payment Date</label><input type="date" id="payrollPaymentDate" class="form-input"></div>
+          <div class="form-group"><label class="form-label">📅 Payment Date (Auto-pays on this date)</label><input type="date" id="payrollPaymentDate" class="form-input"></div>
+          <div class="info-card" style="background:#fef3c7;border-left:4px solid var(--accent);"><i class="fas fa-robot"></i> <strong>Auto-Pay:</strong> This payroll will automatically process on the payment date! You can also use "Pay Now" anytime.</div>
           <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:16px;">
             <h4 style="margin-bottom:12px;">Add Workers</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
@@ -428,9 +392,7 @@
             <div id="workerNotFound" style="display:none;margin-top:8px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;"></div>
           </div>
           <div id="workersList" style="margin-bottom:16px;"><p style="color:var(--gray);font-size:0.9rem;text-align:center;">No workers added yet</p></div>
-          <div style="background:#fffbeb;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
-            <span><strong>Total:</strong></span><span style="font-size:1.3rem;font-weight:700;color:var(--danger);" id="totalSalaryDisplay">TSh 0</span>
-          </div>
+          <div style="background:#fffbeb;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"><span><strong>Total:</strong></span><span style="font-size:1.3rem;font-weight:700;color:var(--danger);" id="totalSalaryDisplay">TSh 0</span></div>
           <button class="btn btn-accent btn-block" id="createPayrollBtn"><i class="fas fa-save"></i> Create Payroll</button>
         </div>
       </div>
@@ -521,8 +483,6 @@
     let allTransactions = [], foundRecipientData = null, transferValid = false, transferType = 'user';
     let allUsers = [], allActiveLoans = [], payrolls = [], tempWorkers = [], foundWorkerForAdd = null;
     let currentPayrollForAddWorker = null, foundModalWorker = null, editingPayrollId = null;
-    
-    // Balance visibility state
     let balanceVisible = false;
 
     const formatMoney = (val) => {
@@ -536,59 +496,24 @@
 
     // Balance Toggle
     const balanceToggleBtn = document.getElementById('balanceToggleBtn');
-    const balanceElements = () => document.querySelectorAll('.balance-hidden, .balance-visible');
-    
     function toggleBalance() {
       balanceVisible = !balanceVisible;
-      const elements = balanceElements();
+      const elements = document.querySelectorAll('.balance-hidden, .balance-visible');
       const icon = balanceToggleBtn.querySelector('i');
-      
       elements.forEach(el => {
-        if (balanceVisible) {
-          el.classList.remove('balance-hidden');
-          el.classList.add('balance-visible');
-        } else {
-          el.classList.remove('balance-visible');
-          el.classList.add('balance-hidden');
-        }
+        if (balanceVisible) { el.classList.remove('balance-hidden'); el.classList.add('balance-visible'); }
+        else { el.classList.remove('balance-visible'); el.classList.add('balance-hidden'); }
       });
-      
-      // Also toggle transaction amounts
       document.querySelectorAll('.transaction-amount').forEach(el => {
-        if (balanceVisible) {
-          el.classList.remove('blur-amount');
-          el.classList.add('show-amount');
-        } else {
-          el.classList.remove('show-amount');
-          el.classList.add('blur-amount');
-        }
+        if (balanceVisible) { el.classList.remove('blur-amount'); el.classList.add('show-amount'); }
+        else { el.classList.remove('show-amount'); el.classList.add('blur-amount'); }
       });
-      
-      // Update icon
-      if (balanceVisible) {
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        balanceToggleBtn.title = 'Hide Balance';
-      } else {
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        balanceToggleBtn.title = 'Show Balance';
-      }
+      if (balanceVisible) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); balanceToggleBtn.title = 'Hide Balance'; }
+      else { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); balanceToggleBtn.title = 'Show Balance'; }
     }
-    
     balanceToggleBtn.addEventListener('click', toggleBalance);
-    
-    // Auto-hide balances after 30 seconds of inactivity
     let hideTimer;
-    function resetHideTimer() {
-      clearTimeout(hideTimer);
-      if (balanceVisible) {
-        hideTimer = setTimeout(() => {
-          if (balanceVisible) toggleBalance();
-        }, 30000); // 30 seconds
-      }
-    }
-    
+    function resetHideTimer() { clearTimeout(hideTimer); if (balanceVisible) { hideTimer = setTimeout(() => { if (balanceVisible) toggleBalance(); }, 30000); } }
     document.addEventListener('mousemove', resetHideTimer);
     document.addEventListener('keypress', resetHideTimer);
     document.addEventListener('click', resetHideTimer);
@@ -599,6 +524,8 @@
       await loadUserData(); 
       initRealtimeData(); 
       if (currentUser) { initPayrollRealtime(); }
+      // Start auto-pay checker
+      startAutoPayChecker();
     });
 
     async function loadUserData() {
@@ -638,6 +565,143 @@
       document.getElementById('topBalanceDisplay').textContent = formatMoney(bal);
     }
 
+    // ============ AUTO-PAY SYSTEM ============
+    // This runs every 60 seconds to check if any payroll needs to be paid
+    function startAutoPayChecker() {
+      console.log('🤖 Auto-Pay checker started - runs every 60 seconds');
+      // Run immediately
+      checkAndProcessAutoPay();
+      // Then every 60 seconds
+      setInterval(checkAndProcessAutoPay, 60000);
+    }
+
+    async function checkAndProcessAutoPay() {
+      if (!currentUser) return;
+      
+      const now = new Date();
+      const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      try {
+        // Get all active payrolls for this user
+        const pq = query(
+          collection(db, "payrolls"),
+          where("ownerId", "==", currentUser.uid),
+          where("status", "==", "active")
+        );
+        const snap = await getDocs(pq);
+        
+        for (const payrollDoc of snap.docs) {
+          const payroll = payrollDoc.data();
+          
+          // Skip if no payment date set
+          if (!payroll.paymentDate) continue;
+          
+          // Check if today is the payment date
+          if (payroll.paymentDate !== today) continue;
+          
+          // Check if already paid this month
+          if (payroll.lastPaymentDate) {
+            const lastPaid = new Date(payroll.lastPaymentDate);
+            if (lastPaid.toISOString().split('T')[0] === today) {
+              console.log(`⏭️ Payroll "${payroll.name}" already paid today`);
+              continue;
+            }
+          }
+          
+          const workers = payroll.workers || [];
+          if (workers.length === 0) continue;
+          
+          const totalAmount = payroll.totalAmount || workers.reduce((s, w) => s + w.salary, 0);
+          
+          // Get current user balance
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          if (!userDoc.exists()) continue;
+          const userBalance = userDoc.data().balance || 0;
+          
+          // Skip if insufficient funds
+          if (userBalance < totalAmount) {
+            console.log(`⚠️ Auto-Pay: Insufficient funds for "${payroll.name}" - Need ${formatMoney(totalAmount)}, have ${formatMoney(userBalance)}`);
+            // Notify user about insufficient funds
+            await setDoc(doc(collection(db, "notifications")), {
+              userEmail: currentUser.email,
+              message: `⚠️ Auto-Pay failed for "${payroll.name}": Insufficient balance. Need ${formatMoney(totalAmount)}, have ${formatMoney(userBalance)}`,
+              timestamp: now.toISOString(),
+              read: false
+            });
+            continue;
+          }
+          
+          // Process the payroll
+          console.log(`🤖 Auto-Paying "${payroll.name}" - ${formatMoney(totalAmount)} to ${workers.length} workers`);
+          
+          try {
+            await runTransaction(db, async (t) => {
+              const ownerRef = doc(db, "users", currentUser.uid);
+              const ownerDocSnap = await t.get(ownerRef);
+              const bal = ownerDocSnap.data().balance || 0;
+              if (bal < totalAmount) throw new Error("Insufficient funds");
+              t.update(ownerRef, { balance: bal - totalAmount });
+              for (const worker of workers) {
+                const workerRef = doc(db, "users", worker.userId);
+                const workerSnap = await t.get(workerRef);
+                if (workerSnap.exists()) {
+                  const wbal = workerSnap.data().balance || 0;
+                  t.update(workerRef, { balance: wbal + worker.salary });
+                }
+              }
+            });
+            
+            // Record transaction
+            await setDoc(doc(collection(db, "transactions")), {
+              userEmail: currentUser.email,
+              userName: userData?.name || 'Client',
+              type: 'payroll_sent',
+              amount: totalAmount,
+              description: `🤖 Auto-Pay: ${payroll.name} - ${workers.length} workers`,
+              timestamp: now.toISOString()
+            });
+            
+            // Notify workers
+            for (const worker of workers) {
+              await setDoc(doc(collection(db, "notifications")), {
+                userEmail: worker.email,
+                message: `💰 Salary received: ${formatMoney(worker.salary)} from ${userData?.name || 'Employer'} (${payroll.name})`,
+                timestamp: now.toISOString(),
+                read: false
+              });
+              await setDoc(doc(collection(db, "transactions")), {
+                userEmail: worker.email,
+                userName: worker.name,
+                type: 'payroll_received',
+                amount: worker.salary,
+                description: `Auto-Pay Salary from ${userData?.name || 'Employer'} - ${payroll.name}`,
+                timestamp: now.toISOString()
+              });
+            }
+            
+            // Update payroll
+            await updateDoc(doc(db, "payrolls", payrollDoc.id), {
+              lastPaymentDate: now.toISOString()
+            });
+            
+            // Notify employer
+            await setDoc(doc(collection(db, "notifications")), {
+              userEmail: currentUser.email,
+              message: `✅ Auto-Pay: "${payroll.name}" processed - ${formatMoney(totalAmount)} paid to ${workers.length} workers`,
+              timestamp: now.toISOString(),
+              read: false
+            });
+            
+            console.log(`✅ Auto-Pay complete for "${payroll.name}"`);
+          } catch(e) {
+            console.error(`❌ Auto-Pay failed for "${payroll.name}":`, e.message);
+          }
+        }
+      } catch(e) {
+        console.error('❌ Auto-Pay checker error:', e);
+      }
+    }
+
     // ============ IBE PAY ============
     function initPayrollRealtime() {
       onSnapshot(collection(db, "payrolls"), (snap) => {
@@ -675,7 +739,10 @@
         const lastPaid = p.lastPaymentDate ? new Date(p.lastPaymentDate).toLocaleDateString() : 'Never';
         const paymentDate = p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : 'Not set';
         const workerCount = (p.workers || []).length;
-        return `<div class="payroll-card" style="border-left: 4px solid ${p.status === 'active' ? 'var(--success)' : 'var(--warning)'};"><div class="payroll-card-header"><div><h3 style="margin-bottom:4px;"><i class="fas fa-people-arrows" style="color:var(--accent);"></i> ${p.name || 'Untitled'}</h3><p style="color:var(--gray);font-size:0.85rem;">👥 ${workerCount} worker${workerCount !== 1 ? 's' : ''} | 💰 ${formatMoney(total)}/mo | 📅 Payment Date: ${paymentDate} | <span class="status-badge status-${p.status || 'active'}">${(p.status || 'active').toUpperCase()}</span></p><p style="color:var(--gray);font-size:0.8rem;">📅 Last paid: ${lastPaid}${p.createdAt ? ` | Created: ${new Date(p.createdAt).toLocaleDateString()}` : ''}</p></div><div class="payroll-actions"><button class="btn btn-sm btn-primary" onclick="openAddWorkerModal('${p.id}')"><i class="fas fa-user-plus"></i> Add Worker</button><button class="btn btn-sm btn-accent" onclick="openEditPayrollModal('${p.id}')"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-success" onclick="payNow('${p.id}')"><i class="fas fa-paper-plane"></i> Pay Now</button><button class="btn btn-sm ${p.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="togglePayroll('${p.id}')">${p.status === 'active' ? '⏸ Pause' : '▶ Activate'}</button><button class="btn btn-sm btn-danger" onclick="deletePayroll('${p.id}', '${p.name}')"><i class="fas fa-trash"></i></button></div></div>${workerCount > 0 ? `<div style="margin-top:16px;border-top:1px solid var(--gray-light);padding-top:16px;"><h4 style="margin-bottom:12px;font-size:0.9rem;color:var(--gray);">WORKERS</h4>${(p.workers || []).map((w, i) => `<div class="worker-list-item" style="background:#f8fafc;"><div class="worker-list-info"><div class="worker-list-avatar">${(w.name || 'W').substring(0,2).toUpperCase()}</div><div><strong>${w.name || 'Worker'}</strong><span style="font-size:0.75rem;color:var(--gray);display:block;">🔢 ${w.accountNumber || '---'}</span></div></div><div style="display:flex;align-items:center;gap:12px;"><span style="font-weight:600;color:var(--success);">${formatMoney(w.salary || 0)}/mo</span><button class="btn-icon danger" onclick="removeWorkerFromPayroll('${p.id}', ${i})"><i class="fas fa-times"></i></button></div></div>`).join('')}</div>` : '<p style="color:var(--gray);font-size:0.85rem;margin-top:12px;">No workers added yet</p>'}</div>`;
+        const today = new Date().toISOString().split('T')[0];
+        const isToday = p.paymentDate === today;
+        const alreadyPaidToday = p.lastPaymentDate && new Date(p.lastPaymentDate).toISOString().split('T')[0] === today;
+        return `<div class="payroll-card" style="border-left: 4px solid ${p.status === 'active' ? 'var(--success)' : 'var(--warning)'};"><div class="payroll-card-header"><div><h3 style="margin-bottom:4px;"><i class="fas fa-people-arrows" style="color:var(--accent);"></i> ${p.name || 'Untitled'} ${p.paymentDate ? '<span class="auto-badge">🤖 Auto-Pay</span>' : ''}</h3><p style="color:var(--gray);font-size:0.85rem;">👥 ${workerCount} worker${workerCount !== 1 ? 's' : ''} | 💰 ${formatMoney(total)}/mo | 📅 Pay Date: ${paymentDate} | <span class="status-badge status-${p.status || 'active'}">${(p.status || 'active').toUpperCase()}</span></p><p style="color:var(--gray);font-size:0.8rem;">📅 Last paid: ${lastPaid}${p.createdAt ? ` | Created: ${new Date(p.createdAt).toLocaleDateString()}` : ''}${isToday && !alreadyPaidToday ? ' | <span style="color:var(--success);font-weight:600;">🔔 Paying today!</span>' : ''}${alreadyPaidToday ? ' | <span style="color:var(--success);">✅ Paid today</span>' : ''}</p></div><div class="payroll-actions"><button class="btn btn-sm btn-primary" onclick="openAddWorkerModal('${p.id}')"><i class="fas fa-user-plus"></i> Add</button><button class="btn btn-sm btn-accent" onclick="openEditPayrollModal('${p.id}')"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-success" onclick="payNow('${p.id}')"><i class="fas fa-paper-plane"></i> Pay Now</button><button class="btn btn-sm ${p.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="togglePayroll('${p.id}')">${p.status === 'active' ? '⏸ Pause' : '▶ Activate'}</button><button class="btn btn-sm btn-danger" onclick="deletePayroll('${p.id}', '${p.name}')"><i class="fas fa-trash"></i></button></div></div>${workerCount > 0 ? `<div style="margin-top:16px;border-top:1px solid var(--gray-light);padding-top:16px;"><h4 style="margin-bottom:12px;font-size:0.9rem;color:var(--gray);">WORKERS</h4>${(p.workers || []).map((w, i) => `<div class="worker-list-item" style="background:#f8fafc;"><div class="worker-list-info"><div class="worker-list-avatar">${(w.name || 'W').substring(0,2).toUpperCase()}</div><div><strong>${w.name || 'Worker'}</strong><span style="font-size:0.75rem;color:var(--gray);display:block;">🔢 ${w.accountNumber || '---'}</span></div></div><div style="display:flex;align-items:center;gap:12px;"><span style="font-weight:600;color:var(--success);">${formatMoney(w.salary || 0)}/mo</span><button class="btn-icon danger" onclick="removeWorkerFromPayroll('${p.id}', ${i})"><i class="fas fa-times"></i></button></div></div>`).join('')}</div>` : '<p style="color:var(--gray);font-size:0.85rem;margin-top:12px;">No workers added yet</p>'}</div>`;
       }).join('');
     }
 
@@ -692,11 +759,8 @@
       const name = document.getElementById('editPayrollName').value.trim();
       const paymentDate = document.getElementById('editPayrollPaymentDate').value;
       if (!name) return alert('Please enter a payroll name');
-      try {
-        await updateDoc(doc(db, "payrolls", editingPayrollId), { name: name, paymentDate: paymentDate });
-        closeModal('editPayrollModal');
-        alert('✅ Payroll updated!');
-      } catch(e) { alert('❌ Error: ' + e.message); }
+      try { await updateDoc(doc(db, "payrolls", editingPayrollId), { name: name, paymentDate: paymentDate }); closeModal('editPayrollModal'); alert('✅ Payroll updated!'); } 
+      catch(e) { alert('❌ Error: ' + e.message); }
     });
 
     window.openAddWorkerModal = (payrollId) => {
@@ -735,8 +799,7 @@
         const newWorkers = [...(currentPayrollForAddWorker.workers || []), { accountNumber: foundModalWorker.accountNumber, name: foundModalWorker.name, email: foundModalWorker.email, userId: foundModalWorker.id, salary: salary }];
         const newTotalAmount = newWorkers.reduce((s, w) => s + w.salary, 0);
         await updateDoc(doc(db, "payrolls", currentPayrollForAddWorker.id), { workers: newWorkers, totalAmount: newTotalAmount });
-        closeModal('addWorkerModal');
-        alert('✅ Worker added successfully!');
+        closeModal('addWorkerModal'); alert('✅ Worker added successfully!');
       } catch(e) { alert('❌ Error: ' + e.message); }
     });
 
@@ -746,19 +809,20 @@
       const worker = (payroll.workers || [])[workerIndex];
       if (!worker) return;
       if (!confirm(`Remove ${worker.name} from this payroll?`)) return;
-      const newWorkers = [...payroll.workers];
-      newWorkers.splice(workerIndex, 1);
+      const newWorkers = [...payroll.workers]; newWorkers.splice(workerIndex, 1);
       const newTotalAmount = newWorkers.reduce((s, w) => s + w.salary, 0);
-      try { await updateDoc(doc(db, "payrolls", payrollId), { workers: newWorkers, totalAmount: newTotalAmount }); alert('✅ Worker removed'); } catch(e) { alert('❌ Error: ' + e.message); }
+      try { await updateDoc(doc(db, "payrolls", payrollId), { workers: newWorkers, totalAmount: newTotalAmount }); alert('✅ Worker removed'); } 
+      catch(e) { alert('❌ Error: ' + e.message); }
     };
 
+    // Pay Now (Manual)
     window.payNow = async (payrollId) => {
       const payroll = payrolls.find(p => p.id === payrollId);
       if (!payroll) return;
       const workers = payroll.workers || [];
       if (workers.length === 0) return alert('No workers in this payroll');
       const totalAmount = payroll.totalAmount || workers.reduce((s, w) => s + w.salary, 0);
-      if (payroll.lastPaymentDate) { const lastPaid = new Date(payroll.lastPaymentDate); const now = new Date(); if (lastPaid.getMonth() === now.getMonth() && lastPaid.getFullYear() === now.getFullYear()) { if (!confirm('Already paid this month. Pay again?')) return; } }
+      if (payroll.lastPaymentDate) { const lastPaid = new Date(payroll.lastPaymentDate); const now = new Date(); if (lastPaid.toISOString().split('T')[0] === now.toISOString().split('T')[0]) { if (!confirm('Already paid today. Pay again?')) return; } }
       if (!confirm(`Pay ${workers.length} workers now?\nTotal: ${formatMoney(totalAmount)}`)) return;
       if ((userData?.balance || 0) < totalAmount) return alert(`Insufficient balance! Need ${formatMoney(totalAmount)}, have ${formatMoney(userData?.balance || 0)}`);
       try {
@@ -812,17 +876,16 @@
       const paymentDate = document.getElementById('payrollPaymentDate').value;
       if (!name) return alert('Please enter a payroll name');
       if (tempWorkers.length === 0) return alert('Please add at least one worker');
-      if (!paymentDate) return alert('Please select a payment date');
       const totalAmount = tempWorkers.reduce((s, w) => s + w.salary, 0);
-      const formattedDate = new Date(paymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-      if (!confirm(`Create "${name}" with ${tempWorkers.length} workers?\nPayment Date: ${formattedDate}\nTotal: ${formatMoney(totalAmount)}`)) return;
+      const formattedDate = paymentDate ? new Date(paymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Manual only';
+      if (!confirm(`Create "${name}" with ${tempWorkers.length} workers?\nPayment Date: ${formattedDate}\nTotal: ${formatMoney(totalAmount)}\n\nAuto-pay will process on the payment date!`)) return;
       const btn = document.getElementById('createPayrollBtn'); btn.disabled = true; btn.textContent = 'Creating...';
       try {
-        await addDoc(collection(db, "payrolls"), { ownerId: currentUser.uid, ownerEmail: currentUser.email, ownerName: userData?.name || 'Client', name: name, paymentDate: paymentDate, workers: JSON.parse(JSON.stringify(tempWorkers)), totalAmount: totalAmount, status: 'active', createdAt: new Date().toISOString(), lastPaymentDate: null });
+        await addDoc(collection(db, "payrolls"), { ownerId: currentUser.uid, ownerEmail: currentUser.email, ownerName: userData?.name || 'Client', name: name, paymentDate: paymentDate || null, workers: JSON.parse(JSON.stringify(tempWorkers)), totalAmount: totalAmount, status: 'active', createdAt: new Date().toISOString(), lastPaymentDate: null });
         document.getElementById('payrollName').value = ''; document.getElementById('payrollPaymentDate').value = new Date().toISOString().split('T')[0];
         tempWorkers = []; renderTempWorkers();
         document.querySelector('#ibepayTabs [data-tab="payrolls"]').click();
-        alert('✅ Payroll created successfully!');
+        alert('✅ Payroll created! Auto-pay will process on the scheduled date.');
       } catch(e) { alert('❌ Error: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Create Payroll'; }
     });
 
@@ -860,9 +923,9 @@
         else if(t.type==='loan_disbursement'){icon='hand-holding-usd';sign='📋';cls='neutral';}
         else if(t.type==='loan_repayment'){icon='money-bill';sign='-';cls='outgoing';}
         else if(t.type==='loan_auto_deduct'){icon='credit-card';sign='-';cls='outgoing';title='AUTO LOAN PAYMENT';}
-        else if(t.type==='payroll_sent'){icon='people-arrows';sign='-';cls='outgoing';title='PAYROLL PAYMENT';}
-        else if(t.type==='payroll_received'){icon='people-arrows';sign='+';cls='incoming';title=`SALARY FROM ${t.description?.split(' - ')[0]?.replace('Salary from ','')||'EMPLOYER'}`;}
-        let note='';if(t.description&&(t.type==='transfer_sent'||t.type==='transfer_received'||t.type==='payroll_sent'||t.type==='payroll_received'))note=`<div class="transaction-note">📝 ${t.description}</div>`;
+        else if(t.type==='payroll_sent'){icon='people-arrows';sign='-';cls='outgoing';title=t.description?.includes('Auto-Pay')?'🤖 AUTO-PAY':'PAYROLL PAYMENT';}
+        else if(t.type==='payroll_received'){icon='people-arrows';sign='+';cls='incoming';title=`💰 SALARY FROM ${t.description?.split(' - ')[0]?.replace('Auto-Pay Salary from ','')?.replace('Salary from ','')||'EMPLOYER'}`;}
+        let note='';if(t.description)note=`<div class="transaction-note">📝 ${t.description}</div>`;
         const blurClass = balanceVisible ? 'show-amount' : 'blur-amount';
         return `<div class="transaction-item"><div style="display:flex;align-items:center;gap:12px;"><div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div><div class="transaction-info"><div class="transaction-title">${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div></div><div class="transaction-amount ${blurClass} ${sign==='-'?'amount-negative':sign==='📋'?'amount-neutral':'amount-positive'}">${sign==='📋'?'📋':sign}${formatMoney(Math.abs(t.amount))}</div></div>`;
       };
