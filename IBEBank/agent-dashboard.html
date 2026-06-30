@@ -34,6 +34,17 @@
     .main-content{flex:1;margin-left:var(--sidebar-width);padding:24px;min-height:100vh;}
     .page-title{font-size:1.6rem;font-weight:700;color:var(--dark);margin-bottom:28px;}
     .content-section{display:none;}.content-section.active{display:block;}
+    
+    /* Balance hide/show */
+    .balance-toggle-btn{background:none;border:none;cursor:pointer;color:var(--gray);font-size:1.2rem;padding:4px;border-radius:50%;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;}
+    .balance-toggle-btn:hover{color:var(--agent);background:#f0f4f8;}
+    .balance-hidden{filter:blur(8px);user-select:none;transition:filter 0.3s;}
+    .balance-visible{filter:blur(0);transition:filter 0.3s;}
+    .top-balance-bar{background:white;border-radius:18px;padding:16px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.04);margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+    .top-balance-bar .balance-display{display:flex;align-items:center;gap:12px;}
+    .top-balance-bar .balance-amount{font-size:1.5rem;font-weight:700;}
+    .top-balance-bar .balance-label{color:var(--gray);font-size:0.85rem;}
+    
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:28px;}
     .stat-card{background:white;border-radius:18px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
     .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px;}
@@ -86,10 +97,30 @@
     <h1 class="page-title" id="pageTitle">Dashboard</h1>
 
     <div class="content-section active" id="dashboard-section">
+      <!-- Top Balance Bar -->
+      <div class="top-balance-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="stat-icon agent" style="margin-bottom:0;"><i class="fas fa-wallet"></i></div>
+          <div>
+            <div class="balance-label">Your Balance</div>
+            <div class="balance-display">
+              <span class="balance-amount balance-hidden" id="topBalance">TSh 0</span>
+              <button class="balance-toggle-btn" id="balanceToggleBtn" title="Show/Hide Balance">
+                <i class="fas fa-eye-slash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:24px;">
+          <div style="text-align:right;"><div class="balance-label">Total Sent</div><div style="font-weight:600;" class="balance-hidden" id="topTotalSent">TSh 0</div></div>
+          <div style="text-align:right;"><div class="balance-label">Total Received</div><div style="font-weight:600;" class="balance-hidden" id="topTotalReceived">TSh 0</div></div>
+        </div>
+      </div>
+      
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-wallet"></i></div><div class="stat-value" id="balance">TSh 0</div><div class="stat-label">Your Balance</div></div>
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-paper-plane"></i></div><div class="stat-value" id="totalSent">TSh 0</div><div class="stat-label">Total Sent</div></div>
-        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-arrow-down"></i></div><div class="stat-value" id="totalReceived">TSh 0</div><div class="stat-label">Total Received</div></div>
+        <div class="stat-card"><div class="stat-icon agent"><i class="fas fa-wallet"></i></div><div class="stat-value balance-hidden" id="balance">TSh 0</div><div class="stat-label">Your Balance</div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-paper-plane"></i></div><div class="stat-value balance-hidden" id="totalSent">TSh 0</div><div class="stat-label">Total Sent</div></div>
+        <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-arrow-down"></i></div><div class="stat-value balance-hidden" id="totalReceived">TSh 0</div><div class="stat-label">Total Received</div></div>
         <div class="stat-card"><div class="stat-icon red"><i class="fas fa-bell"></i></div><div class="stat-value" id="unreadCount">0</div><div class="stat-label">New Notifications</div></div>
       </div>
       <div class="info-card"><i class="fas fa-info-circle"></i> Check <strong>Notifications</strong> for received money. After viewing, they move to <strong>Sent History</strong>.</div>
@@ -101,7 +132,6 @@
       <div class="form-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h3><i class="fas fa-bell"></i> New Received Money</h3><button class="btn btn-sm btn-primary" onclick="markAllAsRead()"><i class="fas fa-check-double"></i> Mark All Read</button></div><div class="transaction-list" id="unreadTransactions"></div></div>
     </div>
 
-    <!-- REQUEST BALANCE -->
     <div class="content-section" id="request-balance-section">
       <div class="form-card">
         <h3 style="margin-bottom:20px;"><i class="fas fa-hand-holding-usd"></i> Request Balance from Admin</h3>
@@ -138,23 +168,47 @@ import{getFirestore,doc,getDoc,setDoc,collection,getDocs,query,where,orderBy,onS
 const firebaseConfig={apiKey:"AIzaSyCifzsvcufqs-HOg_KDOzkUYoxsHhlTfN8",authDomain:"minibank-b76d6.firebaseapp.com",projectId:"minibank-b76d6",storageBucket:"minibank-b76d6.firebasestorage.app",messagingSenderId:"1076277480681",appId:"1:1076277480681:web:38592a2bd360ab7e7db478"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 let currentUser=null,agentData=null,foundClient=null,clientValid=false;
+let balanceVisible=false;
+
 const formatMoney=(val)=>'TSh '+new Intl.NumberFormat('en-TZ').format(Math.round(val||0));
 function generateAccountNumber(uid){if(!uid)return'---';let n='';for(let i=0;i<uid.length;i++){if(uid[i]>='0'&&uid[i]<='9')n+=uid[i];}while(n.length<10)n+='0';return n.substring(0,10);}
+
+// Balance Toggle
+const balanceToggleBtn=document.getElementById('balanceToggleBtn');
+function toggleAllBalances(){
+  balanceVisible=!balanceVisible;
+  const elements=document.querySelectorAll('.balance-hidden,.balance-visible');
+  const icon=balanceToggleBtn.querySelector('i');
+  elements.forEach(el=>{
+    if(balanceVisible){el.classList.remove('balance-hidden');el.classList.add('balance-visible');}
+    else{el.classList.remove('balance-visible');el.classList.add('balance-hidden');}
+  });
+  if(balanceVisible){icon.classList.remove('fa-eye-slash');icon.classList.add('fa-eye');balanceToggleBtn.title='Hide Balance';}
+  else{icon.classList.remove('fa-eye');icon.classList.add('fa-eye-slash');balanceToggleBtn.title='Show Balance';}
+}
+balanceToggleBtn.addEventListener('click',toggleAllBalances);
+
+let hideTimer;
+function resetHideTimer(){clearTimeout(hideTimer);if(balanceVisible){hideTimer=setTimeout(()=>{if(balanceVisible)toggleAllBalances();},30000);}}
+document.addEventListener('mousemove',resetHideTimer);
+document.addEventListener('keypress',resetHideTimer);
+document.addEventListener('click',resetHideTimer);
 
 onAuthStateChanged(auth,async(user)=>{if(!user){window.location.replace('index.html');return;}currentUser=user;try{const agentDoc=await getDoc(doc(db,"agents",user.uid));if(!agentDoc.exists()){const ud=await getDoc(doc(db,"users",user.uid));if(ud.exists()){window.location.replace('client-dashboard.html');return;}await signOut(auth);window.location.replace('index.html');return;}agentData=agentDoc.data();if(agentData.status!=='active'){alert('Pending approval.');await signOut(auth);window.location.replace('index.html');return;}if(!agentData.accountNumber){const acc=generateAccountNumber(user.uid);await updateDoc(doc(db,"agents",user.uid),{accountNumber:acc});agentData.accountNumber=acc;}document.getElementById('sidebarName').textContent=agentData.name||'Agent';document.getElementById('sidebarEmail').textContent=user.email;document.getElementById('sidebarInitials').textContent=(agentData.name||'AG').substring(0,2).toUpperCase();document.getElementById('sidebarAccountNumber').textContent=agentData.accountNumber||'---';document.getElementById('transferAccountNumber').textContent=agentData.accountNumber||'---';initRealtime();}catch(e){console.error(e);await signOut(auth);window.location.replace('index.html');}});
 
 function initRealtime(){
-  onSnapshot(doc(db,"agents",currentUser.uid),(doc)=>{if(doc.exists()){agentData=doc.data();document.getElementById('balance').textContent=formatMoney(agentData.balance||0);document.getElementById('sendBalance').textContent=formatMoney(agentData.balance||0);document.getElementById('requestCurrentBalance').textContent=formatMoney(agentData.balance||0);updateSendBtn();}});
+  onSnapshot(doc(db,"agents",currentUser.uid),(doc)=>{if(doc.exists()){agentData=doc.data();updateBalanceDisplay();updateSendBtn();}});
   const tq=query(collection(db,"transactions"),where("userEmail","==",currentUser.email),orderBy("timestamp","desc"));
   onSnapshot(tq,(snapshot)=>{
     const allTrans=[];snapshot.forEach(doc=>allTrans.push({id:doc.id,...doc.data()}));
     const totalSent=allTrans.filter(t=>t.type==='agent_transfer_out').reduce((s,t)=>s+t.amount,0);
     const totalReceived=allTrans.filter(t=>t.type==='agent_deposit'||t.type==='transfer_received'||t.type==='deposit').reduce((s,t)=>s+t.amount,0);
     document.getElementById('totalSent').textContent=formatMoney(totalSent);document.getElementById('totalReceived').textContent=formatMoney(totalReceived);
+    document.getElementById('topTotalSent').textContent=formatMoney(totalSent);document.getElementById('topTotalReceived').textContent=formatMoney(totalReceived);
     const unreadTrans=allTrans.filter(t=>(t.type==='agent_deposit'||t.type==='transfer_received')&&!t.read);
     document.getElementById('unreadCount').textContent=unreadTrans.length;const badge=document.getElementById('unreadBadge');
     if(unreadTrans.length>0){badge.textContent=unreadTrans.length;badge.style.display='inline';}else{badge.style.display='none';}
-    const renderItem=(t,showUnread)=>{let icon,cls,sign,title,note='';if(t.type==='agent_deposit'){icon='building-columns';cls='incoming';sign='+';title='FROM ADMIN';if(t.note)note=`<div class="transaction-note">📝 ${t.note}</div>`;}else if(t.type==='transfer_received'){icon='arrow-down';cls='incoming';sign='+';title=`FROM ${t.senderName||'USER'}`;if(t.senderName)note=`<div class="transaction-note">👤 ${t.senderName}</div>`;}else if(t.type==='agent_transfer_out'){icon='paper-plane';cls='outgoing';sign='-';title=`SENT TO ${t.clientName||'CLIENT'}`;if(t.clientName)note=`<div class="transaction-note">👤 ${t.clientName}</div>`;if(t.description)note=`<div class="transaction-note">📝 ${t.description}</div>`;}else{icon='exchange-alt';cls='incoming';sign='+';title=t.type.replace(/_/g,' ').toUpperCase();}const unreadClass=(showUnread&&!t.read)?'unread':'';const dot=(showUnread&&!t.read)?'<span class="unread-dot"></span>':'';return`<div class="transaction-item ${unreadClass}" onclick="markAsRead('${t.id}')"><div style="display:flex;align-items:center;gap:12px;"><div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div><div class="transaction-info"><div class="transaction-title">${dot}${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div></div><div class="transaction-amount ${cls==='outgoing'?'amount-negative':'amount-positive'}">${sign}${formatMoney(t.amount)}</div></div>`;};
+    const renderItem=(t,showUnread)=>{let icon,cls,sign,title,note='';if(t.type==='agent_deposit'){icon='building-columns';cls='incoming';sign='+';title='FROM ADMIN';if(t.note)note=`<div class="transaction-note">📝 ${t.note}</div>`;}else if(t.type==='transfer_received'){icon='arrow-down';cls='incoming';sign='+';title=`FROM ${t.senderName||'USER'}`;if(t.senderName)note=`<div class="transaction-note">👤 ${t.senderName}</div>`;}else if(t.type==='agent_transfer_out'){icon='paper-plane';cls='outgoing';sign='-';title=`SENT TO ${t.clientName||'CLIENT'}`;if(t.clientName)note=`<div class="transaction-note">👤 ${t.clientName}</div>`;if(t.description)note=`<div class="transaction-note">📝 ${t.description}</div>`;}else{icon='exchange-alt';cls='incoming';sign='+';title=t.type.replace(/_/g,' ').toUpperCase();}const unreadClass=(showUnread&&!t.read)?'unread':'';const dot=(showUnread&&!t.read)?'<span class="unread-dot"></span>':'';return`<div class="transaction-item ${unreadClass}" onclick="markAsRead('${t.id}')"><div style="display:flex;align-items:center;gap:12px;"><div class="transaction-icon ${cls}"><i class="fas fa-${icon}"></i></div><div class="transaction-info"><div class="transaction-title">${dot}${title}</div><div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>${note}</div></div><div class="transaction-amount ${cls==='outgoing'?'amount-negative':'amount-positive'} balance-hidden">${sign}${formatMoney(t.amount)}</div></div>`;};
     document.getElementById('recentTransactions').innerHTML=allTrans.slice(0,5).map(t=>renderItem(t,false)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No transactions</p>';
     document.getElementById('unreadTransactions').innerHTML=unreadTrans.map(t=>renderItem(t,true)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No new notifications 🎉</p>';
     const sentTrans=allTrans.filter(t=>t.type==='agent_transfer_out');document.getElementById('sentTransactions').innerHTML=sentTrans.map(t=>renderItem(t,false)).join('')||'<p style="color:var(--gray);text-align:center;padding:20px;">No sent transactions</p>';
@@ -162,49 +216,24 @@ function initRealtime(){
   loadAgentBalanceRequests();
 }
 
-function loadAgentBalanceRequests(){
-  const q=query(collection(db,"balanceRequests"),where("agentId","==",currentUser.uid),orderBy("timestamp","desc"));
-  onSnapshot(q,(snapshot)=>{
-    const reqs=[];snapshot.forEach(doc=>reqs.push({id:doc.id,...doc.data()}));
-    const container=document.getElementById('agentBalanceRequests');
-    if(!container)return;
-    if(reqs.length===0){container.innerHTML='<p style="color:var(--gray);text-align:center;padding:20px;">No requests yet</p>';return;}
-    container.innerHTML=reqs.map(r=>{
-      let statusClass,statusIcon;
-      if(r.status==='approved'){statusClass='status-approved';statusIcon='✅';}
-      else if(r.status==='declined'){statusClass='status-declined';statusIcon='❌';}
-      else{statusClass='status-pending';statusIcon='⏳';}
-      return`<div style="padding:14px;background:#f7fafc;border-radius:10px;margin-bottom:8px;border-left:4px solid ${r.status==='approved'?'var(--success)':r.status==='declined'?'var(--danger)':'var(--warning)'};"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>${formatMoney(r.amount)}</strong> <span class="request-status ${statusClass}">${statusIcon} ${r.status.toUpperCase()}</span></div><span style="font-size:0.8rem;color:var(--gray);">${new Date(r.timestamp).toLocaleDateString()}</span></div>${r.reason?`<p style="font-size:0.85rem;color:var(--gray);margin-top:4px;">📝 ${r.reason}</p>`:''}${r.adminNote&&r.status!=='pending'?`<p style="font-size:0.85rem;color:var(--gray);margin-top:4px;">👤 Admin: ${r.adminNote}</p>`:''}</div>`;
-    }).join('');
-  });
+function updateBalanceDisplay(){
+  document.getElementById('balance').textContent=formatMoney(agentData.balance||0);
+  document.getElementById('topBalance').textContent=formatMoney(agentData.balance||0);
+  document.getElementById('sendBalance').textContent=formatMoney(agentData.balance||0);
+  document.getElementById('requestCurrentBalance').textContent=formatMoney(agentData.balance||0);
 }
 
-// Navigation
+function loadAgentBalanceRequests(){
+  const q=query(collection(db,"balanceRequests"),where("agentId","==",currentUser.uid),orderBy("timestamp","desc"));
+  onSnapshot(q,(snapshot)=>{const reqs=[];snapshot.forEach(doc=>reqs.push({id:doc.id,...doc.data()}));const c=document.getElementById('agentBalanceRequests');if(!c)return;if(reqs.length===0){c.innerHTML='<p style="color:var(--gray);text-align:center;padding:20px;">No requests yet</p>';return;}c.innerHTML=reqs.map(r=>{let sc,si;if(r.status==='approved'){sc='status-approved';si='✅';}else if(r.status==='declined'){sc='status-declined';si='❌';}else{sc='status-pending';si='⏳';}return`<div style="padding:14px;background:#f7fafc;border-radius:10px;margin-bottom:8px;border-left:4px solid ${r.status==='approved'?'var(--success)':r.status==='declined'?'var(--danger)':'var(--warning)'};"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>${formatMoney(r.amount)}</strong> <span class="request-status ${sc}">${si} ${r.status.toUpperCase()}</span></div><span style="font-size:0.8rem;color:var(--gray);">${new Date(r.timestamp).toLocaleDateString()}</span></div>${r.reason?`<p style="font-size:0.85rem;color:var(--gray);margin-top:4px;">📝 ${r.reason}</p>`:''}${r.adminNote&&r.status!=='pending'?`<p style="font-size:0.85rem;color:var(--gray);margin-top:4px;">👤 Admin: ${r.adminNote}</p>`:''}</div>`;}).join('');});}
+
 document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));document.getElementById(`${item.dataset.section}-section`).classList.add('active');document.getElementById('pageTitle').textContent=item.textContent.trim().replace(/\d+/,'');if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('mobile-open');});});
 document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('mobile-open'));
 window.markAsRead=async(id)=>{await updateDoc(doc(db,"transactions",id),{read:true});};
 window.markAllAsRead=async()=>{const snap=await getDocs(query(collection(db,"transactions"),where("userEmail","==",currentUser.email),where("read","==",false)));snap.forEach(async(d)=>{await updateDoc(d.ref,{read:true});});alert('Marked!');};
 
-// Request Balance
-document.getElementById('submitBalanceRequestBtn').addEventListener('click',async()=>{
-  const amt=parseFloat(document.getElementById('requestBalanceAmount').value);
-  const reason=document.getElementById('requestBalanceReason').value.trim();
-  if(!amt||amt<=0){alert('Please enter a valid amount');return;}
-  if(!confirm(`Request ${formatMoney(amt)} from admin?\n\n${reason||'No reason provided'}`))return;
-  try{
-    await setDoc(doc(collection(db,"balanceRequests")),{
-      agentId:currentUser.uid,agentName:agentData?.name||'Agent',
-      agentEmail:currentUser.email,agentAccount:agentData?.accountNumber,
-      businessName:agentData?.businessName||'',amount:amt,reason,
-      status:'pending',timestamp:new Date().toISOString()
-    });
-    document.getElementById('requestBalanceAmount').value='';
-    document.getElementById('requestBalanceReason').value='';
-    alert('✅ Balance request sent to admin!');
-  }catch(e){alert('❌ Error: '+e.message);}
-});
+document.getElementById('submitBalanceRequestBtn').addEventListener('click',async()=>{const amt=parseFloat(document.getElementById('requestBalanceAmount').value);const reason=document.getElementById('requestBalanceReason').value.trim();if(!amt||amt<=0){alert('Please enter a valid amount');return;}if(!confirm(`Request ${formatMoney(amt)} from admin?\n\n${reason||'No reason provided'}`))return;try{await setDoc(doc(collection(db,"balanceRequests")),{agentId:currentUser.uid,agentName:agentData?.name||'Agent',agentEmail:currentUser.email,agentAccount:agentData?.accountNumber,businessName:agentData?.businessName||'',amount:amt,reason,status:'pending',timestamp:new Date().toISOString()});document.getElementById('requestBalanceAmount').value='';document.getElementById('requestBalanceReason').value='';alert('✅ Balance request sent to admin!');}catch(e){alert('❌ Error: '+e.message);}});
 
-// Client lookup
 document.getElementById('recipientAccount').addEventListener('input',async(e)=>{const acc=e.target.value.trim();if(acc.length<10){resetClientPreview();return;}try{const snap=await getDocs(collection(db,"users"));let found=null;snap.forEach(doc=>{if(doc.data().accountNumber===acc)found={id:doc.id,...doc.data()};});if(!found){resetClientPreview();document.getElementById('recipientNotFound').style.display='block';}else{foundClient=found;document.getElementById('recipientInitials').textContent=(found.name||'C').substring(0,2).toUpperCase();document.getElementById('recipientName').textContent=found.name||'Client';document.getElementById('recipientPreview').style.display='block';document.getElementById('recipientNotFound').style.display='none';clientValid=true;updateSendBtn();}}catch(e){console.error(e);}});
 function resetClientPreview(){document.getElementById('recipientPreview').style.display='none';document.getElementById('recipientNotFound').style.display='none';document.getElementById('sendMoneyBtn').disabled=true;foundClient=null;clientValid=false;}
 document.getElementById('sendAmount').addEventListener('input',updateSendBtn);
